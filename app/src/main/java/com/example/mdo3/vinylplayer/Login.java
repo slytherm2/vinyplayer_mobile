@@ -83,6 +83,7 @@ public class Login extends AppCompatActivity implements LoaderCallbacks<Cursor> 
             }
         });
 
+        /*
         Button signIn = (Button) findViewById(R.id.log_sign_in);
         signIn.setOnClickListener(new OnClickListener() {
             @Override
@@ -100,7 +101,7 @@ public class Login extends AppCompatActivity implements LoaderCallbacks<Cursor> 
                 //attemptLogin();
             }
         });
-
+*/
         mLoginFormView = findViewById(R.id.login_form);
         mProgressView = findViewById(R.id.login_progress);
     }
@@ -308,7 +309,8 @@ public class Login extends AppCompatActivity implements LoaderCallbacks<Cursor> 
      * Represents an asynchronous login/registration task used to authenticate
      * the user.
      */
-    public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
+    public class UserLoginTask extends AsyncTask<Void, Void, Boolean>
+    {
 
         private final String mEmail;
         private final String mPassword;
@@ -350,6 +352,20 @@ public class Login extends AppCompatActivity implements LoaderCallbacks<Cursor> 
             mAuthTask = null;
             showProgress(false);
         }
+    }
+
+    /** sign in button on the log in page */
+    public void signIn(View view)
+    {
+        Intent intent = new Intent(this, MainScreen.class);
+        startActivity(intent);
+    }
+
+    /** Sign up button on the log in page */
+    public void signUp(View view)
+    {
+        Intent intent = new Intent(this, SignUp.class);
+        startActivity(intent);
     }
 }
 
