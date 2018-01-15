@@ -30,6 +30,9 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.android.volley.RequestQueue;
+import com.android.volley.toolbox.Volley;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -354,11 +357,52 @@ public class Login extends AppCompatActivity implements LoaderCallbacks<Cursor> 
         }
     }
 
+    private static void sendPOST(String URL, String userName, String password) throws IOException {
+        @Override
+        protected String doInBackground(String... data) {
+            // Create a new HttpClient and Post Header
+            HttpClient httpclient = new DefaultHttpClient();
+            HttpPost httppost = new HttpPost("http://<ip address>:3000");
+
+            try {
+                //add data
+                List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(1);
+                nameValuePairs.add(new BasicNameValuePair("data", data[0]));
+                httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
+                //execute http post
+                HttpResponse response = httpclient.execute(httppost);
+
+            } catch (ClientProtocolException e) {
+
+            } catch (IOException e) {
+
+            }
+        }
+    }
+
     /** sign in button on the log in page */
     public void signIn(View view)
     {
-        Intent intent = new Intent(this, MainScreen.class);
-        startActivity(intent);
+        //sign in URL
+        final String signInURL = "https://vinyl-player-server.herokuapp.com/createUser";
+        Boolean authenticate = false;
+
+        //authenticate user w/ sign in
+        try
+        {
+          // sendPOST(signInURL,mEmailView.getText().toString(),mPasswordView.getText().toString());
+           authenticate = true;
+        } catch(Exception e) {
+            System.err.print("something wrong: " + e);
+        }
+
+        if (authenticate) {
+            Intent intent = new Intent(this, MainScreen.class);
+            startActivity(intent);
+        }
+        else{
+            System.out.println("authentication failed");
+        }
     }
 
     /** Sign up button on the log in page */
