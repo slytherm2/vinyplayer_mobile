@@ -392,6 +392,7 @@ public class Login extends AppCompatActivity implements LoaderCallbacks<Cursor> 
         {
           // sendPOST(signInURL,mEmailView.getText().toString(),mPasswordView.getText().toString());
            authenticate = true;
+           System.out.println("Authentication Granted");
         } catch(Exception e) {
             System.err.print("something wrong: " + e);
         }

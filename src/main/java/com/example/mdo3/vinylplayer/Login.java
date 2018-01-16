@@ -3,6 +3,7 @@ package com.example.mdo3.vinylplayer;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.support.annotation.NonNull;
@@ -20,6 +21,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -30,6 +32,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import org.apache.commons.net.util.Base64;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.ClientProtocolException;
@@ -43,16 +46,22 @@ import org.apache.http.message.BasicNameValuePair;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.SocketTimeoutException;
 import java.net.URL;
+import java.net.URLConnection;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.net.ssl.HttpsURLConnection;
 
 import static android.Manifest.permission.READ_CONTACTS;
 
@@ -97,21 +106,13 @@ public class Login extends AppCompatActivity implements LoaderCallbacks<Cursor> 
             }
         });
 
+        //TODO: remove commented code after finishing
         /*
         Button signIn = (Button) findViewById(R.id.log_sign_in);
         signIn.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
                 System.out.println("Sign in button pressed");
-                //attemptLogin();
-            }
-        });
-
-        Button signUp = (Button) findViewById(R.id.log_sign_up);
-        signUp.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                System.out.println("sign up button pressed");
                 //attemptLogin();
             }
         });
@@ -209,15 +210,11 @@ public class Login extends AppCompatActivity implements LoaderCallbacks<Cursor> 
             // Show a progress spinner, and kick off a background task to
             // perform the user login attempt.
             showProgress(true);
-            mAuthTask = new UserLoginTask(email, password);
+            mAuthTask = new UserLoginTask(email, password, this);
             mAuthTask.execute((Void) null);
         }
     }
 
-    /*
-    Attempts to create an account with the user credentials
-     */
-    private void createAccount(){}
 
     private boolean isEmailValid(String email) {
         //TODO: Replace this with your own logic
@@ -323,15 +320,18 @@ public class Login extends AppCompatActivity implements LoaderCallbacks<Cursor> 
      * Represents an asynchronous login/registration task used to authenticate
      * the user.
      */
+    //TODO: Convert to Login user vs. Create User
     public class UserLoginTask extends AsyncTask<Void, Void, Boolean>
     {
 
         private final String mEmail;
         private final String mPassword;
+        private Context context;
 
-        UserLoginTask(String email, String password) {
+        private UserLoginTask(String email, String password, Context context) {
             mEmail = email;
             mPassword = password;
+            this.context = context;
         }
 
         @Override
@@ -339,12 +339,53 @@ public class Login extends AppCompatActivity implements LoaderCallbacks<Cursor> 
 
             try {
 
-                Thread.sleep(2000);
-            } catch (InterruptedException e) {
-                System.err.print((e));
-                return false;
-            }
+                StringBuilder str = new StringBuilder();
+                str.append(URLEncoder.encode("email", "UTF-8"));
+                str.append("=");
+                str.append(URLEncoder.encode(mEmail, "UTF-8"));
+                str.append("&");
+                str.append(URLEncoder.encode("password", "UTF-8"));
+                str.append("=");
+                str.append(URLEncoder.encode(mPassword, "UTF-8"));
+                String postParams = str.toString();
 
+                URL url = new URL("https://vinyl-player-server.herokuapp.com/createUser");
+                HttpsURLConnection urlConnection =  (HttpsURLConnection) url.openConnection();
+                urlConnection.setDoOutput(true);
+                urlConnection.setRequestMethod("POST");
+                urlConnection.setDoInput(true);
+                urlConnection.setRequestProperty("Content-length", String.valueOf(postParams.length()));
+                urlConnection.setRequestProperty("Content-Type","application/x-www-form-urlencoded");
+                urlConnection.setRequestProperty("User-Agent", "Mozilla/5.0 (compatible; MSIE 5.0;Windows98;DigExt)");
+
+                OutputStream outputPost = new BufferedOutputStream((urlConnection.getOutputStream()));
+                BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(outputPost, "UTF-8"));
+                writer.write(postParams);
+                writer.flush();
+                writer.close();
+                outputPost.close();
+                urlConnection.connect();
+                Thread.sleep(2000);
+
+                System.out.println("POST code " + urlConnection.getResponseCode());
+                System.out.println(urlConnection.getResponseCode() == urlConnection.HTTP_OK);
+
+            } catch(MalformedURLException error) {
+                System.err.println("Malformed Problem: " + error);
+                return false;
+            } catch(SocketTimeoutException error) {
+                System.err.println("Socket Problem: " + error);
+                return false;
+            } catch (IOException error) {
+                System.err.println("IO Problem: " + error);
+                return false;
+            } catch (InterruptedException e) {
+                System.err.print("Interrupted Problem: " + e);
+                return false;
+            }catch(Exception e) {
+                 System.err.print("General Problem: " + e);
+                 return false;
+            }
             return true;
         }
 
@@ -353,11 +394,19 @@ public class Login extends AppCompatActivity implements LoaderCallbacks<Cursor> 
             mAuthTask = null;
             showProgress(false);
 
-            if (success) {
+            if (success)
+            {
                 finish();
-            } else {
+                Intent intent = new Intent(context, MainScreen.class);
+                startActivity(intent);
+            }
+            else
+            {
                 mPasswordView.setError(getString(R.string.error_incorrect_password));
                 mPasswordView.requestFocus();
+
+                Intent intent = new Intent(context, Login.class);
+                startActivity(intent);
             }
         }
 
@@ -368,108 +417,12 @@ public class Login extends AppCompatActivity implements LoaderCallbacks<Cursor> 
         }
     }
 
-/*
-    private static void sendPOST(String... data) throws IOException {
-        // Create a new HttpClient and Post Header
-        HttpClient httpclient = new DefaultHttpClient();
-        HttpPost httppost = new HttpPost("https://vinyl-player-server.herokuapp.com/createUser");
-
-        try {
-            //add data
-            List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(1);
-            nameValuePairs.add(new BasicNameValuePair("email", data[0]));
-            nameValuePairs.add(new BasicNameValuePair("password", data[1]));
-            httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
-
-            //execute http post
-            HttpResponse response = httpclient.execute(httppost);
-            Thread.sleep(5000);
-            System.out.println("The response is " + response.getEntity().getContent().toString());
-
-        } catch (ClientProtocolException e) {
-            System.err.println(e);
-        } catch (IOException e) {
-            System.err.println(e);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-
-    }*/
-
-
-    private static void sendPOST(String... data)  {
-
-        HttpURLConnection urlConnection = null;
-        String postParams = null;
-        StringBuilder str = null;
-        BufferedReader reader=null;
-        String text = "";
-        try {
-            URL url = new URL("https://vinyl-player-server.herokuapp.com/createUser");
-            urlConnection = (HttpURLConnection) url.openConnection();
-            urlConnection.setRequestMethod("POST");
-            urlConnection.setDoOutput(true);
-
-            str = new StringBuilder();
-            str.append("email=");
-            str.append(data[0]);
-            str.append("&");
-            str.append("password=");
-            str.append(data[1]);
-            postParams = str.toString();
-            OutputStream outputPost = urlConnection.getOutputStream();
-            outputPost.write(postParams.getBytes());
-            outputPost.flush();
-            outputPost.close();
-            Thread.sleep(10000);
-            reader = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
-            StringBuilder sb = new StringBuilder();
-            String line = null;
-            while((line = reader.readLine()) != null)
-            {
-                // Append server response in string
-                sb.append(line + "\n");
-            }
-            text = sb.toString();
-            System.out.println(text);
-
-        } catch(MalformedURLException error) {
-            System.err.println("Malformed exception: " + error);
-        } catch(SocketTimeoutException error) {
-            System.err.println("Scoket error: " + error);
-        } catch (IOException error) {
-            System.err.println("IO exception: " + error);
-        } catch (InterruptedException e) {
-            System.err.println("Interrupt: " + e);
-        } finally {
-            if (urlConnection != null) {
-                urlConnection.disconnect();
-            }
-        }
-    }
-
     /** sign in button on the log in page */
-    public void signIn(View view)
+    public void signIn(View view) throws InterruptedException
     {
-        //sign in URL
-        Boolean authenticate = false;
-
-        //authenticate user w/ sign in
-        try
-        {
-           sendPOST(mEmailView.getText().toString(),mPasswordView.getText().toString());
-           authenticate = true;
-        } catch(Exception e) {
-            System.err.print("something wrong: " + e);
-        }
-
-        if (authenticate) {
-            Intent intent = new Intent(this, MainScreen.class);
-            startActivity(intent);
-        }
-        else{
-            System.out.println("authentication failed");
-        }
+        System.out.println("Attempting to Authenticate");
+        attemptLogin();
+        System.out.println("Authentication Successful");
     }
 
     /** Sign up button on the log in page */
