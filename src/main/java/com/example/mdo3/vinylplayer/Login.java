@@ -106,17 +106,6 @@ public class Login extends AppCompatActivity implements LoaderCallbacks<Cursor> 
             }
         });
 
-        //TODO: remove commented code after finishing
-        /*
-        Button signIn = (Button) findViewById(R.id.log_sign_in);
-        signIn.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                System.out.println("Sign in button pressed");
-                //attemptLogin();
-            }
-        });
-*/
         mLoginFormView = findViewById(R.id.login_form);
         mProgressView = findViewById(R.id.login_progress);
     }
@@ -320,7 +309,6 @@ public class Login extends AppCompatActivity implements LoaderCallbacks<Cursor> 
      * Represents an asynchronous login/registration task used to authenticate
      * the user.
      */
-    //TODO: Convert to Login user vs. Create User
     public class UserLoginTask extends AsyncTask<Void, Void, Boolean>
     {
 
@@ -337,6 +325,8 @@ public class Login extends AppCompatActivity implements LoaderCallbacks<Cursor> 
         @Override
         protected Boolean doInBackground(Void... params) {
 
+            boolean urlResponse = false;
+
             try {
 
                 StringBuilder str = new StringBuilder();
@@ -349,7 +339,7 @@ public class Login extends AppCompatActivity implements LoaderCallbacks<Cursor> 
                 str.append(URLEncoder.encode(mPassword, "UTF-8"));
                 String postParams = str.toString();
 
-                URL url = new URL("https://vinyl-player-server.herokuapp.com/createUser");
+                URL url = new URL("https://vinyl-player-server.herokuapp.com/login");
                 HttpsURLConnection urlConnection =  (HttpsURLConnection) url.openConnection();
                 urlConnection.setDoOutput(true);
                 urlConnection.setRequestMethod("POST");
@@ -370,6 +360,11 @@ public class Login extends AppCompatActivity implements LoaderCallbacks<Cursor> 
                 System.out.println("POST code " + urlConnection.getResponseCode());
                 System.out.println(urlConnection.getResponseCode() == urlConnection.HTTP_OK);
 
+                if (urlConnection.getResponseCode() == urlConnection.HTTP_OK)
+                    urlResponse = true;
+                else
+                    urlResponse = false;
+
             } catch(MalformedURLException error) {
                 System.err.println("Malformed Problem: " + error);
                 return false;
@@ -386,7 +381,8 @@ public class Login extends AppCompatActivity implements LoaderCallbacks<Cursor> 
                  System.err.print("General Problem: " + e);
                  return false;
             }
-            return true;
+
+            return urlResponse;
         }
 
         @Override
@@ -404,9 +400,6 @@ public class Login extends AppCompatActivity implements LoaderCallbacks<Cursor> 
             {
                 mPasswordView.setError(getString(R.string.error_incorrect_password));
                 mPasswordView.requestFocus();
-
-                Intent intent = new Intent(context, Login.class);
-                startActivity(intent);
             }
         }
 
@@ -420,9 +413,7 @@ public class Login extends AppCompatActivity implements LoaderCallbacks<Cursor> 
     /** sign in button on the log in page */
     public void signIn(View view) throws InterruptedException
     {
-        System.out.println("Attempting to Authenticate");
         attemptLogin();
-        System.out.println("Authentication Successful");
     }
 
     /** Sign up button on the log in page */
