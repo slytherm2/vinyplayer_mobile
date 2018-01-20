@@ -19,7 +19,18 @@ import android.view.View;
 import android.widget.AutoCompleteTextView;
 import android.widget.EditText;
 
+import java.io.BufferedOutputStream;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.net.MalformedURLException;
+import java.net.SocketTimeoutException;
+import java.net.URL;
+import java.net.URLEncoder;
 import java.util.ArrayList;
+
+import javax.net.ssl.HttpsURLConnection;
 
 public class SignUp extends AppCompatActivity {
 
@@ -120,7 +131,64 @@ public class SignUp extends AppCompatActivity {
 
         @Override
         protected Boolean doInBackground(Void... voids) {
-            return true;
+            boolean urlResponse = false;
+
+            try {
+
+                StringBuilder str = new StringBuilder();
+                str.append(URLEncoder.encode("email", "UTF-8"));
+                str.append("=");
+                str.append(URLEncoder.encode(mEmail, "UTF-8"));
+                str.append("&");
+                str.append(URLEncoder.encode("password", "UTF-8"));
+                str.append("=");
+                str.append(URLEncoder.encode(mPassword, "UTF-8"));
+                String postParams = str.toString();
+
+                URL url = new URL("https://vinyl-player-server.herokuapp.com/createUser");
+                HttpsURLConnection urlConnection =  (HttpsURLConnection) url.openConnection();
+                urlConnection.setDoOutput(true);
+                urlConnection.setRequestMethod("POST");
+                urlConnection.setDoInput(true);
+                urlConnection.setRequestProperty("Content-length", String.valueOf(postParams.length()));
+                urlConnection.setRequestProperty("Content-Type","application/x-www-form-urlencoded");
+                urlConnection.setRequestProperty("User-Agent", "Mozilla/5.0 (compatible; MSIE 5.0;Windows98;DigExt)");
+
+                OutputStream outputPost = new BufferedOutputStream((urlConnection.getOutputStream()));
+                BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(outputPost, "UTF-8"));
+                writer.write(postParams);
+                writer.flush();
+                writer.close();
+                outputPost.close();
+                urlConnection.connect();
+                Thread.sleep(2000);
+
+                System.out.println("POST code " + urlConnection.getResponseCode());
+                System.out.println(urlConnection.getResponseCode() == urlConnection.HTTP_OK);
+
+                if (urlConnection.getResponseCode() == urlConnection.HTTP_OK)
+                    urlResponse = true;
+                else
+                    urlResponse = false;
+
+            } catch(MalformedURLException error) {
+                System.err.println("Malformed Problem: " + error);
+                return false;
+            } catch(SocketTimeoutException error) {
+                System.err.println("Socket Problem: " + error);
+                return false;
+            } catch (IOException error) {
+                System.err.println("IO Problem: " + error);
+                return false;
+            } catch (InterruptedException e) {
+                System.err.print("Interrupted Problem: " + e);
+                return false;
+            }catch(Exception e) {
+                System.err.print("General Problem: " + e);
+                return false;
+            }
+
+            return urlResponse;
         }
 
         @Override

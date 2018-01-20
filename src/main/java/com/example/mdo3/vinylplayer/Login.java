@@ -206,13 +206,35 @@ public class Login extends AppCompatActivity implements LoaderCallbacks<Cursor> 
 
 
     private boolean isEmailValid(String email) {
-        //TODO: Replace this with your own logic
-        return email.contains("@");
+        boolean endingValid = false;
+        boolean hasSymbol = false;
+
+        endingValid = CheckDomains(email);
+        hasSymbol = email.contains("@");
+
+        return (endingValid && hasSymbol);
     }
 
     private boolean isPasswordValid(String password) {
-        //TODO: Replace this with your own logic
-        return password.length() > 4;
+
+        boolean hasCap = false;
+        boolean hasNum = false;
+        boolean hasSize = false;
+
+        if (password.length() > 4 && password.length() < 15)
+            hasSize = true;
+
+        for (int i=0; i < password.length(); i++)
+        {
+            int temp = (int) password.charAt(i);
+
+            if (temp >= 65 && temp <= 90)
+                hasCap = true;
+            if (temp >= 48 && temp <= 57)
+                hasNum = true;
+        }
+
+        return (hasCap && hasNum && hasSize);
     }
 
     /**
@@ -421,6 +443,42 @@ public class Login extends AppCompatActivity implements LoaderCallbacks<Cursor> 
     {
         Intent intent = new Intent(this, SignUp.class);
         startActivity(intent);
+    }
+
+    public boolean CheckDomains(String temp)
+    {
+        String[] domains = {
+                "aol.com", "att.net", "comcast.net", "facebook.com", "gmail.com", "gmx.com", "googlemail.com",
+                "google.com", "hotmail.com", "hotmail.co.uk", "mac.com", "me.com", "mail.com", "msn.com",
+                "live.com", "sbcglobal.net", "verizon.net", "yahoo.com", "yahoo.co.uk",
+                "email.com", "fastmail.fm", "games.com", "gmx.net", "hush.com", "hushmail.com", "icloud.com",
+                "iname.com", "inbox.com", "lavabit.com", "love.com", "outlook.com", "pobox.com", "protonmail.com",
+                "rocketmail.com", "safe-mail.net", "wow.com", "ygm.com" /* AOL */,
+                "ymail.com", "zoho.com", "yandex.com",
+                "bellsouth.net", "charter.net", "cox.net", "earthlink.net", "juno.com",
+                "btinternet.com", "virginmedia.com", "blueyonder.co.uk", "freeserve.co.uk", "live.co.uk",
+                "ntlworld.com", "o2.co.uk", "orange.net", "sky.com", "talktalk.co.uk", "tiscali.co.uk",
+                "virgin.net", "wanadoo.co.uk", "bt.com",
+                "sina.com", "qq.com", "naver.com", "hanmail.net", "daum.net", "nate.com", "yahoo.co.jp", "yahoo.co.kr", "yahoo.co.id", "yahoo.co.in", "yahoo.com.sg", "yahoo.com.ph",
+                "hotmail.fr", "live.fr", "laposte.net", "yahoo.fr", "wanadoo.fr", "orange.fr", "gmx.fr", "sfr.fr", "neuf.fr", "free.fr",
+                "gmx.de", "hotmail.de", "live.de", "online.de", "t-online.de" /* T-Mobile */, "web.de", "yahoo.de",
+                "libero.it", "virgilio.it", "hotmail.it", "aol.it", "tiscali.it", "alice.it", "live.it", "yahoo.it", "email.it", "tin.it", "poste.it", "teletu.it",
+                "mail.ru", "rambler.ru", "yandex.ru", "ya.ru", "list.ru",
+                "hotmail.be", "live.be", "skynet.be", "voo.be", "tvcablenet.be", "telenet.be",
+                "hotmail.com.ar", "live.com.ar", "yahoo.com.ar", "fibertel.com.ar", "speedy.com.ar", "arnet.com.ar",
+                "yahoo.com.mx", "live.com.mx", "hotmail.es", "hotmail.com.mx", "prodigy.net.mx",
+                "yahoo.com.br", "hotmail.com.br", "outlook.com.br", "uol.com.br", "bol.com.br", "terra.com.br", "ig.com.br", "itelefonica.com.br", "r7.com", "zipmail.com.br", "globo.com", "globomail.com", "oi.com.br",
+                ".edu"
+        };
+
+        for (String str : domains)
+        {
+            if(temp.endsWith(str))
+            {
+                return true;
+            }
+        }
+        return false;
     }
 }
 
