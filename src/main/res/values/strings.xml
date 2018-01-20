@@ -1,0 +1,28 @@
+<resources>
+    <string name="app_name">VinylPlayer</string>
+
+    <!-- Strings related to login -->
+    <string name="prompt_email">Email</string>
+    <string name="prompt_password">Password</string>
+    <string name="action_sign_up">Sign Up</string>
+    <string name="action_sign_in">Sign In</string>
+    <string name="action_sign_in_short">Sign in</string>
+    <string name="action_cancel">Cancel</string>
+    <string name="label_name">Name</string>
+    <string name="label_password">Password</string>
+    <string name="label_email">Email</string>
+    <string name="label_Welcome">Welcome User</string>
+    <string name="label_user_info">User Info</string>
+    <string name="label_phone">012-345-6789</string>
+    <string name="label_address">1234 vinyl lane</string>
+    <string name="label_confirm_pass">Confirm Password</string>
+    <string name="label_city">City</string>
+    <string name="label_state">State</string>
+    <string name="error_invalid_email">This email address is invalid</string>
+    <string name="error_invalid_password">This password is too short</string>
+    <string name="error_incorrect_password">This password is incorrect</string>
+    <string name="error_field_required">This field is required</string>
+    <string name="permission_rationale">"Contacts permissions are needed for providing email
+        completions."
+    </string>
+</resources>
