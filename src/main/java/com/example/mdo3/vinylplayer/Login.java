@@ -86,6 +86,8 @@ public class Login extends AppCompatActivity implements LoaderCallbacks<Cursor> 
     private View mProgressView;
     private View mLoginFormView;
 
+    public static final String LOGIN_USER = "John Doe";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -416,6 +418,7 @@ public class Login extends AppCompatActivity implements LoaderCallbacks<Cursor> 
             {
                 finish();
                 Intent intent = new Intent(context, MainScreen.class);
+                intent.putExtra(LOGIN_USER, mEmailView.getText().toString());
                 startActivity(intent);
             }
             else

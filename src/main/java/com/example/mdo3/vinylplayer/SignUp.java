@@ -20,13 +20,16 @@ import android.widget.AutoCompleteTextView;
 import android.widget.EditText;
 
 import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.net.MalformedURLException;
 import java.net.SocketTimeoutException;
 import java.net.URL;
+import java.net.URLConnection;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 
@@ -34,7 +37,6 @@ import javax.net.ssl.HttpsURLConnection;
 
 public class SignUp extends AppCompatActivity {
 
-    private View logPass;
     private EditText inputEmail = null;
     private EditText inputPassword = null;
     private EditText inputPassword2 = null;
@@ -48,6 +50,7 @@ public class SignUp extends AppCompatActivity {
     private View mProgressView;
     private View mLoginFormView;
 
+    public static final String SIGNUP_USER = "Vinyl User";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -163,13 +166,14 @@ public class SignUp extends AppCompatActivity {
                 urlConnection.connect();
                 Thread.sleep(2000);
 
-                System.out.println("POST code " + urlConnection.getResponseCode());
-                System.out.println(urlConnection.getResponseCode() == urlConnection.HTTP_OK);
-
                 if (urlConnection.getResponseCode() == urlConnection.HTTP_OK)
                     urlResponse = true;
                 else
                     urlResponse = false;
+
+                System.out.println("POST code " + urlConnection.getResponseCode());
+                System.out.println(urlConnection.getResponseMessage());
+                getPostResponse(urlConnection);
 
             } catch(MalformedURLException error) {
                 System.err.println("Malformed Problem: " + error);
@@ -200,6 +204,8 @@ public class SignUp extends AppCompatActivity {
             {
                 finish();
                 Intent intent = new Intent(context, MainScreen.class);
+                intent.putExtra(SIGNUP_USER, inputEmail.getText().toString());
+
                 startActivity(intent);
             }
             else
@@ -359,5 +365,28 @@ public class SignUp extends AppCompatActivity {
             }
         }
         return false;
+    }
+
+    private void getPostResponse(URLConnection conn)
+    {
+        String inputLine = null;
+        BufferedReader in = null;
+        StringBuffer response = null;
+
+        try
+        {
+            in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+            response = new StringBuffer();
+
+            while ((inputLine = in.readLine()) != null) {
+                response.append(inputLine);
+            }
+            in.close();
+        } catch(IOException e)
+        {
+            System.err.print("IO Exception w/ Post Response " + e);
+        }
+
+        System.out.println("Response: " + response.toString());
     }
 }
