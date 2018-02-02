@@ -438,7 +438,11 @@ public class Login extends AppCompatActivity implements LoaderCallbacks<Cursor> 
     /** sign in button on the log in page */
     public void signIn(View view) throws InterruptedException
     {
-        attemptLogin();
+        //TODO: uncomment attemptLogin() and take away intent and start acitivty from method
+        //attemptLogin();
+        Intent intent = new Intent(this, MainScreen.class);
+        startActivity(intent);
+
     }
 
     /** Sign up button on the log in page */
