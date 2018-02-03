@@ -60,6 +60,7 @@ import java.net.URLConnection;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import javax.net.ssl.HttpsURLConnection;
 
@@ -85,8 +86,12 @@ public class Login extends AppCompatActivity implements LoaderCallbacks<Cursor> 
     private EditText mPasswordView;
     private View mProgressView;
     private View mLoginFormView;
+    private String sessionID = null;
+    private String userID = null;
 
     public static final String LOGIN_USER = "John Doe";
+    public static final String USER_ID = "12345";
+    public static final String SESSION_ID = "12345";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -363,8 +368,11 @@ public class Login extends AppCompatActivity implements LoaderCallbacks<Cursor> 
                 str.append(URLEncoder.encode(mPassword, "UTF-8"));
                 String postParams = str.toString();
 
-                URL url = new URL("https://vinyl-player-server.herokuapp.com/login");
-                HttpsURLConnection urlConnection =  (HttpsURLConnection) url.openConnection();
+                //TODO: Change from Local Host to Cloud
+                //URL url = new URL("https://vinyl-player-server.herokuapp.com/login");
+                //HttpsURLConnection urlConnection =  (HttpsURLConnection) url.openConnection();
+                URL url = new URL("http://192.168.56.1:3001/login");
+                HttpURLConnection urlConnection =  (HttpURLConnection) url.openConnection();
                 urlConnection.setDoOutput(true);
                 urlConnection.setRequestMethod("POST");
                 urlConnection.setDoInput(true);
@@ -381,13 +389,28 @@ public class Login extends AppCompatActivity implements LoaderCallbacks<Cursor> 
                 urlConnection.connect();
                 Thread.sleep(2000);
 
-                System.out.println("POST code " + urlConnection.getResponseCode());
-                System.out.println(urlConnection.getResponseCode() == urlConnection.HTTP_OK);
-
                 if (urlConnection.getResponseCode() == urlConnection.HTTP_OK)
                     urlResponse = true;
                 else
                     urlResponse = false;
+
+                Map<String, List<String>> cookies = urlConnection.getHeaderFields();
+                List cookieList = cookies.get("Set-Cookie");
+
+                for (Object lists : cookieList)
+                {
+                    String tempStr = null;
+                    if(lists.toString().startsWith("_vinylPlayer_sessionId"))
+                    {
+                        tempStr = lists.toString();
+                        sessionID = tempStr.substring(tempStr.indexOf("=")+1, tempStr.indexOf(";"));
+                    }
+                    if(lists.toString().startsWith("_vinylPlayer_userId"))
+                    {
+                        tempStr = lists.toString();
+                        userID = tempStr.substring(tempStr.indexOf("=")+1, tempStr.indexOf(";"));
+                    }
+                }
 
             } catch(MalformedURLException error) {
                 System.err.println("Malformed Problem: " + error);
@@ -419,6 +442,8 @@ public class Login extends AppCompatActivity implements LoaderCallbacks<Cursor> 
                 finish();
                 Intent intent = new Intent(context, MainScreen.class);
                 intent.putExtra(LOGIN_USER, mEmailView.getText().toString());
+                intent.putExtra(SESSION_ID, sessionID);
+                intent.putExtra(USER_ID, userID);
                 startActivity(intent);
             }
             else
@@ -439,9 +464,9 @@ public class Login extends AppCompatActivity implements LoaderCallbacks<Cursor> 
     public void signIn(View view) throws InterruptedException
     {
         //TODO: uncomment attemptLogin() and take away intent and start acitivty from method
-        //attemptLogin();
-        Intent intent = new Intent(this, MainScreen.class);
-        startActivity(intent);
+        attemptLogin();
+        //Intent intent = new Intent(this, MainScreen.class);
+        //startActivity(intent);
 
     }
 
