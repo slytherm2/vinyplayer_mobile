@@ -371,7 +371,7 @@ public class Login extends AppCompatActivity implements LoaderCallbacks<Cursor> 
                 //TODO: Change from Local Host to Cloud
                 //URL url = new URL("https://vinyl-player-server.herokuapp.com/login");
                 //HttpsURLConnection urlConnection =  (HttpsURLConnection) url.openConnection();
-                URL url = new URL("http://192.168.56.1:3001/login");
+                URL url = new URL("http://192.168.2.1:3001/login");
                 HttpURLConnection urlConnection =  (HttpURLConnection) url.openConnection();
                 urlConnection.setDoOutput(true);
                 urlConnection.setRequestMethod("POST");
@@ -381,7 +381,7 @@ public class Login extends AppCompatActivity implements LoaderCallbacks<Cursor> 
                 urlConnection.setRequestProperty("User-Agent", "Mozilla/5.0 (compatible; MSIE 5.0;Windows98;DigExt)");
 
                 OutputStream outputPost = new BufferedOutputStream((urlConnection.getOutputStream()));
-                BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(outputPost, "UTF-8"));
+                BufferedWriter writer = new Buf feredWriter(new OutputStreamWriter(outputPost, "UTF-8"));
                 writer.write(postParams);
                 writer.flush();
                 writer.close();

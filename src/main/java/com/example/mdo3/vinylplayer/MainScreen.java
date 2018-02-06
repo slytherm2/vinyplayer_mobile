@@ -41,6 +41,10 @@ public class MainScreen extends AppCompatActivity {
     private String userID = null;
     private String intentClass = null;
 
+    public void findDevices() {
+        BluetoothConnection bc = new BluetoothConnection();
+        bc.findDevices();
+    }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
