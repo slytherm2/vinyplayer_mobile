@@ -369,10 +369,10 @@ public class Login extends AppCompatActivity implements LoaderCallbacks<Cursor> 
                 String postParams = str.toString();
 
                 //TODO: Change from Local Host to Cloud
-                //URL url = new URL("https://vinyl-player-server.herokuapp.com/login");
-                //HttpsURLConnection urlConnection =  (HttpsURLConnection) url.openConnection();
-                URL url = new URL("http://192.168.56.1:3001/login");
-                HttpURLConnection urlConnection =  (HttpURLConnection) url.openConnection();
+                URL url = new URL("https://vinyl-player-server.herokuapp.com/login");
+                HttpsURLConnection urlConnection =  (HttpsURLConnection) url.openConnection();
+                //URL url = new URL("http://192.168.2.1:3001/login");
+                //HttpURLConnection urlConnection =  (HttpURLConnection) url.openConnection();
                 urlConnection.setDoOutput(true);
                 urlConnection.setRequestMethod("POST");
                 urlConnection.setDoInput(true);
