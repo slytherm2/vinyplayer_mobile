@@ -21,9 +21,11 @@ import static android.support.v4.app.ActivityCompat.startActivityForResult;
  */
 public class BluetoothConnection {
     public BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
+
+
     public void findDevices() {
         if(adapter == null) {
-            Log.d("Yo", "Device doesn't support bluetooth");
+            System.out.println("Device doesn't support bluetooth");
         }
         else if(!adapter.isEnabled()){
             Intent enableBTIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
@@ -31,10 +33,11 @@ public class BluetoothConnection {
         }
 
         Set<BluetoothDevice> pairedDevices = adapter.getBondedDevices();
-
+        System.out.println(pairedDevices.size());
         if(pairedDevices.size() > 0) {
             for (BluetoothDevice device : pairedDevices) {
                 String deviceName = device.getName();
+                System.out.println(deviceName);
                 if(deviceName.contains("Nord")) {
                     ConnectToDevice(device);
                 }

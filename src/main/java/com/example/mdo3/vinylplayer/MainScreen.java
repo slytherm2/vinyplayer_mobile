@@ -41,7 +41,8 @@ public class MainScreen extends AppCompatActivity {
     private String userID = null;
     private String intentClass = null;
 
-    public void findDevices() {
+    public void findDevices(View view) {
+        System.out.println("FindDevices");
         BluetoothConnection bc = new BluetoothConnection();
         bc.findDevices();
     }
