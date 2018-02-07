@@ -6,6 +6,7 @@ import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 import android.content.Intent;
 import android.util.Log;
+import android.view.View;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -21,6 +22,8 @@ import static android.support.v4.app.ActivityCompat.startActivityForResult;
  */
 public class BluetoothConnection {
     public BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
+
+
     public void findDevices() {
         if(adapter == null) {
             Log.d("Yo", "Device doesn't support bluetooth");
@@ -35,6 +38,7 @@ public class BluetoothConnection {
         if(pairedDevices.size() > 0) {
             for (BluetoothDevice device : pairedDevices) {
                 String deviceName = device.getName();
+                System.out.println(deviceName);
                 if(deviceName.contains("Nord")) {
                     ConnectToDevice(device);
                 }
