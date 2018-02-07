@@ -8,8 +8,8 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context="com.example.mdo3.vinylplayer.Login"
-    android:background="@drawable/login_back2">
+    tools:context="com.example.mdo3.vinylplayer.Login">
+    <!--android:background="@drawable/login_back2"-->
 
     <!-- Login progress -->
     <ProgressBar
@@ -33,27 +33,18 @@
 
             <android.support.design.widget.TextInputLayout
                 android:layout_width="match_parent"
-                android:layout_height="46dp"
-                android:backgroundTint="@android:color/background_dark"
-                android:textColorHint="@android:color/background_light"
-                android:visibility="visible">
+                android:layout_height="wrap_content"
+                android:textColorHint="@android:color/background_light">
 
                 <AutoCompleteTextView
                     android:id="@+id/log_email"
                     android:layout_width="match_parent"
-                    android:layout_height="31dp"
+                    android:layout_height="wrap_content"
                     android:background="@drawable/background"
-                    android:backgroundTint="@android:color/background_light"
-                    android:completionHint="@string/label_email"
                     android:hint="@string/prompt_email"
                     android:inputType="textEmailAddress"
                     android:maxLines="1"
                     android:singleLine="true"
-                    android:textAlignment="textStart"
-                    android:textColor="@android:color/background_dark"
-                    android:textColorHint="@android:color/black"
-                    android:textColorLink="@android:color/background_light"
-                    android:visibility="visible"
                     tools:text="@string/label_email" />
 
             </android.support.design.widget.TextInputLayout>
@@ -61,10 +52,7 @@
             <android.support.design.widget.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:backgroundTint="@android:color/background_dark"
-                android:baselineAligned="false"
-                android:textColorHint="@android:color/background_light"
-                android:visibility="visible">
+                android:textColorHint="@android:color/background_light">
 
                 <EditText
                     android:id="@+id/log_passwd"
@@ -81,10 +69,6 @@
                     android:paddingBottom="5dp"
                     android:paddingEnd="5dp"
                     android:singleLine="true"
-                    android:textColor="@android:color/black"
-                    android:textColorHint="@android:color/background_light"
-                    android:textColorLink="@android:color/background_light"
-                    android:visibility="visible"
                     tools:text="@string/label_password" />
 
             </android.support.design.widget.TextInputLayout>
