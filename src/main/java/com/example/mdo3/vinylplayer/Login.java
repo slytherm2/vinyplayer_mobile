@@ -214,7 +214,9 @@ public class Login extends AppCompatActivity implements LoaderCallbacks<Cursor> 
         endingValid = CheckDomains(email);
         hasSymbol = email.contains("@");
 
-        return (endingValid && hasSymbol);
+        //TODO: Uncomment
+        //return (endingValid && hasSymbol);
+        return true;
     }
 
     private boolean isPasswordValid(String password) {
@@ -236,7 +238,9 @@ public class Login extends AppCompatActivity implements LoaderCallbacks<Cursor> 
                 hasNum = true;
         }
 
-        return (hasCap && hasNum && hasSize);
+        //TODO: uncomment
+        //return (hasCap && hasNum && hasSize);
+        return true;
     }
 
     /**

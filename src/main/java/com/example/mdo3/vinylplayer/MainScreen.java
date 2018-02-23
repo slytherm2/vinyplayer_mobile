@@ -1,8 +1,11 @@
 package com.example.mdo3.vinylplayer;
 
+import android.app.Activity;
+import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.ColorStateList;
+import android.content.res.Resources;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
@@ -31,6 +34,9 @@ import javax.net.ssl.HttpsURLConnection;
 
 public class MainScreen extends AppCompatActivity {
 
+    private String vinylConnected = null;
+    private String vinylNotConnected = null;
+
     private String newTitle = null;
     private Intent intent = null;
     private Button btn = null;
@@ -41,15 +47,16 @@ public class MainScreen extends AppCompatActivity {
     private String userID = null;
     private String intentClass = null;
 
-    public void findDevices(View view) {
-        BluetoothConnection bc = new BluetoothConnection();
-        bc.findDevices();
-    }
+    private boolean DEBUG = true;
+    private int REQUEST_ENABLE_BT = 1;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_screen);
         intent = getIntent();   //get the intent of the previous activity
+        vinylConnected = getResources().getString(R.string.label_con);
+        vinylNotConnected =  getResources().getString(R.string.label_not_con);
 
         //get the user email from the previous activity (login/signup)
         String user = null;
@@ -85,6 +92,8 @@ public class MainScreen extends AppCompatActivity {
         btn = findViewById(R.id.main_stateBTN);
         btn.setBackgroundTintList(ColorStateList.valueOf(Color.RED));
 
+
+       /*
         //sets up the listview with items from the array
         //TODO: connect to database and pull information relating to the specific user
         String[] strValues = {"Martin", "Jonathan", "Lucy", "Cece", "Bob", "Linda", "Jonny", "Jim","Carol", "John"};
@@ -106,6 +115,7 @@ public class MainScreen extends AppCompatActivity {
                 System.out.println(yourData);
             }
         });
+        */
     }
 
     public class DatabaseTask extends AsyncTask<Void, Void, Boolean>
@@ -237,4 +247,31 @@ public class MainScreen extends AppCompatActivity {
         }
         return finalString;
     }
+
+    public void findDevices(View view)
+    {
+        Intent bt_intent = new Intent(this, BluetoothConnection.class);
+        startActivityForResult(bt_intent, REQUEST_ENABLE_BT);
+    }
+
+    protected void onActivityResult(int requestCode, int resultCode, Intent data)
+    {
+        if (DEBUG)
+            System.out.println("DEBUG: MainScreen onActivityResult()\n");
+
+        if (requestCode == 1)
+        {
+            if (resultCode == Activity.RESULT_OK)
+            {
+                btn = findViewById(R.id.main_stateBTN);
+                btn.setBackgroundTintList(ColorStateList.valueOf(Color.GREEN));
+                btn.setText(vinylConnected);
+
+            } else if (resultCode == Activity.RESULT_CANCELED)
+            {
+                System.out.println("User Disabled Bluetooth");
+            }
+        }
+    }
+
 }

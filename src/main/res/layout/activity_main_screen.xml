@@ -46,7 +46,7 @@
             android:background="@drawable/background"
             android:backgroundTint="@color/colorRed"
             android:onClick="findDevices"
-            android:text="@string/label_con" />
+            android:text="@string/label_not_con" />
 
         <android.support.design.widget.FloatingActionButton
             android:id="@+id/main_camera"
