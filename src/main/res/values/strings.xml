@@ -24,7 +24,11 @@
     <string name="error_invalid_password">This password is too short</string>
     <string name="error_incorrect_password">This password is incorrect</string>
     <string name="error_field_required">This field is required</string>
-    <string name="permission_rationale">"Contacts permissions are needed for providing email
-        completions."
-    </string>
+    <string name="permission_rationale">"Contacts permissions are needed for providing email completions."</string>
+    <string name="BT_LE_NotFound"> Bluetooth Low Energy Not Found </string>
+    <string name="BT_name">W.A.R.P.</string>
+    <string name="unknown_service">Unknown Services</string>
+    <string name="unknown_characteristic">Unknown Characteristics</string>
+    <string name="mc_address">FD:23:10:33:D4:37</string>
+
 </resources>

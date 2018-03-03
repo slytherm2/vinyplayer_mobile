@@ -248,9 +248,9 @@ public class MainScreen extends AppCompatActivity {
         return finalString;
     }
 
-    public void findDevices(View view)
+    public void startBT(View view)
     {
-        Intent bt_intent = new Intent(this, BluetoothConnection.class);
+        Intent bt_intent = new Intent(this, LowEnergyBlueTooth.class);
         startActivityForResult(bt_intent, REQUEST_ENABLE_BT);
     }
 
@@ -259,6 +259,7 @@ public class MainScreen extends AppCompatActivity {
         if (DEBUG)
             System.out.println("DEBUG: MainScreen onActivityResult()\n");
 
+        //request code 1 = Bluetooth
         if (requestCode == 1)
         {
             if (resultCode == Activity.RESULT_OK)
@@ -266,10 +267,11 @@ public class MainScreen extends AppCompatActivity {
                 btn = findViewById(R.id.main_stateBTN);
                 btn.setBackgroundTintList(ColorStateList.valueOf(Color.GREEN));
                 btn.setText(vinylConnected);
+                System.out.println("Connected to Bluetooth");
 
             } else if (resultCode == Activity.RESULT_CANCELED)
             {
-                System.out.println("User Disabled Bluetooth");
+                System.out.println("Unable to connect to Bluetooth");
             }
         }
     }
