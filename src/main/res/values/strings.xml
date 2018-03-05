@@ -11,7 +11,7 @@
     <string name="label_name">Name</string>
     <string name="label_password">Password</string>
     <string name="label_email">Email</string>
-    <string name="label_Welcome">Welcome "\n"</string>
+    <string name="label_Welcome">Vinyl Collection</string>
     <string name="label_user_info">User Info</string>
     <string name="label_phone">012-345-6789</string>
     <string name="label_address">1234 vinyl lane</string>
@@ -30,5 +30,20 @@
     <string name="unknown_service">Unknown Services</string>
     <string name="unknown_characteristic">Unknown Characteristics</string>
     <string name="mc_address">FD:23:10:33:D4:37</string>
+    <string name="title_activity_main_screen_beta">MainScreen_beta</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="user_email">user@gmail.com</string>
+    <string name="user">User</string>
+    <string name="nav_main_screen_image">User profile image</string>
+
+    <string name="action_settings">Settings</string>
+    <string name="profile">Profile</string>
+    <string name="add_device">Add Device</string>
+    <string name="search_records">Search Records</string>
+    <string name="camera_search">Camera Search</string>
+    <string name="manual_add">Manually Add Record</string>
+    <string name="log_out">Log Out</string>
 
 </resources>

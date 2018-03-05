@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_profile"
+            android:icon="@drawable/ic_menu_camera"
+            android:title="@string/profile" />
+        <item
+            android:id="@+id/nav_add_device"
+            android:icon="@drawable/ic_menu_manage"
+            android:title="@string/add_device" />
+        <item
+            android:id="@+id/nav_search_records"
+            android:icon="@drawable/ic_menu_manage"
+            android:title="@string/search_records" />
+        <item
+            android:id="@+id/nav_camera_search"
+            android:icon="@drawable/ic_menu_manage"
+            android:title="@string/camera_search" />
+        <item
+            android:id="@+id/nav_manual_add"
+            android:icon="@drawable/ic_menu_manage"
+            android:title="@string/manual_add" />
+        <item
+            android:id="@+id/nav_log_out"
+            android:icon="@drawable/ic_menu_manage"
+            android:title="@string/log_out" />
+    </group>
+</menu>

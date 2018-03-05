@@ -11,7 +11,15 @@
     <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-    <uses-feature android:name="android.hardware.bluetooth_le" android:required="false"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.CAMERA"/>
+
+    <uses-feature
+        android:name="android.hardware.bluetooth_le"
+        android:required="false" />
+    <uses-feature
+        android:name="android.hardware.camera"
+        android:required="false" />
 
     <application
         android:allowBackup="true"
@@ -19,7 +27,7 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme">
+        android:theme="@style/Theme.AppCompat.Light.NoActionBar">
 
         <activity
             android:name=".Login"
@@ -29,22 +37,16 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
-        <activity android:name=".MainScreen"
-            android:parentActivityName=".Login" >
+        <activity android:name=".MainScreen"/>
+        <activity
+            android:name=".SignUp"
+            android:parentActivityName=".Login">
         </activity>
+        <activity android:name=".LowEnergyBlueTooth" />
 
-        <activity android:name=".SignUp"
-            android:parentActivityName=".Login" >
-        </activity>
-
-        <activity android:name=".LowEnergyBlueTooth"/>
-
-       <!--
+        <!--
        Using only low energy in the application
         <activity android:name=".BluetoothConnection"/>
         -->
-
-
     </application>
 </manifest>

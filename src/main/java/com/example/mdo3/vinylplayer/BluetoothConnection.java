@@ -174,7 +174,6 @@ public class BluetoothConnection extends Activity
                 }
             }
 
-            //TODO: UNcomment
             //Intent returnIntent = new Intent();
             //setResult(Activity.RESULT_OK,returnIntent);
             //finish();
