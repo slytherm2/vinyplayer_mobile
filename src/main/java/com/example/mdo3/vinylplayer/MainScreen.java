@@ -188,10 +188,9 @@ public class MainScreen extends AppCompatActivity {
             @Override
             public void onClick(View view)
             {
-                /*
-                Snackbar.make(view, "Here's a Snackbar", Snackbar.LENGTH_LONG)
+
+                Snackbar.make(view, getResources().getString(R.string.launching_camera), Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
-                        */
 
                 //Manifest requires camera use, user must give permission to use camera.
                 //-1 = no camera permission
@@ -384,8 +383,10 @@ public class MainScreen extends AppCompatActivity {
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
+    public boolean onOptionsItemSelected(MenuItem item)
+    {
+        switch (item.getItemId())
+        {
             case android.R.id.home:
                 mDrawerLayout.openDrawer(GravityCompat.START);
                 return true;
@@ -397,9 +398,11 @@ public class MainScreen extends AppCompatActivity {
     //if granted, it will bring the user to the camera
     //if not, the user cannot use the camera feature
     @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults)
+    {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == ENABLE_CAMERA) {
+        if (requestCode == ENABLE_CAMERA)
+        {
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED)
             {
                 callCamera();

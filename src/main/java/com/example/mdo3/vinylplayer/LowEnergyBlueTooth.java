@@ -84,7 +84,7 @@ public class LowEnergyBlueTooth extends Activity {
         if (DEBUG) {System.out.println("DEBUG: OnCreate");}
 
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main_screen);
+        setContentView(R.layout.please_wait);
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         mHandler = new Handler();
 
@@ -158,6 +158,7 @@ public class LowEnergyBlueTooth extends Activity {
             @Override
             public void run() {
                 btleScanner.stopScan(mScanCallback);
+                returnToMain(FAILURE);
             }
         }, SCAN_PERIOD);
         btleScanner.startScan(createFilter(), createScanSettings(), mScanCallback);
@@ -225,7 +226,8 @@ public class LowEnergyBlueTooth extends Activity {
         finish();
     }
 
-    private void connectToDevice(BluetoothDevice device) {
+    private void connectToDevice(BluetoothDevice device)
+    {
 
         if (DEBUG) {System.out.println("DEBUG: Connecting to " + device.getName());}
 
@@ -251,18 +253,22 @@ public class LowEnergyBlueTooth extends Activity {
 
             } else if (newState == BluetoothProfile.STATE_DISCONNECTED)
             {
+                if (DEBUG) {System.out.println("DEBUG:Gatt Disconnected");}
                 intentAction = ACTION_GATT_DISCONNECTED;
                 mConnectionState = STATE_DISCONNECTED;
-                if (DEBUG) {System.out.println("DEBUG:Gatt Disconnected");}
+                returnToMain(FAILURE);
             }
         }
 
         public void onReadRemoteRssi(BluetoothGatt gatt, int rssi, int status)
         {
             if (DEBUG) {System.out.println("DEBUG: Inisde onReadRemoteRssi");}
-            if (status == BluetoothGatt.GATT_SUCCESS) {
+            if (status == BluetoothGatt.GATT_SUCCESS)
+            {
                 if (DEBUG) {System.out.println("DEBUG: GATT Sucess");}
-            } else {
+            }
+            else
+            {
             }
         };
 
