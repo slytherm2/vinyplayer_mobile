@@ -5,8 +5,11 @@ import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.app.LoaderManager.LoaderCallbacks;
@@ -52,6 +55,9 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.net.CookieHandler;
+import java.net.CookieManager;
+import java.net.HttpCookie;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.SocketTimeoutException;
@@ -60,6 +66,8 @@ import java.net.URLConnection;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import javax.net.ssl.HttpsURLConnection;
 
@@ -87,14 +95,18 @@ public class Login extends AppCompatActivity implements LoaderCallbacks<Cursor> 
     private View mLoginFormView;
 
     public static final String LOGIN_USER = "John Doe";
+    public static final String COOKIE_JAR = "list_of_cookies";
+    private ArrayList<String> cookieJar;
+
+
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState)
+    {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
         // Set up the login form.
         mEmailView = (AutoCompleteTextView) findViewById(R.id.log_email);
-        populateAutoComplete();
 
         mPasswordView = (EditText) findViewById(R.id.log_passwd);
         mPasswordView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
@@ -110,51 +122,8 @@ public class Login extends AppCompatActivity implements LoaderCallbacks<Cursor> 
 
         mLoginFormView = findViewById(R.id.login_form);
         mProgressView = findViewById(R.id.login_progress);
+        cookieJar = new ArrayList<>();
     }
-
-    private void populateAutoComplete() {
-        if (!mayRequestContacts()) {
-            return;
-        }
-
-        getLoaderManager().initLoader(0, null, this);
-    }
-
-    private boolean mayRequestContacts() {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
-            return true;
-        }
-        if (checkSelfPermission(READ_CONTACTS) == PackageManager.PERMISSION_GRANTED) {
-            return true;
-        }
-        if (shouldShowRequestPermissionRationale(READ_CONTACTS)) {
-            Snackbar.make(mEmailView, R.string.permission_rationale, Snackbar.LENGTH_INDEFINITE)
-                    .setAction(android.R.string.ok, new OnClickListener() {
-                        @Override
-                        @TargetApi(Build.VERSION_CODES.M)
-                        public void onClick(View v) {
-                            requestPermissions(new String[]{READ_CONTACTS}, REQUEST_READ_CONTACTS);
-                        }
-                    });
-        } else {
-            requestPermissions(new String[]{READ_CONTACTS}, REQUEST_READ_CONTACTS);
-        }
-        return false;
-    }
-
-    /**
-     * Callback received when a permissions request has been completed.
-     */
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
-                                           @NonNull int[] grantResults) {
-        if (requestCode == REQUEST_READ_CONTACTS) {
-            if (grantResults.length == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                populateAutoComplete();
-            }
-        }
-    }
-
 
     /*
     Attempts to sign in the user with the credentials
@@ -367,8 +336,11 @@ public class Login extends AppCompatActivity implements LoaderCallbacks<Cursor> 
                 str.append(URLEncoder.encode(mPassword, "UTF-8"));
                 String postParams = str.toString();
 
-                URL url = new URL("https://vinyl-player-server.herokuapp.com/login");
-                HttpsURLConnection urlConnection =  (HttpsURLConnection) url.openConnection();
+                //todo: change from local to server
+                URL url = new URL(getResources().getString(R.string.http_url_test_login));
+                //HttpsURLConnection urlConnection =  (HttpsURLConnection) url.openConnection();
+                HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+
                 urlConnection.setDoOutput(true);
                 urlConnection.setRequestMethod("POST");
                 urlConnection.setDoInput(true);
@@ -385,11 +357,37 @@ public class Login extends AppCompatActivity implements LoaderCallbacks<Cursor> 
                 urlConnection.connect();
                 Thread.sleep(2000);
 
-                System.out.println("POST code " + urlConnection.getResponseCode());
+                System.out.println("DEBUG: POST code " + urlConnection.getResponseCode());
                 System.out.println(urlConnection.getResponseCode() == urlConnection.HTTP_OK);
 
                 if (urlConnection.getResponseCode() == urlConnection.HTTP_OK)
+                {
+                    /*
+                    get the cookies from the post request
+                    get the header fields from the cookies "session id" and "User id"
+                    set value of the ids for next main_screen activity
+                     */
                     urlResponse = true;
+                    Map<String, List<String>> headerFields = urlConnection.getHeaderFields();
+                    List<String> cookieHeaders = headerFields.get(getResources().getString(R.string.cooke_header));
+
+                    if(cookieHeaders != null)
+                    {
+                        for (String cHeader : cookieHeaders)
+                        {
+                            System.out.println("DEBUG: " + cHeader);
+                            cookieJar.add(cHeader.substring(0, cHeader.indexOf(";")));
+                        }
+                    }
+
+                        //TODO: figure out logic for session id and cookies
+                        System.out.println("DEBUG: Committing to xml");
+                        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+                        SharedPreferences.Editor editor = preferences.edit();
+                        editor.putString(getResources().getString(R.string.session_id), cookieJar.get(0));
+                        editor.putString(getResources().getString(R.string.user_id), cookieJar.get(1));
+                        editor.commit();
+                }
                 else
                     urlResponse = false;
 
@@ -414,16 +412,15 @@ public class Login extends AppCompatActivity implements LoaderCallbacks<Cursor> 
         }
 
         @Override
-        protected void onPostExecute(final Boolean success) {
+        protected void onPostExecute(final Boolean success)
+        {
             mAuthTask = null;
             showProgress(false);
 
             if (success)
             {
-                finish();
-                Intent intent = new Intent(context, MainScreen.class);
-                intent.putExtra(LOGIN_USER, mEmailView.getText().toString());
-                startActivity(intent);
+                //Login was successful, bring user to home screen
+                callNextActivity();
             }
             else
             {
@@ -443,9 +440,9 @@ public class Login extends AppCompatActivity implements LoaderCallbacks<Cursor> 
     public void signIn(View view) throws InterruptedException
     {
         //TODO: uncomment attemptLogin() and take away intent and start acitivty from method
-        //attemptLogin();
-        Intent intent = new Intent(this, MainScreen.class);
-        startActivity(intent);
+        attemptLogin();
+        //Intent intent = new Intent(this, MainScreen.class);
+        //  startActivity(intent);
 
     }
 
@@ -490,5 +487,16 @@ public class Login extends AppCompatActivity implements LoaderCallbacks<Cursor> 
             }
         }
         return false;
+    }
+
+    //save user cookie informaiton : session id and user id
+    //start the next activity to the home page
+    private void callNextActivity()
+    {
+        finish();
+        Intent intent = new Intent(this, MainScreen.class);
+        intent.putExtra(LOGIN_USER, mEmailView.getText().toString());
+        intent.putStringArrayListExtra(COOKIE_JAR, cookieJar);
+        startActivity(intent);
     }
 }

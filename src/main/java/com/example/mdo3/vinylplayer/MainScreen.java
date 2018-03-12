@@ -37,6 +37,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.net.CookieManager;
+import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.SocketTimeoutException;
 import java.net.URL;
@@ -107,31 +109,6 @@ public class MainScreen extends AppCompatActivity {
         btn = findViewById(R.id.main_stateBTN);
         btn.setBackgroundTintList(ColorStateList.valueOf(Color.RED));
 
-
-       /*
-        //sets up the listview with items from the array
-        //TODO: connect to database and pull information relating to the specific user
-        String[] strValues = {"Martin", "Jonathan", "Lucy", "Cece", "Bob", "Linda", "Jonny", "Jim","Carol", "John"};
-        dbt = new DatabaseTask(this);
-        dbt.execute((Void) null);
-
-
-        listview = (ListView) findViewById(R.id.main_albumList);
-        list = new ArrayList<String>();
-        adapter = new ArrayAdapter(this, android.R.layout.simple_list_item_1, list);
-        listview.setAdapter(adapter);
-
-        //When an item on the list gets clicked on, do some action
-        //TODO: modify click to bring to music player
-        listview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view,int position, long id) {
-                String yourData = list.get(position);
-                System.out.println(yourData);
-            }
-        });
-        */
-
        //when we press the button on the tool bar menu
         mDrawerLayout = findViewById(R.id.drawer_layout);
         NavigationView navigationView = findViewById(R.id.nav_view);
@@ -158,30 +135,36 @@ public class MainScreen extends AppCompatActivity {
         actionbar.setHomeAsUpIndicator(R.drawable.ic_menu_black_24dp);
         mDrawerLayout = findViewById(R.id.drawer_layout);
         mDrawerLayout.addDrawerListener(
-                new DrawerLayout.DrawerListener(){
+                new DrawerLayout.DrawerListener()
+                {
                     @Override
-                    public void onDrawerSlide(View drawerView, float slideOffset) {
+                    public void onDrawerSlide(View drawerView, float slideOffset)
+                    {
                         // Respond when the drawer's position changes
                     }
 
                     @Override
-                    public void onDrawerOpened(View drawerView) {
+                    public void onDrawerOpened(View drawerView)
+                    {
                         // Respond when the drawer is opened
                     }
 
                     @Override
-                    public void onDrawerClosed(View drawerView) {
+                    public void onDrawerClosed(View drawerView)
+                    {
                         // Respond when the drawer is closed
                     }
 
                     @Override
-                    public void onDrawerStateChanged(int newState) {
+                    public void onDrawerStateChanged(int newState)
+                    {
                         // Respond when the drawer motion state changes
                     }
                 }
         );
 
         //camera action button
+        //see if user granted permission before launching camera
         FloatingActionButton fab = findViewById(R.id.main_camera);
         fab.setOnClickListener(new View.OnClickListener()
         {
@@ -208,6 +191,33 @@ public class MainScreen extends AppCompatActivity {
                 }
             }
         });
+
+
+        //sets up the listview with items from the array
+        //TODO: connect to database and pull information relating to the specific user
+        //dbt = new DatabaseTask(this);
+       // dbt.execute((Void) null);
+        String[] strValues = {"Martin", "Jonathan", "Lucy", "Cece", "Bob", "Linda", "Jonny", "Jim","Carol", "John", "Jacob", "Heimer"};
+        list = new ArrayList<String>();
+        for(String str : strValues)
+            list.add(str + "\n" + "Friend");
+
+
+        //When an item on the list gets clicked on, do some action
+        //TODO: modify click to bring to music player
+        //todo: include picture, album, artist
+        listview = (ListView) findViewById(R.id.main_albumList);
+        adapter = new ArrayAdapter(this, android.R.layout.simple_list_item_1, list);
+        listview.setAdapter(adapter);
+        listview.setOnItemClickListener(new AdapterView.OnItemClickListener()
+        {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view,int position, long id)
+            {
+                String yourData = list.get(position);
+                System.out.println("DEBUG: " + yourData);
+            }
+        });
     }
 
     public class DatabaseTask extends AsyncTask<Void, Void, Boolean>
@@ -215,27 +225,44 @@ public class MainScreen extends AppCompatActivity {
 
         private Context context;
 
-        private DatabaseTask(Context context) {
+        private DatabaseTask(Context context)
+        {
             this.context = context;
         }
 
         @Override
-        protected Boolean doInBackground(Void... params) {
+        protected Boolean doInBackground(Void... params)
+        {
 
             boolean urlResponse = false;
             String postParams = null;
             try {
 
-                System.out.println("Action: starting callout catalog");
-                URL url = new URL("https://vinyl-player-server.herokuapp.com/catalog");
-                HttpsURLConnection urlConnection =  (HttpsURLConnection) url.openConnection();
+                //todo : change url from local to main server
+                System.out.println("DEBUG: starting callout catalog");
+                URL url = new URL(getResources().getString(R.string.http_url_test_catalog));
+                //HttpsURLConnection urlConnection =  (HttpsURLConnection) url.openConnection();
+                HttpURLConnection urlConnection =  (HttpURLConnection) url.openConnection();
+
                 urlConnection.setDoOutput(true);
                 urlConnection.setRequestMethod("POST");
                 urlConnection.setDoInput(true);
-                //TODO: remove urlConnection.setRequestProperty("Content-length", String.valueOf(postParams.length()));
                 urlConnection.setRequestProperty("Content-Type","application/x-www-form-urlencoded");
                 urlConnection.setRequestProperty("User-Agent", "Mozilla/5.0 (compatible; MSIE 5.0;Windows98;DigExt)");
 
+
+                //TODO: add cookie and user session when comming from sign up page which would be a fresh cookie presumably
+                //TODO: save cookie to device
+                StringBuilder strBld = new StringBuilder();
+                if(Login.COOKIE_JAR != null)
+                {
+                    for(String cookies : intent.getStringArrayListExtra(Login.COOKIE_JAR))
+                    {
+                        strBld.append(cookies + ";");
+                    }
+
+                }
+                urlConnection.setRequestProperty("Cookie", strBld.toString());
                 /*
                 OutputStream outputPost = new BufferedOutputStream((urlConnection.getOutputStream()));
                 BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(outputPost, "UTF-8"));
@@ -245,16 +272,23 @@ public class MainScreen extends AppCompatActivity {
                 outputPost.close();
                 */
 
-
-                //setup cookie manager
                 urlConnection.connect();
                 Thread.sleep(2000);
 
                 if (urlConnection.getResponseCode() == urlConnection.HTTP_OK)
+                {
                     urlResponse = true;
+                    System.out.println("DEBUG: connection successful");
+                }
                 else
+                {
                     urlResponse = false;
+                    System.out.println("DEBUG: Connnection failed");
+                    System.out.println("DEBUG: " + urlConnection.getResponseCode());
+                    System.out.println("DEBUG: " + urlConnection.getResponseMessage());
+                }
 
+                System.out.println("DEBUG: Reading data from database");
                 String json_response = "";
                 String text = "";
                 InputStreamReader in = new InputStreamReader(urlConnection.getInputStream());
@@ -287,12 +321,13 @@ public class MainScreen extends AppCompatActivity {
         }
 
         @Override
-        protected void onPostExecute(final Boolean success) {
+        protected void onPostExecute(final Boolean success)
+        {
             dbt = null;
 
             if (success)
             {
-                finish();
+                //finish();
             }
             else
             {
@@ -300,7 +335,8 @@ public class MainScreen extends AppCompatActivity {
         }
 
         @Override
-        protected void onCancelled() {
+        protected void onCancelled()
+        {
             dbt = null;
         }
     }
@@ -310,9 +346,11 @@ public class MainScreen extends AppCompatActivity {
         String finalString = null;
         StringBuilder str = new StringBuilder();
 
-        try {
+        try
+        {
             int count = 0;
-            for (String temp : requests) {
+            for (String temp : requests)
+            {
                 str.append(URLEncoder.encode(temp, "UTF-8"));
                 if (count%2 == 0)
                 {

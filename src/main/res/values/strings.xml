@@ -42,6 +42,7 @@
     <string name="bt_conn_failed">Bluetooth Connection Failed</string>
     <string name="please_wait">Please Wait</string>
 
+    <!-- Hamburger menu Strings -->
     <string name="action_settings">Settings</string>
     <string name="profile">Profile</string>
     <string name="add_device">Add Device</string>
@@ -49,5 +50,16 @@
     <string name="camera_search">Camera Search</string>
     <string name="manual_add">Manually Add Record</string>
     <string name="log_out">Log Out</string>
+
+    <!-- HTTP data -->
+    <string name="https_url_login">https://vinyl-player-server.herokuapp.com/login</string>
+    <string name="https_url_catalog">https://vinyl-player-server.herokuapp.com/catalog</string>
+    <string name="cooke_header">Set-Cookie</string>
+    <string name="session_id">vinylPlayer_sessionId</string>
+    <string name="user_id">vinylPlayer_userId</string>
+
+    <!-- testing data -->
+    <string name="http_url_test_login">http://192.168.56.1:3001/login</string>
+    <string name="http_url_test_catalog">http://192.168.56.1:3001/catalog</string>
 
 </resources>
