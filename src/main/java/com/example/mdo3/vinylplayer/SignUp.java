@@ -37,6 +37,8 @@ import javax.net.ssl.HttpsURLConnection;
 
 public class SignUp extends AppCompatActivity {
 
+    //TODO: save cookie information when user signs in
+
     private EditText inputEmail = null;
     private EditText inputPassword = null;
     private EditText inputPassword2 = null;

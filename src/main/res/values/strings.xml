@@ -54,6 +54,8 @@
     <!-- HTTP data -->
     <string name="https_url_login">https://vinyl-player-server.herokuapp.com/login</string>
     <string name="https_url_catalog">https://vinyl-player-server.herokuapp.com/catalog</string>
+    <string name="https_url_getalbuminfo">https://vinyl-player-server.herokuapp.com/getAlbumInfo</string>
+    <string name="https_url_search">https://vinyl-player-server.herokuapp.com/search</string>
     <string name="cooke_header">Set-Cookie</string>
     <string name="session_id">vinylPlayer_sessionId</string>
     <string name="user_id">vinylPlayer_userId</string>
@@ -62,5 +64,7 @@
     <!-- testing data -->
     <string name="http_url_test_login">http://192.168.56.1:3001/login</string>
     <string name="http_url_test_catalog">http://192.168.56.1:3001/catalog</string>
+    <string name="http_url_test_getalbuminfo">http://192.168.56.1:3001/getAlbumInfo</string>
+    <string name="http_url_test_search">http://192.168.56.1:3001/search</string>
 
 </resources>

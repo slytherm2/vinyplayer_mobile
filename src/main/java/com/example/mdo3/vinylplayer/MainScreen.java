@@ -255,8 +255,6 @@ public class MainScreen extends AppCompatActivity {
                 urlConnection.setRequestProperty("User-Agent", "Mozilla/5.0 (compatible; MSIE 5.0;Windows98;DigExt)");
 
 
-                //TODO: add cookie and user session when comming from sign up page which would be a fresh cookie presumably
-                //TODO: save cookie to device
                 StringBuilder strBld = new StringBuilder();
                 SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
                 sessionID = preferences.getString(getResources().getString(R.string.session_id),"");
@@ -344,42 +342,6 @@ public class MainScreen extends AppCompatActivity {
         }
     }
 
-    private String createPost(ArrayList<String> requests)
-    {
-        String finalString = null;
-        StringBuilder str = new StringBuilder();
-
-        try
-        {
-            int count = 0;
-            for (String temp : requests)
-            {
-                str.append(URLEncoder.encode(temp, "UTF-8"));
-                if (count%2 == 0)
-                {
-                    str.append("=");
-                }
-                if(count%2 == 1)
-                {
-                    str.append("&");
-                }
-                count++;
-            }
-
-        } catch (IOException e)
-        {
-            System.err.println(e);
-        }
-
-        finalString = str.toString();
-        if (finalString.endsWith("&"))
-        {
-            int value = finalString.length();
-            char c = finalString.charAt(value);
-            finalString.replace(String.valueOf(c),"");
-        }
-        return finalString;
-    }
 
     public void startBT(View view)
     {

@@ -102,7 +102,7 @@ public class Login extends AppCompatActivity {
 
     private static final int COOKIE_FLAG = 1; //using cookie information
     private static final int USERINFO_FLAG = 2; //using user information
-    private static final int HTTP_TIMEOUT = 5000; //5 seconds
+    private static final int HTTP_TIMEOUT = 10000; //10 seconds
     private static final int THREAD_TIMEOUT = 2000;
 
     boolean errorFlag = false;
@@ -348,7 +348,9 @@ public class Login extends AppCompatActivity {
                 else
                 {
                     urlResponse = false;
-                    if(validCookies)
+                    //if no valid session stored, try logging in with user information
+                    //if username and password accepted, create new session
+                    if(mEmail != null && mPassword != null && validCookies)
                     {
                         System.out.println("DEBUG: Attempting second try with username and password");
                         urlConnection = createHttpRequest(mEmail,mPassword,USERINFO_FLAG);
@@ -367,6 +369,11 @@ public class Login extends AppCompatActivity {
                             System.out.println("DEBUG: unable to login ");
                             urlResponse = false;
                         }
+                    }
+                    //if no valid session stored in server, display connection failed
+                    else
+                    {
+                        errorFlag = true;
                     }
                 }
                 urlConnection.disconnect();
