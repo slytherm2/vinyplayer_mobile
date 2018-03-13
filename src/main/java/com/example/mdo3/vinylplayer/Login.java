@@ -55,6 +55,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.io.UnsupportedEncodingException;
 import java.net.CookieHandler;
 import java.net.CookieManager;
 import java.net.HttpCookie;
@@ -76,12 +77,7 @@ import static android.Manifest.permission.READ_CONTACTS;
 /**
  * A login screen that offers login via email/password.
  */
-public class Login extends AppCompatActivity implements LoaderCallbacks<Cursor> {
-
-    /**
-     * Id to identity READ_CONTACTS permission request.
-     */
-    private static final int REQUEST_READ_CONTACTS = 0;
+public class Login extends AppCompatActivity {
 
     /**
      * Keep track of the login task to ensure we can cancel it if requested.
@@ -95,41 +91,39 @@ public class Login extends AppCompatActivity implements LoaderCallbacks<Cursor> 
     private View mLoginFormView;
 
     public static final String LOGIN_USER = "John Doe";
-    public static final String COOKIE_JAR = "list_of_cookies";
     private ArrayList<String> cookieJar;
+    private boolean validCookies;
+    private String sessionId = null;
+    private String userId = null;
+    private static SharedPreferences preferences;
+    private static Map<String, List<String>> headerFields;
 
-
+    private static final int COOKIE_FLAG = 1; //using cookie information
+    private static final int USERINFO_FLAG = 2; //using user information
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+
         // Set up the login form.
         mEmailView = (AutoCompleteTextView) findViewById(R.id.log_email);
-
         mPasswordView = (EditText) findViewById(R.id.log_passwd);
-        mPasswordView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent) {
-                if (id == EditorInfo.IME_ACTION_DONE || id == EditorInfo.IME_NULL) {
-                    attemptLogin();
-                    return true;
-                }
-                return false;
-            }
-        });
-
         mLoginFormView = findViewById(R.id.login_form);
         mProgressView = findViewById(R.id.login_progress);
         cookieJar = new ArrayList<>();
+        validCookies = false;
+        preferences = PreferenceManager.getDefaultSharedPreferences(this);
     }
 
     /*
     Attempts to sign in the user with the credentials
      */
-    private void attemptLogin() {
-        if (mAuthTask != null) {
+    private void attemptLogin()
+    {
+        if (mAuthTask != null)
+        {
             return;
         }
 
@@ -145,28 +139,34 @@ public class Login extends AppCompatActivity implements LoaderCallbacks<Cursor> 
         View focusView = null;
 
         // Check for a valid password, if the user entered one.
-        if (!TextUtils.isEmpty(password) && !isPasswordValid(password)) {
+        if (!TextUtils.isEmpty(password) && !isPasswordValid(password))
+        {
             mPasswordView.setError(getString(R.string.error_invalid_password));
             focusView = mPasswordView;
             cancel = true;
         }
 
         // Check for a valid email address.
-        if (TextUtils.isEmpty(email)) {
+        if (TextUtils.isEmpty(email))
+        {
             mEmailView.setError(getString(R.string.error_field_required));
             focusView = mEmailView;
             cancel = true;
-        } else if (!isEmailValid(email)) {
+        } else if (!isEmailValid(email))
+        {
             mEmailView.setError(getString(R.string.error_invalid_email));
             focusView = mEmailView;
             cancel = true;
         }
 
-        if (cancel) {
+        if (cancel)
+        {
             // There was an error; don't attempt login and focus the first
             // form field with an error.
             focusView.requestFocus();
-        } else {
+        }
+        else
+        {
             // Show a progress spinner, and kick off a background task to
             // perform the user login attempt.
             showProgress(true);
@@ -176,7 +176,8 @@ public class Login extends AppCompatActivity implements LoaderCallbacks<Cursor> 
     }
 
 
-    private boolean isEmailValid(String email) {
+    private boolean isEmailValid(String email)
+    {
         boolean endingValid = false;
         boolean hasSymbol = false;
 
@@ -188,7 +189,8 @@ public class Login extends AppCompatActivity implements LoaderCallbacks<Cursor> 
         return true;
     }
 
-    private boolean isPasswordValid(String password) {
+    private boolean isPasswordValid(String password)
+    {
 
         boolean hasCap = false;
         boolean hasNum = false;
@@ -216,11 +218,13 @@ public class Login extends AppCompatActivity implements LoaderCallbacks<Cursor> 
      * Shows the progress UI and hides the login form.
      */
     @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
-    private void showProgress(final boolean show) {
+    private void showProgress(final boolean show)
+    {
         // On Honeycomb MR2 we have the ViewPropertyAnimator APIs, which allow
         // for very easy animations. If available, use these APIs to fade-in
         // the progress spinner.
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2)
+        {
             int shortAnimTime = getResources().getInteger(android.R.integer.config_shortAnimTime);
 
             mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
@@ -240,7 +244,9 @@ public class Login extends AppCompatActivity implements LoaderCallbacks<Cursor> 
                     mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
                 }
             });
-        } else {
+        }
+        else
+        {
             // The ViewPropertyAnimator APIs are not available, so simply show
             // and hide the relevant UI components.
             mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
@@ -248,59 +254,6 @@ public class Login extends AppCompatActivity implements LoaderCallbacks<Cursor> 
         }
     }
 
-    @Override
-    public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
-        return new CursorLoader(this,
-                // Retrieve data rows for the device user's 'profile' contact.
-                Uri.withAppendedPath(ContactsContract.Profile.CONTENT_URI,
-                        ContactsContract.Contacts.Data.CONTENT_DIRECTORY), ProfileQuery.PROJECTION,
-
-                // Select only email addresses.
-                ContactsContract.Contacts.Data.MIMETYPE +
-                        " = ?", new String[]{ContactsContract.CommonDataKinds.Email
-                .CONTENT_ITEM_TYPE},
-
-                // Show primary email addresses first. Note that there won't be
-                // a primary email address if the user hasn't specified one.
-                ContactsContract.Contacts.Data.IS_PRIMARY + " DESC");
-    }
-
-    @Override
-    public void onLoadFinished(Loader<Cursor> cursorLoader, Cursor cursor) {
-        List<String> emails = new ArrayList<>();
-        cursor.moveToFirst();
-        while (!cursor.isAfterLast()) {
-            emails.add(cursor.getString(ProfileQuery.ADDRESS));
-            cursor.moveToNext();
-        }
-
-        addEmailsToAutoComplete(emails);
-    }
-
-    @Override
-    public void onLoaderReset(Loader<Cursor> cursorLoader) {
-
-    }
-
-    private void addEmailsToAutoComplete(List<String> emailAddressCollection) {
-        //Create adapter to tell the AutoCompleteTextView what to show in its dropdown list.
-        ArrayAdapter<String> adapter =
-                new ArrayAdapter<>(Login.this,
-                        android.R.layout.simple_dropdown_item_1line, emailAddressCollection);
-
-        mEmailView.setAdapter(adapter);
-    }
-
-
-    private interface ProfileQuery {
-        String[] PROJECTION = {
-                ContactsContract.CommonDataKinds.Email.ADDRESS,
-                ContactsContract.CommonDataKinds.Email.IS_PRIMARY,
-        };
-
-        int ADDRESS = 0;
-        int IS_PRIMARY = 1;
-    }
 
     /**
      * Represents an asynchronous login/registration task used to authenticate
@@ -313,84 +266,91 @@ public class Login extends AppCompatActivity implements LoaderCallbacks<Cursor> 
         private final String mPassword;
         private Context context;
 
-        private UserLoginTask(String email, String password, Context context) {
+        private UserLoginTask(String email, String password, Context context)
+        {
             mEmail = email;
             mPassword = password;
             this.context = context;
         }
 
         @Override
-        protected Boolean doInBackground(Void... params) {
-
+        protected Boolean doInBackground(Void... params)
+        {
             boolean urlResponse = false;
+            HttpURLConnection urlConnection = null;
 
             try {
 
-                StringBuilder str = new StringBuilder();
-                str.append(URLEncoder.encode("email", "UTF-8"));
-                str.append("=");
-                str.append(URLEncoder.encode(mEmail, "UTF-8"));
-                str.append("&");
-                str.append(URLEncoder.encode("password", "UTF-8"));
-                str.append("=");
-                str.append(URLEncoder.encode(mPassword, "UTF-8"));
-                String postParams = str.toString();
+                //if user has cookies, login with cookies (contains session Id and user Id)
+                //if not, login with username and pass (create cookie from server)
+                if(hasCookies())
+                {
+                    urlConnection = createHttpRequest(mEmail, mPassword, COOKIE_FLAG);
+                    validCookies = true;
+                }
+                else
+                {
+                    urlConnection = createHttpRequest(mEmail, mPassword, USERINFO_FLAG);
+                    validCookies = false;
+                }
 
-                //todo: change from local to server
-                URL url = new URL(getResources().getString(R.string.http_url_test_login));
-                //HttpsURLConnection urlConnection =  (HttpsURLConnection) url.openConnection();
-                HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
-
-                urlConnection.setDoOutput(true);
-                urlConnection.setRequestMethod("POST");
-                urlConnection.setDoInput(true);
-                urlConnection.setRequestProperty("Content-length", String.valueOf(postParams.length()));
-                urlConnection.setRequestProperty("Content-Type","application/x-www-form-urlencoded");
-                urlConnection.setRequestProperty("User-Agent", "Mozilla/5.0 (compatible; MSIE 5.0;Windows98;DigExt)");
-
-                OutputStream outputPost = new BufferedOutputStream((urlConnection.getOutputStream()));
-                BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(outputPost, "UTF-8"));
-                writer.write(postParams);
-                writer.flush();
-                writer.close();
-                outputPost.close();
-                urlConnection.connect();
-                Thread.sleep(2000);
+                if(urlConnection != null)
+                {
+                    urlConnection.connect();
+                    Thread.sleep(2000);
+                }
+                else
+                {
+                    return false;
+                }
 
                 System.out.println("DEBUG: POST code " + urlConnection.getResponseCode());
                 System.out.println(urlConnection.getResponseCode() == urlConnection.HTTP_OK);
 
+                //If user sucessfully log in with cookie, no further action required
+                //if user sucessfully log in with username and password, save the cookie information from server
+                //if user failed to login with cookie, login with username and pass, save cookie info
+                //if user failed to login with username and pass, return to main screen
                 if (urlConnection.getResponseCode() == urlConnection.HTTP_OK)
                 {
                     /*
-                    get the cookies from the post request
-                    get the header fields from the cookies "session id" and "User id"
-                    set value of the ids for next main_screen activity
+                    success: save cookies information
+                    success: if it already exist, don't do anything
                      */
                     urlResponse = true;
-                    Map<String, List<String>> headerFields = urlConnection.getHeaderFields();
-                    List<String> cookieHeaders = headerFields.get(getResources().getString(R.string.cooke_header));
-
-                    if(cookieHeaders != null)
+                    if(!validCookies)
                     {
-                        for (String cHeader : cookieHeaders)
-                        {
-                            System.out.println("DEBUG: " + cHeader);
-                            cookieJar.add(cHeader.substring(0, cHeader.indexOf(";")));
-                        }
+                        System.out.println("DEBUG: Successful login w/ username and password");
+                        headerFields = urlConnection.getHeaderFields();
+                        saveCookieInfo(headerFields);
                     }
-
-                        //TODO: figure out logic for session id and cookies
-                        System.out.println("DEBUG: Committing to xml");
-                        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
-                        SharedPreferences.Editor editor = preferences.edit();
-                        editor.putString(getResources().getString(R.string.session_id), cookieJar.get(0));
-                        editor.putString(getResources().getString(R.string.user_id), cookieJar.get(1));
-                        editor.commit();
+                    System.out.println("DEBUG: Successful login w/ cookie");
                 }
                 else
+                {
                     urlResponse = false;
+                    if(validCookies)
+                    {
+                        System.out.println("DEBUG: Attempting second try with username and password");
+                        urlConnection = createHttpRequest(mEmail,mPassword,USERINFO_FLAG);
+                        urlConnection.connect();
+                        Thread.sleep(2000);
 
+                        if(urlConnection.getResponseCode() == urlConnection.HTTP_OK)
+                        {
+                            System.out.println("DEBUG: Successful login 2nd attempt, saving cookie information");
+                            urlResponse = true;
+                           headerFields = urlConnection.getHeaderFields();
+                            saveCookieInfo(headerFields);
+                        }
+                        else
+                        {
+                            System.out.println("DEBUG: unable to login ");
+                            urlResponse = false;
+                        }
+                    }
+                }
+                urlConnection.disconnect();
             } catch(MalformedURLException error) {
                 System.err.println("Malformed Problem: " + error);
                 return false;
@@ -407,7 +367,6 @@ public class Login extends AppCompatActivity implements LoaderCallbacks<Cursor> 
                  System.err.print("General Problem: " + e);
                  return false;
             }
-
             return urlResponse;
         }
 
@@ -420,7 +379,10 @@ public class Login extends AppCompatActivity implements LoaderCallbacks<Cursor> 
             if (success)
             {
                 //Login was successful, bring user to home screen
-                callNextActivity();
+                finish();
+                Intent intent = new Intent(context, MainScreen.class);
+                intent.putExtra(LOGIN_USER, mEmailView.getText().toString());
+                startActivity(intent);
             }
             else
             {
@@ -439,11 +401,7 @@ public class Login extends AppCompatActivity implements LoaderCallbacks<Cursor> 
     /** sign in button on the log in page */
     public void signIn(View view) throws InterruptedException
     {
-        //TODO: uncomment attemptLogin() and take away intent and start acitivty from method
         attemptLogin();
-        //Intent intent = new Intent(this, MainScreen.class);
-        //  startActivity(intent);
-
     }
 
     /** Sign up button on the log in page */
@@ -489,14 +447,115 @@ public class Login extends AppCompatActivity implements LoaderCallbacks<Cursor> 
         return false;
     }
 
-    //save user cookie informaiton : session id and user id
-    //start the next activity to the home page
-    private void callNextActivity()
+    //check for previously saved cookies from the application
+    private boolean hasCookies()
     {
-        finish();
-        Intent intent = new Intent(this, MainScreen.class);
-        intent.putExtra(LOGIN_USER, mEmailView.getText().toString());
-        intent.putStringArrayListExtra(COOKIE_JAR, cookieJar);
-        startActivity(intent);
+        System.out.println("DEBUG: Checking XML");
+        sessionId = preferences.getString(getResources().getString(R.string.session_id),null);
+        userId = preferences.getString(getResources().getString(R.string.user_id), null);
+
+        if(sessionId != null && userId != null)
+        {
+            System.out.println("DEBUG: cookies are available");
+            return true;
+        }
+        System.out.println("DEBUG: no cookies available");
+        return false;
+    }
+
+    //Flag = 1 : create http request with cookie information
+    //flag = 2 : create hhtp request with user name and password
+    private HttpURLConnection createHttpRequest(String mEmail, String mPassword, int flag)
+    {
+        try
+        {
+            //todo: change from local to server
+            URL url = new URL(getResources().getString(R.string.http_url_test_login));
+            //HttpsURLConnection urlConnection =  (HttpsURLConnection) url.openConnection();
+            HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+
+            urlConnection.setDoOutput(true);
+            urlConnection.setDoInput(true);
+            urlConnection.setRequestMethod("POST");
+            urlConnection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+            urlConnection.setRequestProperty("User-Agent", "Mozilla/5.0 (compatible; MSIE 5.0;Windows98;DigExt)");
+
+            //Creating http request with cookie
+            if(flag == 1)
+            {
+                StringBuilder str = new StringBuilder();
+                str.append(sessionId);
+                str.append(";");
+                str.append(userId);
+                urlConnection.setRequestProperty("Cookie", str.toString());
+            }
+            //creating http request with username and password
+            else if(flag == 2)
+            {
+                String postParams = null;
+                StringBuilder str = new StringBuilder();
+                str.append(URLEncoder.encode("email", "UTF-8"));
+                str.append("=");
+                str.append(URLEncoder.encode(mEmail, "UTF-8"));
+                str.append("&");
+                str.append(URLEncoder.encode("password", "UTF-8"));
+                str.append("=");
+                str.append(URLEncoder.encode(mPassword, "UTF-8"));
+                postParams = str.toString();
+
+                urlConnection.setRequestProperty("Content-length", String.valueOf(postParams.length()));
+                OutputStream outputPost = new BufferedOutputStream((urlConnection.getOutputStream()));
+                BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(outputPost, "UTF-8"));
+                writer.write(postParams);
+                writer.flush();
+                writer.close();
+                outputPost.close();
+            }
+            return urlConnection;
+        }
+        catch(MalformedURLException error)
+        {
+            System.err.println("Malformed Problem: " + error);
+            return null;
+        }
+        catch(SocketTimeoutException error)
+        {
+            System.err.println("Socket Problem: " + error);
+            return null;
+        }
+        catch (IOException error)
+        {
+            System.err.println("IO Problem: " + error);
+            return null;
+        }
+        catch(Exception e)
+        {
+            System.err.print("General Problem: " + e);
+            return null;
+        }
+    }
+
+    //Cookie information is stored in....
+    //Emulator : View > Tool Window > Device File Explorer
+    //Emulator :data is stored inside data > data > com.example.mdo3.vinylplayer > shared_prefs >
+    //Emulator: com.example.mdo3.vinylplayer _preferences.xml
+    //On physical device...
+    //TBD
+    private void saveCookieInfo( Map<String, List<String>> headerFields)
+    {
+        SharedPreferences.Editor editor = preferences.edit();
+        List<String> cookieHeaders = headerFields.get(getResources().getString(R.string.cooke_header));
+
+        if (cookieHeaders != null)
+        {
+            for (String cHeader : cookieHeaders)
+            {
+                cookieJar.add(cHeader.substring(0, cHeader.indexOf(";")));
+            }
+        }
+        editor.putString(getResources().getString(R.string.session_id), cookieJar.get(0));
+        editor.putString(getResources().getString(R.string.user_id), cookieJar.get(1));
+        editor.commit();
+        System.out.println("DEBUG: Successfully saved Cookie Information");
     }
 }

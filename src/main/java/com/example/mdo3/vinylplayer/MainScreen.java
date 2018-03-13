@@ -5,12 +5,14 @@ import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.os.AsyncTask;
+import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
@@ -60,13 +62,15 @@ public class MainScreen extends AppCompatActivity {
     private DatabaseTask dbt = null;
     private ArrayList<String> list = null;
     private ArrayAdapter adapter = null;
-    private String userID = null;
     private String intentClass = null;
     private DrawerLayout mDrawerLayout;
 
     private boolean DEBUG = true;
     private int REQUEST_ENABLE_BT = 1;
     private int ENABLE_CAMERA = 2;
+
+    private String sessionID = null;
+    private String userID = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -254,15 +258,14 @@ public class MainScreen extends AppCompatActivity {
                 //TODO: add cookie and user session when comming from sign up page which would be a fresh cookie presumably
                 //TODO: save cookie to device
                 StringBuilder strBld = new StringBuilder();
-                if(Login.COOKIE_JAR != null)
-                {
-                    for(String cookies : intent.getStringArrayListExtra(Login.COOKIE_JAR))
-                    {
-                        strBld.append(cookies + ";");
-                    }
+                SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+                sessionID = preferences.getString(getResources().getString(R.string.session_id),"");
+                userID = preferences.getString(getResources().getString(R.string.user_id),"");
 
-                }
-                urlConnection.setRequestProperty("Cookie", strBld.toString());
+                if(userID != null && sessionID != null)
+                    urlConnection.setRequestProperty("Cookie", strBld.toString());
+                else
+                    return false;
                 /*
                 OutputStream outputPost = new BufferedOutputStream((urlConnection.getOutputStream()));
                 BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(outputPost, "UTF-8"));
