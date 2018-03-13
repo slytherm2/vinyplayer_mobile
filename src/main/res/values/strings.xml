@@ -57,6 +57,7 @@
     <string name="cooke_header">Set-Cookie</string>
     <string name="session_id">vinylPlayer_sessionId</string>
     <string name="user_id">vinylPlayer_userId</string>
+    <string name="conn_error">Connection Timed Out</string>
 
     <!-- testing data -->
     <string name="http_url_test_login">http://192.168.56.1:3001/login</string>

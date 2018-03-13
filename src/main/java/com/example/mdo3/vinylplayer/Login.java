@@ -34,6 +34,7 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.apache.commons.net.util.Base64;
 import org.apache.http.HttpResponse;
@@ -97,9 +98,14 @@ public class Login extends AppCompatActivity {
     private String userId = null;
     private static SharedPreferences preferences;
     private static Map<String, List<String>> headerFields;
+    private boolean isUserLoggedIn;
 
     private static final int COOKIE_FLAG = 1; //using cookie information
     private static final int USERINFO_FLAG = 2; //using user information
+    private static final int HTTP_TIMEOUT = 5000; //5 seconds
+    private static final int THREAD_TIMEOUT = 2000;
+
+    boolean errorFlag = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -115,6 +121,16 @@ public class Login extends AppCompatActivity {
         cookieJar = new ArrayList<>();
         validCookies = false;
         preferences = PreferenceManager.getDefaultSharedPreferences(this);
+        isUserLoggedIn = false;
+
+        //if user already has valid cookie
+        //automatically sign user into application
+        if(hasCookies())
+        {
+            showProgress(true);
+            mAuthTask = new UserLoginTask(null, null, this);
+            mAuthTask.execute((Void) null);
+        }
     }
 
     /*
@@ -139,7 +155,7 @@ public class Login extends AppCompatActivity {
         View focusView = null;
 
         // Check for a valid password, if the user entered one.
-        if (!TextUtils.isEmpty(password) && !isPasswordValid(password))
+        if (password.isEmpty() && !isPasswordValid(password))
         {
             mPasswordView.setError(getString(R.string.error_invalid_password));
             focusView = mPasswordView;
@@ -184,9 +200,7 @@ public class Login extends AppCompatActivity {
         endingValid = CheckDomains(email);
         hasSymbol = email.contains("@");
 
-        //TODO: Uncomment
-        //return (endingValid && hasSymbol);
-        return true;
+        return (endingValid && hasSymbol);
     }
 
     private boolean isPasswordValid(String password)
@@ -208,10 +222,7 @@ public class Login extends AppCompatActivity {
             if (temp >= 48 && temp <= 57)
                 hasNum = true;
         }
-
-        //TODO: uncomment
-        //return (hasCap && hasNum && hasSize);
-        return true;
+        return (hasCap && hasNum && hasSize);
     }
 
     /**
@@ -254,7 +265,6 @@ public class Login extends AppCompatActivity {
         }
     }
 
-
     /**
      * Represents an asynchronous login/registration task used to authenticate
      * the user.
@@ -277,6 +287,7 @@ public class Login extends AppCompatActivity {
         protected Boolean doInBackground(Void... params)
         {
             boolean urlResponse = false;
+            errorFlag = false;
             HttpURLConnection urlConnection = null;
 
             try {
@@ -288,7 +299,7 @@ public class Login extends AppCompatActivity {
                     urlConnection = createHttpRequest(mEmail, mPassword, COOKIE_FLAG);
                     validCookies = true;
                 }
-                else
+                else if (mEmail != null && mPassword != null)
                 {
                     urlConnection = createHttpRequest(mEmail, mPassword, USERINFO_FLAG);
                     validCookies = false;
@@ -297,10 +308,11 @@ public class Login extends AppCompatActivity {
                 if(urlConnection != null)
                 {
                     urlConnection.connect();
-                    Thread.sleep(2000);
+                    Thread.sleep(THREAD_TIMEOUT);
                 }
                 else
                 {
+                    System.out.println("DEBUG: urlConnection == null");
                     return false;
                 }
 
@@ -311,7 +323,8 @@ public class Login extends AppCompatActivity {
                 //if user sucessfully log in with username and password, save the cookie information from server
                 //if user failed to login with cookie, login with username and pass, save cookie info
                 //if user failed to login with username and pass, return to main screen
-                if (urlConnection.getResponseCode() == urlConnection.HTTP_OK)
+                int responseCode = urlConnection.getResponseCode();
+                if (responseCode == urlConnection.HTTP_OK)
                 {
                     /*
                     success: save cookies information
@@ -324,7 +337,13 @@ public class Login extends AppCompatActivity {
                         headerFields = urlConnection.getHeaderFields();
                         saveCookieInfo(headerFields);
                     }
+                }
+                //Cookie has been accepted by the server
+                //HTTP_ACCEPTED = user has been logged in
+                else if (responseCode == urlConnection.HTTP_ACCEPTED)
+                {
                     System.out.println("DEBUG: Successful login w/ cookie");
+                    urlResponse = true;
                 }
                 else
                 {
@@ -334,7 +353,7 @@ public class Login extends AppCompatActivity {
                         System.out.println("DEBUG: Attempting second try with username and password");
                         urlConnection = createHttpRequest(mEmail,mPassword,USERINFO_FLAG);
                         urlConnection.connect();
-                        Thread.sleep(2000);
+                        Thread.sleep(THREAD_TIMEOUT);
 
                         if(urlConnection.getResponseCode() == urlConnection.HTTP_OK)
                         {
@@ -351,21 +370,16 @@ public class Login extends AppCompatActivity {
                     }
                 }
                 urlConnection.disconnect();
-            } catch(MalformedURLException error) {
-                System.err.println("Malformed Problem: " + error);
+            }
+            catch(IOException e)
+            {
+                System.out.println("IOException : " + e);
                 return false;
-            } catch(SocketTimeoutException error) {
-                System.err.println("Socket Problem: " + error);
+            }
+            catch(InterruptedException e)
+            {
+                System.out.println("Interrupted Exception : " + e);
                 return false;
-            } catch (IOException error) {
-                System.err.println("IO Problem: " + error);
-                return false;
-            } catch (InterruptedException e) {
-                System.err.print("Interrupted Problem: " + e);
-                return false;
-            }catch(Exception e) {
-                 System.err.print("General Problem: " + e);
-                 return false;
             }
             return urlResponse;
         }
@@ -379,20 +393,25 @@ public class Login extends AppCompatActivity {
             if (success)
             {
                 //Login was successful, bring user to home screen
-                finish();
-                Intent intent = new Intent(context, MainScreen.class);
-                intent.putExtra(LOGIN_USER, mEmailView.getText().toString());
-                startActivity(intent);
+                startNextActivity();
             }
             else
             {
-                mPasswordView.setError(getString(R.string.error_incorrect_password));
-                mPasswordView.requestFocus();
+                if(errorFlag)
+                {
+                    Toast.makeText(context, getResources().getString(R.string.conn_error), Toast.LENGTH_LONG).show();
+                }
+                else
+                {
+                    mPasswordView.setError(getString(R.string.error_incorrect_password));
+                    mPasswordView.requestFocus();
+                }
             }
         }
 
         @Override
-        protected void onCancelled() {
+        protected void onCancelled()
+        {
             mAuthTask = null;
             showProgress(false);
         }
@@ -479,6 +498,8 @@ public class Login extends AppCompatActivity {
             urlConnection.setRequestMethod("POST");
             urlConnection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
             urlConnection.setRequestProperty("User-Agent", "Mozilla/5.0 (compatible; MSIE 5.0;Windows98;DigExt)");
+            urlConnection.setConnectTimeout(HTTP_TIMEOUT);
+            urlConnection.setReadTimeout(HTTP_TIMEOUT);
 
             //Creating http request with cookie
             if(flag == 1)
@@ -521,16 +542,12 @@ public class Login extends AppCompatActivity {
         catch(SocketTimeoutException error)
         {
             System.err.println("Socket Problem: " + error);
+            errorFlag = true;
             return null;
         }
         catch (IOException error)
         {
             System.err.println("IO Problem: " + error);
-            return null;
-        }
-        catch(Exception e)
-        {
-            System.err.print("General Problem: " + e);
             return null;
         }
     }
@@ -557,5 +574,13 @@ public class Login extends AppCompatActivity {
         editor.putString(getResources().getString(R.string.user_id), cookieJar.get(1));
         editor.commit();
         System.out.println("DEBUG: Successfully saved Cookie Information");
+    }
+
+    private void startNextActivity()
+    {
+        finish();
+        Intent intent = new Intent(this, MainScreen.class);
+        intent.putExtra(LOGIN_USER, mEmailView.getText().toString());
+        startActivity(intent);
     }
 }
