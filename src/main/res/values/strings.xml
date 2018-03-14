@@ -65,6 +65,10 @@
     <string name="http_url_test_login">http://192.168.56.1:3001/login</string>
     <string name="http_url_test_catalog">http://192.168.56.1:3001/catalog</string>
     <string name="http_url_test_getalbuminfo">http://192.168.56.1:3001/getAlbumInfo</string>
+    <string name="http_url_test_addalbum">http://192.168.56.1:3001/addAlbum</string>
     <string name="http_url_test_search">http://192.168.56.1:3001/search</string>
+    <string name="http_url_test_search_id">http://192.168.56.1:3001/search/:id</string>
+    <string name="http_url_test_records_id">http://192.168.56.1:3001/records/:id</string>
+    <string name="http_url_test_create_user">http://192.168.56.1:3001/createUser</string>
 
 </resources>

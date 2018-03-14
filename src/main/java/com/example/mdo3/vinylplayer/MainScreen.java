@@ -49,7 +49,8 @@ import java.util.ArrayList;
 
 import javax.net.ssl.HttpsURLConnection;
 
-public class MainScreen extends AppCompatActivity {
+public class MainScreen extends AppCompatActivity
+{
 
     private String vinylConnected = null;
     private String vinylNotConnected = null;
@@ -113,12 +114,15 @@ public class MainScreen extends AppCompatActivity {
         btn = findViewById(R.id.main_stateBTN);
         btn.setBackgroundTintList(ColorStateList.valueOf(Color.RED));
 
-       //when we press the button on the tool bar menu
+       //Deals with the items inside the navigation drawer aka hamburger menu
+        //best to use fragments when working with the navigation drawer
         mDrawerLayout = findViewById(R.id.drawer_layout);
         NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(
-                new NavigationView.OnNavigationItemSelectedListener() {
-                    public boolean onNavigationItemSelected(MenuItem menuItem) {
+                new NavigationView.OnNavigationItemSelectedListener()
+                {
+                    public boolean onNavigationItemSelected(MenuItem menuItem)
+                    {
                         // set item as selected to persist highlight
                         menuItem.setChecked(true);
                         // close drawer when item is tapped
@@ -127,11 +131,12 @@ public class MainScreen extends AppCompatActivity {
                         // Add code here to update the UI based on the item selected
                         // For example, swap UI fragments here
 
+                        System.out.println("DEBUG: " + menuItem.getTitle() + "has been pressed");
                         return true;
                     }
                 });
 
-        //the tool bar that includes the hamburger menu
+        //deals with the nav menu bar or hamburger menu
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         ActionBar actionbar = getSupportActionBar();
