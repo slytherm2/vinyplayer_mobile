@@ -78,6 +78,10 @@ import static android.Manifest.permission.READ_CONTACTS;
 /**
  * A login screen that offers login via email/password.
  */
+
+//TODO: how to pass the bluetooth class among different activities
+    //TODO: connecting to bluetooth device
+    //todo: fragements for nav menu bar
 public class Login extends AppCompatActivity {
 
     /**
@@ -495,10 +499,13 @@ public class Login extends AppCompatActivity {
     {
         try
         {
-            //todo: change from local to server
-            URL url = new URL(getResources().getString(R.string.http_url_test_login));
-            //HttpsURLConnection urlConnection =  (HttpsURLConnection) url.openConnection();
-            HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+            //local server
+            //URL url = new URL(getResources().getString(R.string.http_url_test_login));
+            //HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+
+            //Remote server
+            URL url = new URL(getResources().getString(R.string.https_url_login));
+            HttpsURLConnection urlConnection =  (HttpsURLConnection) url.openConnection();
 
             urlConnection.setDoOutput(true);
             urlConnection.setDoInput(true);

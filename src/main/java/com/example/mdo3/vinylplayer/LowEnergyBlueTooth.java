@@ -7,6 +7,7 @@ import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCallback;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattDescriptor;
+import android.bluetooth.BluetoothGattService;
 import android.bluetooth.BluetoothProfile;
 import android.bluetooth.BluetoothSocket;
 import android.bluetooth.le.BluetoothLeScanner;
@@ -14,6 +15,8 @@ import android.bluetooth.le.ScanCallback;
 import android.bluetooth.le.ScanFilter;
 import android.bluetooth.le.ScanResult;
 import android.bluetooth.le.ScanSettings;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
@@ -25,6 +28,7 @@ import android.support.v4.app.ActivityCompat;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -41,7 +45,7 @@ public class LowEnergyBlueTooth extends Activity {
 
     //Constants
     private static final int REQUEST_ENABLE_BT = 1;
-    private static final long SCAN_PERIOD = 10000; //10secs
+    private static final long SCAN_PERIOD = 100000; //10secs
     private static final int MY_PERMISSIONS_REQUEST_ACCESS_COARSE_LOCATION = 1;
     private static final int SUCCESS = 2;
     private static final int FAILURE = 1;
@@ -57,10 +61,10 @@ public class LowEnergyBlueTooth extends Activity {
     private BluetoothGatt mBluetoothGatt = null;
 
     //Bluetooth UUID
-    private UUID SERVICE_UUID = UUID.fromString("795090c7-420d-4048-a24e-18e60180e23c");
-    private UUID CHARACTERISTIC_COUNTER_UUID = UUID.fromString("31517c58-66bf-470c-b662-e352a6c80cba");
-    private UUID CHARACTERISTIC_INTERACTOR_UUID = UUID.fromString("0b89d2d4-0ea6-4141-86bb-0c5fb91ab14a");
-    private UUID DESCRIPTOR_CONFIG_UUID = UUID.fromString("00002902-0000-1000-8000-00805f9b34fb");
+    private final static UUID SERVICE_UUID =
+                        UUID.fromString("37313364-3030-3030-2d35-3033652d3463");
+    //Service : 00002a05-0000-1000-8000-00805f9b34fb
+    //Some other UUID : 37313364-3030-3030-2d35-3033652d3463
 
     public final static String ACTION_GATT_CONNECTED =
             "com.example.bluetooth.le.ACTION_GATT_CONNECTED";
@@ -75,12 +79,12 @@ public class LowEnergyBlueTooth extends Activity {
     public final static String EXTRA_DATA =
             "com.example.bluetooth.le.EXTRA_DATA";
 
+
     private boolean DEBUG = true;
 
     @Override
     public void onCreate(Bundle savedInstanceState)
     {
-
         if (DEBUG) {System.out.println("DEBUG: OnCreate");}
 
         super.onCreate(savedInstanceState);
@@ -154,9 +158,11 @@ public class LowEnergyBlueTooth extends Activity {
         btleScanner = mBluetoothAdapter.getBluetoothLeScanner();
 
         // Stops scanning after a pre-defined scan period.
-        mHandler.postDelayed(new Runnable() {
+        mHandler.postDelayed(new Runnable()
+        {
             @Override
-            public void run() {
+            public void run()
+            {
                 btleScanner.stopScan(mScanCallback);
                 returnToMain(FAILURE);
             }
@@ -233,7 +239,7 @@ public class LowEnergyBlueTooth extends Activity {
 
         cancelAdapterDiscovery(mBluetoothAdapter);
         btleScanner.stopScan(mScanCallback);
-        mBluetoothGatt = device.connectGatt(this, false, mGattCallback);
+        mBluetoothGatt = device.connectGatt(this, true, mGattCallback);
     }
 
     private final BluetoothGattCallback mGattCallback = new BluetoothGattCallback()
@@ -249,6 +255,10 @@ public class LowEnergyBlueTooth extends Activity {
                 if (DEBUG) {System.out.println("DEBUG: Gatt Connected");}
                 intentAction = ACTION_GATT_CONNECTED;
                 mConnectionState = STATE_CONNECTED;
+
+                if (DEBUG) {System.out.println("DEBUG:Discovering Services");}
+                gatt.discoverServices();
+
                 returnToMain(SUCCESS);
 
             } else if (newState == BluetoothProfile.STATE_DISCONNECTED)
@@ -260,38 +270,42 @@ public class LowEnergyBlueTooth extends Activity {
             }
         }
 
+        @Override
+        public void onServicesDiscovered(BluetoothGatt gatt, int status)
+        {
+            System.out.println(DEBUG ? "DEBUG: onServicesDiscovered()" : "");
+            String str = "Do you hear me Houson?";
+            byte[] strBytes = str.getBytes();
+
+            if (status != BluetoothGatt.GATT_SUCCESS)
+            {
+                if (DEBUG) {System.out.println("DEBUG: Bluetooth Gat Status Failed");}
+                return;
+            }
+
+            List<BluetoothGattService> services = gatt.getServices();
+            for (BluetoothGattService service : services)
+            {
+               send(service,SERVICE_UUID, strBytes);
+            }
+        }
+
+        @Override
+        public void onDescriptorWrite(BluetoothGatt gatt, BluetoothGattDescriptor descriptor, int status)
+        {
+            System.out.println("DEBUG: onDescriptorWrite()");
+        }
+
+        @Override
         public void onReadRemoteRssi(BluetoothGatt gatt, int rssi, int status)
         {
             if (DEBUG) {System.out.println("DEBUG: Inisde onReadRemoteRssi");}
             if (status == BluetoothGatt.GATT_SUCCESS)
             {
-                if (DEBUG) {System.out.println("DEBUG: GATT Sucess");}
             }
             else
             {
             }
-        };
-
-        @Override
-        public void onServicesDiscovered(BluetoothGatt gatt, int status) {
-            if (status != BluetoothGatt.GATT_SUCCESS) {
-                // Handle the error
-                return;
-            }
-
-            // Get the counter characteristic
-            BluetoothGattCharacteristic characteristic = gatt
-                    .getService(SERVICE_UUID)
-                    .getCharacteristic(CHARACTERISTIC_COUNTER_UUID);
-
-            // Enable notifications for this characteristic locally
-            gatt.setCharacteristicNotification(characteristic, true);
-
-            // Write on the config descriptor to be notified when the value changes
-            BluetoothGattDescriptor descriptor =
-                    characteristic.getDescriptor(DESCRIPTOR_CONFIG_UUID);
-            descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
-            gatt.writeDescriptor(descriptor);
         }
 
         @Override
@@ -302,7 +316,6 @@ public class LowEnergyBlueTooth extends Activity {
             if (DEBUG) {System.out.println("DEBUG: onCharacteristicRead");}
             if (status == BluetoothGatt.GATT_SUCCESS)
             {
-                if (DEBUG) {System.out.println("DEBUG: GATT Success");}
             }
             else
             {
@@ -310,29 +323,16 @@ public class LowEnergyBlueTooth extends Activity {
         }
 
         private void readCounterCharacteristic(BluetoothGattCharacteristic
-                                                       characteristic) {
-            if (CHARACTERISTIC_COUNTER_UUID.equals(characteristic.getUuid())) {
-                byte[] data = characteristic.getValue();
-              //  int value = Ints.fromByteArray(data);
-                // Update UI
-            }
+                                                       characteristic)
+        {
+            System.out.println(DEBUG? "DEBUG: readCounterCharacteristics()" : "");
         }
 
         @Override
         public void onCharacteristicChanged(BluetoothGatt gatt,
                                             BluetoothGattCharacteristic characteristic)
         {
-        }
-
-        @Override
-        public void onDescriptorWrite(BluetoothGatt gatt,
-                                      BluetoothGattDescriptor descriptor, int status) {
-            if (DESCRIPTOR_CONFIG_UUID.equals(descriptor.getUuid())) {
-                BluetoothGattCharacteristic characteristic = gatt
-                        .getService(SERVICE_UUID)
-                        .getCharacteristic(CHARACTERISTIC_COUNTER_UUID);
-                gatt.readCharacteristic(characteristic);
-            }
+           System.out.println("DEBUG: " + characteristic.getValue());
         }
     };
 
@@ -360,4 +360,26 @@ public class LowEnergyBlueTooth extends Activity {
         else
             return;
     }
+
+    public boolean send(BluetoothGattService mBluetoothGattService, UUID UUID_SEND, byte[] data)
+    {
+        System.out.println(DEBUG? "DEBUG: sending Data...." : "");
+        if (mBluetoothGatt == null || mBluetoothGatt == null)
+        {
+            return false;
+        }
+
+        BluetoothGattCharacteristic characteristic =
+                mBluetoothGattService.getCharacteristic(UUID_SEND);
+
+        if (characteristic == null)
+        {
+            return false;
+        }
+
+        characteristic.setValue(data);
+        characteristic.setWriteType(BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE);
+        return mBluetoothGatt.writeCharacteristic(characteristic);
+    }
+
 }

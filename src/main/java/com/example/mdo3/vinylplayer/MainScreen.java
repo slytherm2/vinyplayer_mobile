@@ -370,6 +370,9 @@ public class MainScreen extends AppCompatActivity
 
             } else if (resultCode == Activity.RESULT_CANCELED)
             {
+                btn = findViewById(R.id.main_stateBTN);
+                btn.setBackgroundTintList(ColorStateList.valueOf(Color.RED));
+                btn.setText(vinylNotConnected);
                 return;
             }
         }
