@@ -27,7 +27,9 @@ import android.os.Handler;
 import android.support.v4.app.ActivityCompat;
 import android.widget.Toast;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -59,6 +61,8 @@ public class LowEnergyBlueTooth extends Activity {
     private static String BLUETOOTH_NAME = null;
     private static String BLUETOOTH_ADDRESS = null;
     private BluetoothGatt mBluetoothGatt = null;
+    private BluetoothGattService gattService = null;
+    private static final int SLEEP_TIMER = 100; //.3 seconds
 
     //Bluetooth UUID
     private final static UUID SERVICE_UUID =
@@ -81,6 +85,9 @@ public class LowEnergyBlueTooth extends Activity {
 
 
     private boolean DEBUG = true;
+
+    private String[] stringArray;
+    private int stringArrayCount = 0;
 
     @Override
     public void onCreate(Bundle savedInstanceState)
@@ -274,8 +281,8 @@ public class LowEnergyBlueTooth extends Activity {
         public void onServicesDiscovered(BluetoothGatt gatt, int status)
         {
             System.out.println(DEBUG ? "DEBUG: onServicesDiscovered()" : "");
-            String str = "Do you hear me Houson?";
-            byte[] strBytes = str.getBytes();
+            String str = "Do you hear me Houston?";
+            stringArray = str.split(" ");
 
             if (status != BluetoothGatt.GATT_SUCCESS)
             {
@@ -286,7 +293,10 @@ public class LowEnergyBlueTooth extends Activity {
             List<BluetoothGattService> services = gatt.getServices();
             for (BluetoothGattService service : services)
             {
-               send(service,SERVICE_UUID, strBytes);
+                if(send(service, SERVICE_UUID, stringArray[0].getBytes()))
+                {
+                    gattService = service;
+                }
             }
         }
 
@@ -319,6 +329,31 @@ public class LowEnergyBlueTooth extends Activity {
             }
             else
             {
+            }
+        }
+
+        @Override
+        public void onCharacteristicWrite(BluetoothGatt gatt,
+                                         BluetoothGattCharacteristic characteristic,
+                                         int status)
+        {
+            try
+            {
+                stringArrayCount++;
+                Thread.sleep(SLEEP_TIMER);
+                if (status == BluetoothGatt.GATT_SUCCESS)
+                {
+                    System.out.println(DEBUG ? "DEBUG: sending Data....Success" : "");
+                    if (stringArrayCount < stringArray.length)
+                        send(gattService, SERVICE_UUID, stringArray[stringArrayCount].getBytes());
+                }
+                else
+                {
+                }
+            }
+            catch(InterruptedException e)
+            {
+                System.out.println("DEBUG: Interrupted Exception @ onCharacteristicWrite(): " + e);
             }
         }
 
@@ -363,9 +398,11 @@ public class LowEnergyBlueTooth extends Activity {
 
     public boolean send(BluetoothGattService mBluetoothGattService, UUID UUID_SEND, byte[] data)
     {
+
         System.out.println(DEBUG? "DEBUG: sending Data...." : "");
         if (mBluetoothGatt == null || mBluetoothGatt == null)
         {
+            System.out.println(DEBUG? "DEBUG: sending Data....Failed" : "");
             return false;
         }
 
@@ -374,6 +411,7 @@ public class LowEnergyBlueTooth extends Activity {
 
         if (characteristic == null)
         {
+            System.out.println(DEBUG? "DEBUG: sending Data....Failed" : "");
             return false;
         }
 
@@ -381,5 +419,4 @@ public class LowEnergyBlueTooth extends Activity {
         characteristic.setWriteType(BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE);
         return mBluetoothGatt.writeCharacteristic(characteristic);
     }
-
 }
