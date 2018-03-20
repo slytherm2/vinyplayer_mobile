@@ -25,5 +25,9 @@
             android:id="@+id/nav_log_out"
             android:icon="@drawable/ic_menu_manage"
             android:title="@string/log_out" />
+        <item
+            android:id="@+id/nav_test"
+            android:icon="@drawable/ic_menu_manage"
+            android:title="@string/test" />
     </group>
 </menu>

@@ -2,6 +2,7 @@ package com.example.mdo3.vinylplayer;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.Service;
 import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
 import android.content.Intent;
@@ -12,6 +13,7 @@ import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.os.AsyncTask;
+import android.os.Binder;
 import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
@@ -80,6 +82,7 @@ public class MainScreen extends AppCompatActivity
         intent = getIntent();   //get the intent of the previous activity
         vinylConnected = getResources().getString(R.string.label_con);
         vinylNotConnected =  getResources().getString(R.string.label_not_con);
+        BluetoothLESingleton leSingleton = BluetoothLESingleton.getInstance();
 
         //get the user email from the previous activity (login/signup)
         String user = null;
@@ -225,6 +228,15 @@ public class MainScreen extends AppCompatActivity
             {
                 String yourData = list.get(position);
                 System.out.println("DEBUG: " + yourData);
+                System.out.println("DEBUG: " + position+1);
+
+                //select first item
+                if(position == 0)
+                {
+                    System.out.println("DEBUG: Creating new activity");
+                    createNewActivity();
+                }
+
             }
         });
     }
@@ -432,5 +444,11 @@ public class MainScreen extends AppCompatActivity
         {
             startActivityForResult(cameraIntent, ENABLE_CAMERA);
         }
+    }
+
+    private void createNewActivity()
+    {
+        Intent intent = new Intent(this,testing.class);
+        startActivity(intent);
     }
 }

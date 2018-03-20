@@ -50,6 +50,7 @@
     <string name="camera_search">Camera Search</string>
     <string name="manual_add">Manually Add Record</string>
     <string name="log_out">Log Out</string>
+    <string name="test">Test</string>
 
     <!-- HTTP data -->
     <string name="https_url_login">https://vinyl-player-server.herokuapp.com/login</string>

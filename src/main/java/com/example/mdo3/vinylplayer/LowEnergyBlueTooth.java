@@ -43,8 +43,8 @@ import static android.bluetooth.BluetoothAdapter.STATE_DISCONNECTED;
 *Activity for scanning and displaying available Bluetooth LE devices.
 *StartActivityforResult() calls on OnActivityResult() once it is finished
 */
-public class LowEnergyBlueTooth extends Activity {
-
+public class LowEnergyBlueTooth extends Activity
+{
     //Constants
     private static final int REQUEST_ENABLE_BT = 1;
     private static final long SCAN_PERIOD = 100000; //10secs
@@ -61,8 +61,9 @@ public class LowEnergyBlueTooth extends Activity {
     private static String BLUETOOTH_NAME = null;
     private static String BLUETOOTH_ADDRESS = null;
     private BluetoothGatt mBluetoothGatt = null;
-    private BluetoothGattService gattService = null;
-    private static final int SLEEP_TIMER = 100; //.3 seconds
+    private static BluetoothGattService gattService = null;
+    private static final int SLEEP_TIMER = 250; //.25 seconds
+
 
     //Bluetooth UUID
     private final static UUID SERVICE_UUID =
@@ -74,7 +75,7 @@ public class LowEnergyBlueTooth extends Activity {
             "com.example.bluetooth.le.ACTION_GATT_CONNECTED";
     public final static String ACTION_GATT_DISCONNECTED =
             "com.example.bluetooth.le.ACTION_GATT_DISCONNECTED";
-    public final static String ACTION_GATT_SERVICES_DISCOVERED =
+   /* public final static String ACTION_GATT_SERVICES_DISCOVERED =
             "com.example.bluetooth.le.ACTION_GATT_SERVICES_DISCOVERED";
     public final static String ACTION_GATT_RSSI =
             "com.example.bluetooth.le.ACTION_GATT_RSSI";
@@ -82,12 +83,21 @@ public class LowEnergyBlueTooth extends Activity {
             "com.example.bluetooth.le.ACTION_DATA_AVAILABLE";
     public final static String EXTRA_DATA =
             "com.example.bluetooth.le.EXTRA_DATA";
-
+    */
 
     private boolean DEBUG = true;
 
     private String[] stringArray;
     private int stringArrayCount = 0;
+
+    //singleton class to store information about the bluetooth to be used
+    //throughtout the application
+    BluetoothLESingleton leSingleton = BluetoothLESingleton.getInstance();
+
+    public LowEnergyBlueTooth()
+    {
+
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState)
@@ -103,7 +113,6 @@ public class LowEnergyBlueTooth extends Activity {
         BLUETOOTH_NAME = getResources().getString(R.string.BT_name);
         BLUETOOTH_ADDRESS = getResources().getString(R.string.mc_address);
 
-
         //Checks if device has bluetooth LE capabilities
         if (!getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE) || mBluetoothAdapter == null)
         {
@@ -116,6 +125,7 @@ public class LowEnergyBlueTooth extends Activity {
                 new String[]{Manifest.permission.ACCESS_COARSE_LOCATION},
                 MY_PERMISSIONS_REQUEST_ACCESS_COARSE_LOCATION);
 
+        leSingleton.setBluetoothAdapter(mBluetoothAdapter);
         //If BT isn't enabled, ask user to enable BT
         if (!mBluetoothAdapter.isEnabled())
         {
@@ -264,6 +274,7 @@ public class LowEnergyBlueTooth extends Activity {
                 mConnectionState = STATE_CONNECTED;
 
                 if (DEBUG) {System.out.println("DEBUG:Discovering Services");}
+                leSingleton.setGatt(gatt);
                 gatt.discoverServices();
 
                 returnToMain(SUCCESS);
@@ -293,9 +304,10 @@ public class LowEnergyBlueTooth extends Activity {
             List<BluetoothGattService> services = gatt.getServices();
             for (BluetoothGattService service : services)
             {
-                if(send(service, SERVICE_UUID, stringArray[0].getBytes()))
+                if(service != null && send(service, SERVICE_UUID, mBluetoothGatt, stringArray[0].getBytes()))
                 {
-                    gattService = service;
+                    leSingleton.setGattService(service);
+                    leSingleton.setSERVICE_UUID(SERVICE_UUID);
                 }
             }
         }
@@ -337,6 +349,7 @@ public class LowEnergyBlueTooth extends Activity {
                                          BluetoothGattCharacteristic characteristic,
                                          int status)
         {
+            //added thread sleep to slow down data transmission
             try
             {
                 stringArrayCount++;
@@ -345,7 +358,10 @@ public class LowEnergyBlueTooth extends Activity {
                 {
                     System.out.println(DEBUG ? "DEBUG: sending Data....Success" : "");
                     if (stringArrayCount < stringArray.length)
-                        send(gattService, SERVICE_UUID, stringArray[stringArrayCount].getBytes());
+                    {
+                        send(leSingleton.getGattService(), SERVICE_UUID, mBluetoothGatt,
+                                stringArray[stringArrayCount].getBytes());
+                    }
                 }
                 else
                 {
@@ -367,11 +383,11 @@ public class LowEnergyBlueTooth extends Activity {
         public void onCharacteristicChanged(BluetoothGatt gatt,
                                             BluetoothGattCharacteristic characteristic)
         {
-           System.out.println("DEBUG: " + characteristic.getValue());
+           System.out.println("DEBUG: onCharacteristicChanged: " + characteristic.getValue());
         }
     };
 
-    ArrayList<ScanFilter> createFilter()
+    private ArrayList<ScanFilter> createFilter()
     {
         ArrayList<ScanFilter> sfList = new ArrayList<>();
         ScanFilter.Builder sf = new ScanFilter.Builder();
@@ -380,7 +396,7 @@ public class LowEnergyBlueTooth extends Activity {
         return sfList;
     }
 
-    ScanSettings createScanSettings()
+    private ScanSettings createScanSettings()
     {
         ScanSettings.Builder builderScanSettings = new ScanSettings.Builder();
         builderScanSettings.setScanMode(ScanSettings.SCAN_MODE_LOW_POWER);
@@ -388,7 +404,7 @@ public class LowEnergyBlueTooth extends Activity {
         return builderScanSettings.build();
     }
 
-    void cancelAdapterDiscovery(BluetoothAdapter bt)
+    private void cancelAdapterDiscovery(BluetoothAdapter bt)
     {
         if(bt.isDiscovering())
             bt.cancelDiscovery();
@@ -396,13 +412,12 @@ public class LowEnergyBlueTooth extends Activity {
             return;
     }
 
-    public boolean send(BluetoothGattService mBluetoothGattService, UUID UUID_SEND, byte[] data)
+    public static boolean send(BluetoothGattService mBluetoothGattService, UUID UUID_SEND,
+                               BluetoothGatt mBluetoothGatt, byte[] data)
     {
-
-        System.out.println(DEBUG? "DEBUG: sending Data...." : "");
-        if (mBluetoothGatt == null || mBluetoothGatt == null)
+        if (mBluetoothGatt == null)
         {
-            System.out.println(DEBUG? "DEBUG: sending Data....Failed" : "");
+            System.out.println("DEBUG: sending Data....Failed");
             return false;
         }
 
@@ -411,7 +426,7 @@ public class LowEnergyBlueTooth extends Activity {
 
         if (characteristic == null)
         {
-            System.out.println(DEBUG? "DEBUG: sending Data....Failed" : "");
+            System.out.println("DEBUG: sending Data....Failed");
             return false;
         }
 
