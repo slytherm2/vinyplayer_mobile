@@ -71,4 +71,11 @@
     <string name="http_url_test_records_id">http://192.168.56.1:3001/records/:id</string>
     <string name="http_url_test_create_user">http://192.168.56.1:3001/createUser</string>
 
+    <!-- Music Player -->
+    <string name="artist_album">Artist - Album</string>
+    <string name="song">Song</string>
+
+    <!-- Search Widget/Fragment -->
+    <string name="search_hint">Search artists and albums</string>
+
 </resources>

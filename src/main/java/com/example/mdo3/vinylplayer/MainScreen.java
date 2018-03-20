@@ -128,8 +128,14 @@ public class MainScreen extends AppCompatActivity
                         // close drawer when item is tapped
                         mDrawerLayout.closeDrawers();
 
-                        // Add code here to update the UI based on the item selected
-                        // For example, swap UI fragments here
+                        int id = menuItem.getItemId();
+                        switch(id)
+                        {
+                            case R.id.nav_manual_add:
+                                Intent intent = new Intent(MainScreen.this, RecordListActivity.class);
+                                startActivity(intent);
+                                break;
+                        }
 
                         System.out.println("DEBUG: " + menuItem.getTitle() + "has been pressed");
                         return true;
@@ -395,6 +401,7 @@ public class MainScreen extends AppCompatActivity
     {
         switch (item.getItemId())
         {
+            // case android.R.id.
             case android.R.id.home:
                 mDrawerLayout.openDrawer(GravityCompat.START);
                 return true;
