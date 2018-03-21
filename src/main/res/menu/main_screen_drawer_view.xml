@@ -6,9 +6,9 @@
             android:icon="@drawable/ic_menu_camera"
             android:title="@string/profile" />
         <item
-            android:id="@+id/nav_add_device"
-            android:icon="@drawable/ic_menu_manage"
-            android:title="@string/add_device" />
+        android:id="@+id/nav_add_device"
+        android:icon="@drawable/ic_menu_manage"
+        android:title="@string/add_device" />
         <item
             android:id="@+id/nav_search_records"
             android:icon="@drawable/ic_menu_manage"

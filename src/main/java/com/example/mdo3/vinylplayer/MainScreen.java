@@ -134,7 +134,8 @@ public class MainScreen extends AppCompatActivity
                         // Add code here to update the UI based on the item selected
                         // For example, swap UI fragments here
 
-                        System.out.println("DEBUG: " + menuItem.getTitle() + "has been pressed");
+                        System.out.println("DEBUG: " + menuItem.toString() + "has been pressed");
+                        launchMenuActivity(menuItem);
                         return true;
                     }
                 });
@@ -229,13 +230,6 @@ public class MainScreen extends AppCompatActivity
                 String yourData = list.get(position);
                 System.out.println("DEBUG: " + yourData);
                 System.out.println("DEBUG: " + position+1);
-
-                //select first item
-                if(position == 0)
-                {
-                    System.out.println("DEBUG: Creating new activity");
-                    createNewActivity();
-                }
 
             }
         });
@@ -446,9 +440,23 @@ public class MainScreen extends AppCompatActivity
         }
     }
 
-    private void createNewActivity()
+    private void createTestingActivity()
     {
         Intent intent = new Intent(this,testing.class);
+        startActivity(intent);
+    }
+
+    private void launchMenuActivity(MenuItem item)
+    {
+        String tempString = item.toString();
+        Intent intent = null;
+
+
+        if(tempString.equalsIgnoreCase("test"))
+            intent = new Intent(this,testing.class);
+        else if(tempString.equalsIgnoreCase("profile"))
+        intent = new Intent(this,testing.class);
+
         startActivity(intent);
     }
 }
