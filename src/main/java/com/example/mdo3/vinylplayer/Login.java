@@ -114,8 +114,8 @@ public class Login extends AppCompatActivity {
         setContentView(R.layout.activity_login);
 
         // Set up the login form.
-        mEmailView = (AutoCompleteTextView) findViewById(R.id.log_email);
-        mPasswordView = (EditText) findViewById(R.id.log_passwd);
+        mEmailView = findViewById(R.id.log_email);
+        mPasswordView = findViewById(R.id.log_passwd);
         mLoginFormView = findViewById(R.id.login_form);
         mProgressView = findViewById(R.id.login_progress);
         cookieJar = new ArrayList<>();
@@ -317,14 +317,14 @@ public class Login extends AppCompatActivity {
                 }
 
                 System.out.println("DEBUG: POST code " + urlConnection.getResponseCode());
-                System.out.println(urlConnection.getResponseCode() == urlConnection.HTTP_OK);
+                System.out.println(urlConnection.getResponseCode() == HttpURLConnection.HTTP_OK);
 
                 //If user sucessfully log in with cookie, no further action required
                 //if user sucessfully log in with username and password, save the cookie information from server
                 //if user failed to login with cookie, login with username and pass, save cookie info
                 //if user failed to login with username and pass, return to main screen
                 int responseCode = urlConnection.getResponseCode();
-                if (responseCode == urlConnection.HTTP_OK)
+                if (responseCode == HttpURLConnection.HTTP_OK)
                 {
                     /*
                     success: save cookies information
@@ -340,7 +340,7 @@ public class Login extends AppCompatActivity {
                 }
                 //Cookie has been accepted by the server
                 //HTTP_ACCEPTED = user has been logged in
-                else if (responseCode == urlConnection.HTTP_ACCEPTED)
+                else if (responseCode == HttpURLConnection.HTTP_ACCEPTED)
                 {
                     System.out.println("DEBUG: Successful login w/ cookie");
                     urlResponse = true;
@@ -357,7 +357,7 @@ public class Login extends AppCompatActivity {
                         urlConnection.connect();
                         Thread.sleep(THREAD_TIMEOUT);
 
-                        if(urlConnection.getResponseCode() == urlConnection.HTTP_OK)
+                        if(urlConnection.getResponseCode() == HttpURLConnection.HTTP_OK)
                         {
                             System.out.println("DEBUG: Successful login 2nd attempt, saving cookie information");
                             urlResponse = true;
@@ -496,7 +496,7 @@ public class Login extends AppCompatActivity {
         try
         {
             //todo: change from local to server
-            URL url = new URL(getResources().getString(R.string.http_url_test_login));
+            URL url = new URL(getResources().getString(R.string.https_url_login));
             //HttpsURLConnection urlConnection =  (HttpsURLConnection) url.openConnection();
             HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
 

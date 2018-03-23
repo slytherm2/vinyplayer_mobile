@@ -2,13 +2,11 @@ package com.example.mdo3.vinylplayer;
 
 import android.Manifest;
 import android.app.Activity;
-import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
-import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.os.AsyncTask;
@@ -32,22 +30,14 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.net.CookieManager;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.SocketTimeoutException;
 import java.net.URL;
-import java.net.URLEncoder;
 import java.util.ArrayList;
-
-import javax.net.ssl.HttpsURLConnection;
 
 public class MainScreen extends AppCompatActivity
 {
@@ -131,8 +121,10 @@ public class MainScreen extends AppCompatActivity
                         int id = menuItem.getItemId();
                         switch(id)
                         {
-                            case R.id.nav_manual_add:
-                                Intent intent = new Intent(MainScreen.this, RecordListActivity.class);
+                            case R.id.nav_search_records:
+                                Intent intent = new Intent(MainScreen.this, RecordSearch.class);
+                                intent.putExtra("userId", userID);
+                                intent.putExtra("sessionId", sessionID);
                                 startActivity(intent);
                                 break;
                         }
