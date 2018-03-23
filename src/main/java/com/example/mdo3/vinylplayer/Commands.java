@@ -38,12 +38,12 @@ public class Commands
         return null;
     }
 
-    public static String getChangeSong(String command)
+    public static byte[] getChangeSong(String command)
     {
         int length = command.length();
 
         if(length == 5)
-            return command;
+            return command.getBytes();
         //The micro controller requires this command to have 5bytes of data
         //1 byte command
         //2-5 bytes to be the number of steps
@@ -57,7 +57,7 @@ public class Commands
                 if(str.length() >= 5)
                     break;
             }
-            return str.toString();
+            return str.toString().getBytes();
         }
         return null;
     }
