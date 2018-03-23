@@ -4,6 +4,7 @@ import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattService;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.EditText;
 
@@ -19,12 +20,21 @@ public class testing extends AppCompatActivity
     EditText textbox;
     byte[] data;
 
+    private Toolbar mTopToolbar;
+
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_testing);
         textbox = (EditText) findViewById(R.id.testing_textbox);
+
+        //adding tool bar with back arrow to go back to activity
+        //it goes to the activity listed in the android manifest
+        mTopToolbar = (Toolbar) findViewById(R.id.testing_toolbar);
+        setSupportActionBar(mTopToolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
     }
 
     public void button(View view)

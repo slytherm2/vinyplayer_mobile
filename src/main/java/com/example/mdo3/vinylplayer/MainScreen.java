@@ -20,6 +20,7 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.Fragment;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
@@ -76,13 +77,20 @@ public class MainScreen extends AppCompatActivity
     private String userID = null;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState)
+    {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_screen);
         intent = getIntent();   //get the intent of the previous activity
         vinylConnected = getResources().getString(R.string.label_con);
         vinylNotConnected =  getResources().getString(R.string.label_not_con);
         BluetoothLESingleton leSingleton = BluetoothLESingleton.getInstance();
+
+        System.out.println("DEBUG: " + Commands.getChangeSong("20002").toString());
+        System.out.println("DEBUG: " + Commands.getChangeSong("2002").toString());
+        System.out.println("DEBUG: " + Commands.getChangeSong("202").toString());
+        System.out.println("DEBUG: " + Commands.getChangeSong("22").toString());
+
 
         //get the user email from the previous activity (login/signup)
         String user = null;
@@ -440,23 +448,32 @@ public class MainScreen extends AppCompatActivity
         }
     }
 
-    private void createTestingActivity()
-    {
-        Intent intent = new Intent(this,testing.class);
-        startActivity(intent);
-    }
-
     private void launchMenuActivity(MenuItem item)
     {
-        String tempString = item.toString();
-        Intent intent = null;
+        //referenced to the id located on teh main_screen_drawer_view.xml
+        int id = item.getItemId();
 
-
-        if(tempString.equalsIgnoreCase("test"))
+        //profile page
+        if(id == R.id.nav_profile)
+            intent = new Intent(this,profile.class);
+        //testing page
+        else if(id == R.id.nav_test)
             intent = new Intent(this,testing.class);
-        else if(tempString.equalsIgnoreCase("profile"))
-        intent = new Intent(this,testing.class);
-
+        //Activity for manually adding songs
+        else if(id == R.id.nav_manual_add)
+            intent = new Intent(this,manual_add.class);
+        //Launching camera, to search record based on camera
+        else if(id == R.id.nav_camera_search)
+            callCamera();
+        //search records by input
+        else if(id == R.id.nav_search_records)
+            System.out.println("DEBUG: Jose will be adding this");
+        //connect to bluetooth device
+        else if(id == R.id.nav_add_device)
+        {
+            intent = new Intent(this, LowEnergyBlueTooth.class);
+            startActivityForResult(intent, REQUEST_ENABLE_BT);
+        }
         startActivity(intent);
     }
 }

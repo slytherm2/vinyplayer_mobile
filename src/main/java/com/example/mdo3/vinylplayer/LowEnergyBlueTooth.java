@@ -94,11 +94,6 @@ public class LowEnergyBlueTooth extends Activity
     //throughtout the application
     BluetoothLESingleton leSingleton = BluetoothLESingleton.getInstance();
 
-    public LowEnergyBlueTooth()
-    {
-
-    }
-
     @Override
     public void onCreate(Bundle savedInstanceState)
     {
@@ -185,6 +180,7 @@ public class LowEnergyBlueTooth extends Activity
             }
         }, SCAN_PERIOD);
         btleScanner.startScan(createFilter(), createScanSettings(), mScanCallback);
+        //btleScanner.startScan(mScanCallback);
     }
 
     //called after startActivityForResult()
@@ -210,6 +206,8 @@ public class LowEnergyBlueTooth extends Activity
     {
         public void onScanResult(int callbackType, ScanResult result)
         {
+            System.out.println("DEBUG: " + result.getDevice().getName());
+            System.out.println("DEBUG: " + result.getDevice().getAddress());
             if(DEBUG){System.out.println("DEBUG: onScanResult");}
             BluetoothDevice tmpDevice = result.getDevice();
             if(tmpDevice!=null && tmpDevice.getName().contains(BLUETOOTH_NAME))

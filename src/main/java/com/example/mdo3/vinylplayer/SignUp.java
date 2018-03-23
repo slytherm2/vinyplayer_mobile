@@ -35,7 +35,8 @@ import java.util.ArrayList;
 
 import javax.net.ssl.HttpsURLConnection;
 
-public class SignUp extends AppCompatActivity {
+public class SignUp extends AppCompatActivity
+{
 
     //TODO: save cookie information when user signs in
 
@@ -55,7 +56,8 @@ public class SignUp extends AppCompatActivity {
     public static final String SIGNUP_USER = "Vinyl User";
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState)
+    {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sign_up);
         inputEmail = (EditText) findViewById(R.id.signup_email);
@@ -74,8 +76,10 @@ public class SignUp extends AppCompatActivity {
     /*
     Attempts to sign up the user with the credentials
      */
-    private void attemptLogin() {
-        if (mAuthTask != null) {
+    private void attemptLogin()
+    {
+        if (mAuthTask != null)
+        {
             return;
         }
 
@@ -92,7 +96,8 @@ public class SignUp extends AppCompatActivity {
         View focusView = null;
 
         // Check for a valid password, if the user entered one.
-        if (!TextUtils.isEmpty(password) && !isPasswordValid(password,password2)) {
+        if (!TextUtils.isEmpty(password) && !isPasswordValid(password,password2))
+        {
             inputPassword.setError("Password must have 1 Capital Letter, 1 number, more than 4 characters and less than 15");
             focusView = inputPassword;
             cancel = true;

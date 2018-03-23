@@ -4,12 +4,11 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.example.mdo3.vinylplayer.testing">
+    tools:context="com.example.mdo3.vinylplayer.manual_add">
 
     <LinearLayout
-        android:id="@+id/linearLayout"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
+        android:layout_width="368dp"
+        android:layout_height="550dp"
         android:layout_marginBottom="8dp"
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
@@ -21,34 +20,61 @@
         app:layout_constraintTop_toTopOf="parent">
 
         <android.support.v7.widget.Toolbar
-            android:id="@+id/testing_toolbar"
+            android:id="@+id/manual_add_toolbar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="?attr/colorPrimary"
+            android:baselineAligned="false"
             android:minHeight="?attr/actionBarSize"
             android:theme="?attr/actionBarTheme" />
 
         <TextView
-            android:id="@+id/textView2"
+            android:id="@+id/ma_title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Send Data"
+            android:text="@string/ma_title"
             android:textAlignment="center"
-            android:textSize="24sp" />
+            android:textAllCaps="true"
+            android:textSize="30sp"
+            android:textStyle="bold" />
 
         <EditText
-            android:id="@+id/testing_textbox"
+            android:id="@+id/ma_album_name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:ems="10"
-            android:hint="Data to Send"
+            android:hint="@string/ma_album_name"
             android:inputType="text" />
 
-        <Button
-            android:id="@+id/testing_button"
+        <EditText
+            android:id="@+id/ma_artist_name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:onClick="button"
-            android:text="Send Data" />
+            android:ems="10"
+            android:hint="@string/ma_artist"
+            android:inputType="text" />
+
+        <Switch
+            android:id="@+id/ma_rotation_speed"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/ma_rotation_speed" />
+
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="23dp" />
+
+        <LinearLayout
+            android:id="@+id/ma_song_list"
+            android:layout_width="393dp"
+            android:layout_height="323dp"
+            android:orientation="vertical"></LinearLayout>
+
+        <Button
+            android:id="@+id/ma_submit"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/ma_submit" />
+
     </LinearLayout>
 </android.support.constraint.ConstraintLayout>

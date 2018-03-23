@@ -26,10 +26,11 @@
     <string name="error_field_required">This field is required</string>
     <string name="permission_rationale">"Contacts permissions are needed for providing email completions."</string>
     <string name="BT_LE_NotFound"> Bluetooth Low Energy Not Found </string>
-    <string name="BT_name">W.A.R.P.</string>
+    <string name="BT_name">WARP</string>
     <string name="unknown_service">Unknown Services</string>
     <string name="unknown_characteristic">Unknown Characteristics</string>
-    <string name="mc_address">FD:23:10:33:D4:37</string>
+    <!-- <string name="mc_address">FD:23:10:33:D4:37</string> -->
+    <string name="mc_address">FE:C8:50:0A:49:EB</string>
     <string name="title_activity_main_screen_beta">MainScreen_beta</string>
 
     <string name="navigation_drawer_open">Open navigation drawer</string>
@@ -41,6 +42,13 @@
     <string name="starting_bt">Connecting to Bluetooth</string>
     <string name="bt_conn_failed">Bluetooth Connection Failed</string>
     <string name="please_wait">Please Wait</string>
+
+    <!-- Manual Add activity page -->
+    <string name="ma_title">Add Vinyl Record</string>
+    <string name="ma_album_name">Album Name</string>
+    <string name="ma_artist">Artist Name</string>
+    <string name="ma_rotation_speed">Rotation Speed: </string>
+    <string name="ma_submit">Submit</string>
 
     <!-- Hamburger menu Strings -->
     <string name="action_settings">Settings</string>

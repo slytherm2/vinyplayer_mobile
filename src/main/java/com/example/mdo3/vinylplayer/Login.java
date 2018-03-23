@@ -431,7 +431,10 @@ public class Login extends AppCompatActivity {
     /** sign in button on the log in page */
     public void signIn(View view) throws InterruptedException
     {
-        attemptLogin();
+        //attemptLogin();
+        //todo: uncomment method and remove intent
+        Intent intent = new Intent(this,MainScreen.class);
+        startActivity(intent);
     }
 
     /** Sign up button on the log in page */

@@ -26,6 +26,11 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.AppCompat.Light.NoActionBar">
 
+        <!--
+       Using only low energy in the application
+        <activity android:name=".BluetoothConnection"/>
+        -->
+
         <activity
             android:name=".Login"
             android:label="@string/app_name">
@@ -41,11 +46,15 @@
             android:parentActivityName=".Login" />
         <activity android:name=".LowEnergyBlueTooth" />
 
-        <!--
-       Using only low energy in the application
-        <activity android:name=".BluetoothConnection"/>
-        -->
-        <activity android:name=".testing"></activity>
+        <!-- hamburger menu activities -->
+        <activity
+            android:name=".testing"
+            android:parentActivityName=".MainScreen" />
+        <activity
+            android:name=".manual_add"
+            android:parentActivityName=".MainScreen" />
+        <activity android:name=".profile"
+            android:parentActivityName=".MainScreen" />
     </application>
 
 </manifest>
