@@ -55,6 +55,7 @@ public class RecordSearch extends AppCompatActivity {
         adapter = new RecordAdapter(this, records);
         recordResults.setAdapter(adapter);
 
+        // intent isn't currently working
 //        // get userId & sessionId from Main Screen
 //        Bundle extras = getIntent().getExtras();
 //        if (extras == null) {

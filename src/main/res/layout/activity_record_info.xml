@@ -6,4 +6,11 @@
     android:layout_height="match_parent"
     tools:context="com.example.mdo3.vinylplayer.RecordInfo">
 
+    <Button
+        android:id="@+id/button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Record Info!"
+        tools:layout_editor_absoluteX="133dp"
+        tools:layout_editor_absoluteY="236dp" />
 </android.support.constraint.ConstraintLayout>
