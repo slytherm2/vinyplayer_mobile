@@ -76,6 +76,8 @@ public class MainScreen extends AppCompatActivity
     private String sessionID = null;
     private String userID = null;
 
+    private SharedPreferences preferences;
+
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
@@ -85,6 +87,7 @@ public class MainScreen extends AppCompatActivity
         vinylConnected = getResources().getString(R.string.label_con);
         vinylNotConnected =  getResources().getString(R.string.label_not_con);
         BluetoothLESingleton leSingleton = BluetoothLESingleton.getInstance();
+        preferences = PreferenceManager.getDefaultSharedPreferences(this);
 
         //get the user email from the previous activity (login/signup)
         String user = null;
@@ -123,7 +126,7 @@ public class MainScreen extends AppCompatActivity
         //best to use fragments when working with the navigation drawer
         mDrawerLayout = findViewById(R.id.drawer_layout);
         NavigationView navigationView = findViewById(R.id.nav_view);
-        final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+
         navigationView.setNavigationItemSelectedListener(
                 new NavigationView.OnNavigationItemSelectedListener()
                 {
@@ -133,20 +136,6 @@ public class MainScreen extends AppCompatActivity
                         menuItem.setChecked(true);
                         // close drawer when item is tapped
                         mDrawerLayout.closeDrawers();
-
-                        int id = menuItem.getItemId();
-                        switch(id)
-                        {
-                            case R.id.nav_search_records:
-                                Intent intent = new Intent(MainScreen.this, RecordSearch.class);
-
-                                String sid = preferences.getString(getResources().getString(R.string.session_id),"");
-                                String uid = preferences.getString(getResources().getString(R.string.user_id),"");
-                                intent.putExtra("userId", uid);
-                                intent.putExtra("sessionId", sid);
-                                startActivity(intent);
-                                break;
-                        }
 
                         System.out.println("DEBUG: " + menuItem.toString() + "has been pressed");
                         launchMenuActivity(menuItem);
@@ -473,7 +462,13 @@ public class MainScreen extends AppCompatActivity
             callCamera();
         //search records by input
         else if(id == R.id.nav_search_records)
-            System.out.println("DEBUG: Jose will be adding this");
+        {
+            intent = new Intent(MainScreen.this, RecordSearch.class);
+            String sid = preferences.getString(getResources().getString(R.string.session_id),"");
+            String uid = preferences.getString(getResources().getString(R.string.user_id),"");
+            intent.putExtra("userId", uid);
+            intent.putExtra("sessionId", sid);
+        }
         //connect to bluetooth device
         else if(id == R.id.nav_add_device)
         {
