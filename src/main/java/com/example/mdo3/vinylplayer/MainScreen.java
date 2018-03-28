@@ -86,12 +86,6 @@ public class MainScreen extends AppCompatActivity
         vinylNotConnected =  getResources().getString(R.string.label_not_con);
         BluetoothLESingleton leSingleton = BluetoothLESingleton.getInstance();
 
-        System.out.println("DEBUG: " + Commands.getChangeSong("20002").toString());
-        System.out.println("DEBUG: " + Commands.getChangeSong("2002").toString());
-        System.out.println("DEBUG: " + Commands.getChangeSong("202").toString());
-        System.out.println("DEBUG: " + Commands.getChangeSong("22").toString());
-
-
         //get the user email from the previous activity (login/signup)
         String user = null;
         if (intent != null)
