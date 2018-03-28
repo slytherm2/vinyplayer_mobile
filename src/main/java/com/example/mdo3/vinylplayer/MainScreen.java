@@ -123,6 +123,7 @@ public class MainScreen extends AppCompatActivity
         //best to use fragments when working with the navigation drawer
         mDrawerLayout = findViewById(R.id.drawer_layout);
         NavigationView navigationView = findViewById(R.id.nav_view);
+        final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
         navigationView.setNavigationItemSelectedListener(
                 new NavigationView.OnNavigationItemSelectedListener()
                 {
@@ -133,8 +134,19 @@ public class MainScreen extends AppCompatActivity
                         // close drawer when item is tapped
                         mDrawerLayout.closeDrawers();
 
-                        // Add code here to update the UI based on the item selected
-                        // For example, swap UI fragments here
+                        int id = menuItem.getItemId();
+                        switch(id)
+                        {
+                            case R.id.nav_search_records:
+                                Intent intent = new Intent(MainScreen.this, RecordSearch.class);
+
+                                String sid = preferences.getString(getResources().getString(R.string.session_id),"");
+                                String uid = preferences.getString(getResources().getString(R.string.user_id),"");
+                                intent.putExtra("userId", uid);
+                                intent.putExtra("sessionId", sid);
+                                startActivity(intent);
+                                break;
+                        }
 
                         System.out.println("DEBUG: " + menuItem.toString() + "has been pressed");
                         launchMenuActivity(menuItem);
