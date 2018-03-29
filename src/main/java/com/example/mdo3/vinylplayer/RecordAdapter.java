@@ -51,8 +51,10 @@ public class RecordAdapter extends RecyclerView.Adapter<RecordAdapter.ViewHolder
             public void onClick(View v)
             {
                 Intent intent = new Intent(context, RecordInfo.class);
-                intent.putExtra("artist", record.getArtist());
-                intent.putExtra("album", record.getAlbum());
+//                intent.putExtra("artist", record.getArtist());
+//                intent.putExtra("album", record.getAlbum());
+//                intent.putExtra("tracklist", record.getTracklist());
+                intent.putExtra("record", record);
                 context.startActivity(intent);
             }
         });
