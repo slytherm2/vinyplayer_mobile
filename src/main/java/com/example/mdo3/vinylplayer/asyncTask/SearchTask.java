@@ -17,6 +17,8 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
 
+import javax.net.ssl.HttpsURLConnection;
+
 /**
  * Created by jose.medina on 3/24/2018.
  */
@@ -116,7 +118,8 @@ public class SearchTask extends AsyncTask<Void, Void, String>
         try
         {
             URL url = new URL(this.resourceUrl);
-            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            // HttpsURLConnection connection = (HttpsURLConnection) url.openConnection(); // real server
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection(); // local connection
 
             // allow for input and output request
             connection.setDoInput(true);

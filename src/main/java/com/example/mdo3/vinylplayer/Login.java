@@ -140,11 +140,11 @@ public class Login extends AppCompatActivity {
     /*
     Attempts to sign in the user with the credentials
      */
-    private void attemptLogin()
+    private boolean attemptLogin()
     {
         if (mAuthTask != null)
         {
-            return;
+            return false;
         }
 
         // Reset errors.
@@ -184,6 +184,7 @@ public class Login extends AppCompatActivity {
             // There was an error; don't attempt login and focus the first
             // form field with an error.
             focusView.requestFocus();
+            return false;
         }
         else
         {
@@ -192,6 +193,7 @@ public class Login extends AppCompatActivity {
             showProgress(true);
             mAuthTask = new UserLoginTask(email, password, this);
             mAuthTask.execute((Void) null);
+            return true;
         }
     }
 
@@ -431,7 +433,8 @@ public class Login extends AppCompatActivity {
     /** sign in button on the log in page */
     public void signIn(View view) throws InterruptedException
     {
-        //attemptLogin();
+        Boolean loginSuccessful = attemptLogin();
+        if(!loginSuccessful) { return; }
         //todo: uncomment method and remove intent
         Intent intent = new Intent(this,MainScreen.class);
         startActivity(intent);
@@ -503,8 +506,8 @@ public class Login extends AppCompatActivity {
         try
         {
             //local server
-            //URL url = new URL(getResources().getString(R.string.http_url_test_login));
-            //HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+//            URL url = new URL(getResources().getString(R.string.http_url_test_login_jose));
+//            HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
 
             //Remote server
             URL url = new URL(getResources().getString(R.string.https_url_login));
