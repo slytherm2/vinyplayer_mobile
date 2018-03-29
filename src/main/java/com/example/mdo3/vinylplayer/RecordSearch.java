@@ -19,6 +19,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.concurrent.ExecutionException;
 import org.json.*;
@@ -96,7 +97,25 @@ public class RecordSearch extends AppCompatActivity {
         try {
             String artist = record.getString("artist");
             String album = record.getString("album");
-            Record newRecord = new Record(artist, album);
+
+            ArrayList<Song> tracklist = new ArrayList<Song>();
+            JSONArray tracklist_JSON = record.getJSONArray("tracklist");
+            for(int i = 0; i < tracklist_JSON.length(); i++)
+            {
+                // Duration duration = null;
+                String title = tracklist_JSON.getJSONObject(i).getString("title");
+                String duration = tracklist_JSON.getJSONObject(i).getString("duration");
+//                String duration_parsed[] = duration_String.split(":"); // song duration is in format minutes:seconds
+//
+//                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+//                    duration = Duration.ofMinutes(Integer.parseInt(duration_parsed[0]));
+//                    duration = duration.plusSeconds(Integer.parseInt(duration_parsed[1]));
+//                }
+
+                Song song = new Song(title, duration);
+                tracklist.add(song);
+            }
+            Record newRecord = new Record(artist, album, tracklist);
 
             this.records.add(newRecord);
             this.adapter.notifyDataSetChanged();
