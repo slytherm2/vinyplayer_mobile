@@ -464,6 +464,10 @@ public class MainScreen extends AppCompatActivity
         else if(id == R.id.nav_search_records)
         {
             intent = new Intent(MainScreen.this, RecordSearch.class);
+            String sid = preferences.getString(getResources().getString(R.string.session_id),"");
+            String uid = preferences.getString(getResources().getString(R.string.user_id),"");
+            intent.putExtra("userId", uid);
+            intent.putExtra("sessionId", sid);
         }
         //connect to bluetooth device
         else if(id == R.id.nav_add_device)

@@ -33,50 +33,28 @@ import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.apache.commons.net.util.Base64;
-import org.apache.http.HttpResponse;
-import org.apache.http.NameValuePair;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.config.RequestConfig;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.message.BasicNameValuePair;
+import com.example.mdo3.vinylplayer.asyncTask.LoginTask;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.UnsupportedEncodingException;
-import java.net.CookieHandler;
-import java.net.CookieManager;
-import java.net.HttpCookie;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.SocketTimeoutException;
-import java.net.URL;
-import java.net.URLConnection;
-import java.net.URLEncoder;
+import org.apache.commons.lang3.concurrent.ConcurrentException;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-
-import javax.net.ssl.HttpsURLConnection;
-
-import static android.Manifest.permission.READ_CONTACTS;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 /**
  * A login screen that offers login via email/password.
+ * Default location of shared preferences
+ * View -> tool windows -> Device File Explorer
+ *data/data/YOUR_PACKAGE_NAME/shared_prefs/YOUR_PACKAGE_NAME_preferences.xml
  */
 
 //TODO: how to pass the bluetooth class among different activities
@@ -87,7 +65,8 @@ public class Login extends AppCompatActivity {
     /**
      * Keep track of the login task to ensure we can cancel it if requested.
      */
-    private UserLoginTask mAuthTask = null;
+    private AsyncTaskFactory factory = null;
+    private AsyncTask loginTask = null;
 
     // UI references.
     private AutoCompleteTextView mEmailView;
@@ -102,15 +81,13 @@ public class Login extends AppCompatActivity {
     private String userId = null;
     private static SharedPreferences preferences;
     private static Map<String, List<String>> headerFields;
-    private boolean isUserLoggedIn;
 
-    private static final int COOKIE_FLAG = 1; //using cookie information
-    private static final int USERINFO_FLAG = 2; //using user information
-    private static final int HTTP_TIMEOUT = 10000; //10 seconds
-    private static final int THREAD_TIMEOUT = 2000;
+    private final String COOKIEFLAG = "cookie";
+    private final String NOCOOKIEFLAG = "noCookie";
+    private final boolean DEBUG = true;
+    private String httpURL;
 
-    boolean errorFlag = false;
-
+    private Boolean result;
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
@@ -123,17 +100,36 @@ public class Login extends AppCompatActivity {
         mLoginFormView = findViewById(R.id.login_form);
         mProgressView = findViewById(R.id.login_progress);
         cookieJar = new ArrayList<>();
-        validCookies = false;
         preferences = PreferenceManager.getDefaultSharedPreferences(this);
-        isUserLoggedIn = false;
+        factory = new AsyncTaskFactory();
+        httpURL = getResources().getString(R.string.http_url_test_login);
+        ApplicationContext appContext = ApplicationContext.getInstance();
+        appContext.setAppContext(this);
 
         //if user already has valid cookie
         //automatically sign user into application
-        if(hasCookies())
+       if(hasCookies())
         {
             showProgress(true);
-            mAuthTask = new UserLoginTask(null, null, this);
-            mAuthTask.execute((Void) null);
+            sessionId = preferences.getString(getResources().getString(R.string.session_id), null);
+            userId = preferences.getString(getResources().getString(R.string.user_id), null);
+
+            loginTask = factory.generateAsyncTask("Login");
+            if(loginTask != null)
+            {
+                if (sessionId != null && userId != null && !sessionId.isEmpty() && !userId.isEmpty())
+                {
+                    if(authenticateUser(COOKIEFLAG, userId, sessionId))
+                    {
+                        showProgress(false);
+                        startNextActivity();
+                    }
+                    else
+                    {
+                        showProgress(false);
+                    }
+                }
+            }
         }
     }
 
@@ -142,11 +138,8 @@ public class Login extends AppCompatActivity {
      */
     private void attemptLogin()
     {
-        if (mAuthTask != null)
-        {
-            return;
-        }
 
+        showProgress( true);
         // Reset errors.
         mEmailView.setError(null);
         mPasswordView.setError(null);
@@ -189,12 +182,19 @@ public class Login extends AppCompatActivity {
         {
             // Show a progress spinner, and kick off a background task to
             // perform the user login attempt.
-            showProgress(true);
-            mAuthTask = new UserLoginTask(email, password, this);
-            mAuthTask.execute((Void) null);
+            if (email != null && password != null)
+            {
+                if(authenticateUser(NOCOOKIEFLAG, email, password))
+                {
+                    startNextActivity();
+                }
+                else
+                {
+                    showError();
+                }
+            }
         }
     }
-
 
     private boolean isEmailValid(String email)
     {
@@ -269,172 +269,14 @@ public class Login extends AppCompatActivity {
         }
     }
 
-    /**
-     * Represents an asynchronous login/registration task used to authenticate
-     * the user.
-     */
-    public class UserLoginTask extends AsyncTask<Void, Void, Boolean>
-    {
-
-        private final String mEmail;
-        private final String mPassword;
-        private Context context;
-
-        private UserLoginTask(String email, String password, Context context)
-        {
-            mEmail = email;
-            mPassword = password;
-            this.context = context;
-        }
-
-        @Override
-        protected Boolean doInBackground(Void... params)
-        {
-            boolean urlResponse = false;
-            errorFlag = false;
-            HttpURLConnection urlConnection = null;
-
-            try {
-
-                //if user has cookies, login with cookies (contains session Id and user Id)
-                //if not, login with username and pass (create cookie from server)
-                if(hasCookies())
-                {
-                    urlConnection = createHttpRequest(mEmail, mPassword, COOKIE_FLAG);
-                    validCookies = true;
-                }
-                else if (mEmail != null && mPassword != null)
-                {
-                    urlConnection = createHttpRequest(mEmail, mPassword, USERINFO_FLAG);
-                    validCookies = false;
-                }
-
-                if(urlConnection != null)
-                {
-                    urlConnection.connect();
-                    Thread.sleep(THREAD_TIMEOUT);
-                }
-                else
-                {
-                    System.out.println("DEBUG: urlConnection == null");
-                    return false;
-                }
-
-                System.out.println("DEBUG: POST code " + urlConnection.getResponseCode());
-                System.out.println(urlConnection.getResponseCode() == urlConnection.HTTP_OK);
-
-                //If user sucessfully log in with cookie, no further action required
-                //if user sucessfully log in with username and password, save the cookie information from server
-                //if user failed to login with cookie, login with username and pass, save cookie info
-                //if user failed to login with username and pass, return to main screen
-                int responseCode = urlConnection.getResponseCode();
-                if (responseCode == urlConnection.HTTP_OK)
-                {
-                    /*
-                    success: save cookies information
-                    success: if it already exist, don't do anything
-                     */
-                    urlResponse = true;
-                    if(!validCookies)
-                    {
-                        System.out.println("DEBUG: Successful login w/ username and password");
-                        headerFields = urlConnection.getHeaderFields();
-                        saveCookieInfo(headerFields);
-                    }
-                }
-                //Cookie has been accepted by the server
-                //HTTP_ACCEPTED = user has been logged in
-                else if (responseCode == urlConnection.HTTP_ACCEPTED)
-                {
-                    System.out.println("DEBUG: Successful login w/ cookie");
-                    urlResponse = true;
-                }
-                else
-                {
-                    urlResponse = false;
-                    //if no valid session stored, try logging in with user information
-                    //if username and password accepted, create new session
-                    if(mEmail != null && mPassword != null && validCookies)
-                    {
-                        System.out.println("DEBUG: Attempting second try with username and password");
-                        urlConnection = createHttpRequest(mEmail,mPassword,USERINFO_FLAG);
-                        urlConnection.connect();
-                        Thread.sleep(THREAD_TIMEOUT);
-
-                        if(urlConnection.getResponseCode() == urlConnection.HTTP_OK)
-                        {
-                            System.out.println("DEBUG: Successful login 2nd attempt, saving cookie information");
-                            urlResponse = true;
-                           headerFields = urlConnection.getHeaderFields();
-                            saveCookieInfo(headerFields);
-                        }
-                        else
-                        {
-                            System.out.println("DEBUG: unable to login ");
-                            urlResponse = false;
-                        }
-                    }
-                    //if no valid session stored in server, display connection failed
-                    else
-                    {
-                        errorFlag = true;
-                    }
-                }
-                urlConnection.disconnect();
-            }
-            catch(IOException e)
-            {
-                System.out.println("IOException : " + e);
-                return false;
-            }
-            catch(InterruptedException e)
-            {
-                System.out.println("Interrupted Exception : " + e);
-                return false;
-            }
-            return urlResponse;
-        }
-
-        @Override
-        protected void onPostExecute(final Boolean success)
-        {
-            mAuthTask = null;
-            showProgress(false);
-
-            if (success)
-            {
-                //Login was successful, bring user to home screen
-                startNextActivity();
-            }
-            else
-            {
-                if(errorFlag)
-                {
-                    Toast.makeText(context, getResources().getString(R.string.conn_error), Toast.LENGTH_LONG).show();
-                }
-                else
-                {
-                    mPasswordView.setError(getString(R.string.error_incorrect_password));
-                    mPasswordView.requestFocus();
-                }
-            }
-        }
-
-        @Override
-        protected void onCancelled()
-        {
-            mAuthTask = null;
-            showProgress(false);
-        }
-    }
-
     /** sign in button on the log in page */
     public void signIn(View view) throws InterruptedException
     {
-        //attemptLogin();
+       attemptLogin();
+
         //todo: uncomment method and remove intent
-        Intent intent = new Intent(this,MainScreen.class);
-        startActivity(intent);
+        //Intent intent = new Intent(this,MainScreen.class);
+        //startActivity(intent);
     }
 
     /** Sign up button on the log in page */
@@ -480,6 +322,7 @@ public class Login extends AppCompatActivity {
         return false;
     }
 
+
     //check for previously saved cookies from the application
     private boolean hasCookies()
     {
@@ -496,108 +339,42 @@ public class Login extends AppCompatActivity {
         return false;
     }
 
-    //Flag = 1 : create http request with cookie information
-    //flag = 2 : create hhtp request with user name and password
-    private HttpURLConnection createHttpRequest(String mEmail, String mPassword, int flag)
+    private void startNextActivity()
+    {
+        Intent intent = new Intent(this, MainScreen.class);
+        startActivity(intent);
+    }
+
+    private boolean authenticateUser(String flag, String userIdEmail, String userSessionPass)
     {
         try
         {
-            //local server
-            //URL url = new URL(getResources().getString(R.string.http_url_test_login));
-            //HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
-
-            //Remote server
-            URL url = new URL(getResources().getString(R.string.https_url_login));
-            HttpsURLConnection urlConnection =  (HttpsURLConnection) url.openConnection();
-
-            urlConnection.setDoOutput(true);
-            urlConnection.setDoInput(true);
-            urlConnection.setRequestMethod("POST");
-            urlConnection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
-            urlConnection.setRequestProperty("User-Agent", "Mozilla/5.0 (compatible; MSIE 5.0;Windows98;DigExt)");
-            urlConnection.setConnectTimeout(HTTP_TIMEOUT);
-            urlConnection.setReadTimeout(HTTP_TIMEOUT);
-
-            //Creating http request with cookie
-            if(flag == 1)
-            {
-                StringBuilder str = new StringBuilder();
-                str.append(sessionId);
-                str.append(";");
-                str.append(userId);
-                urlConnection.setRequestProperty("Cookie", str.toString());
-            }
-            //creating http request with username and password
-            else if(flag == 2)
-            {
-                String postParams = null;
-                StringBuilder str = new StringBuilder();
-                str.append(URLEncoder.encode("email", "UTF-8"));
-                str.append("=");
-                str.append(URLEncoder.encode(mEmail, "UTF-8"));
-                str.append("&");
-                str.append(URLEncoder.encode("password", "UTF-8"));
-                str.append("=");
-                str.append(URLEncoder.encode(mPassword, "UTF-8"));
-                postParams = str.toString();
-
-                urlConnection.setRequestProperty("Content-length", String.valueOf(postParams.length()));
-                OutputStream outputPost = new BufferedOutputStream((urlConnection.getOutputStream()));
-                BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(outputPost, "UTF-8"));
-                writer.write(postParams);
-                writer.flush();
-                writer.close();
-                outputPost.close();
-            }
-            return urlConnection;
+            String[] params = {flag, userIdEmail, userSessionPass, httpURL};
+            loginTask = factory.generateAsyncTask("Login");
+            result = (Boolean) loginTask.execute(params).get();
+            System.out.println(DEBUG?"Authenticate user":"");
         }
-        catch(MalformedURLException error)
+        catch (InterruptedException e)
         {
-            System.err.println("Malformed Problem: " + error);
-            return null;
+            System.out.println(DEBUG?"DEBUG: " + e : "");
+            return false;
         }
-        catch(SocketTimeoutException error)
+        catch(ExecutionException e)
         {
-            System.err.println("Socket Problem: " + error);
-            errorFlag = true;
-            return null;
+            System.out.println(DEBUG?"DEBUG: " + e : "");
+            return false;
         }
-        catch (IOException error)
-        {
-            System.err.println("IO Problem: " + error);
-            return null;
-        }
+        return result;
     }
 
-    //Cookie information is stored in....
-    //Emulator : View > Tool Window > Device File Explorer
-    //Emulator :data is stored inside data > data > com.example.mdo3.vinylplayer > shared_prefs >
-    //Emulator: com.example.mdo3.vinylplayer _preferences.xml
-    //On physical device...
-    //TBD
-    private void saveCookieInfo( Map<String, List<String>> headerFields)
+    private void showError()
     {
-        SharedPreferences.Editor editor = preferences.edit();
-        List<String> cookieHeaders = headerFields.get(getResources().getString(R.string.cooke_header));
+        showProgress(false);
+        Context context = ApplicationContext.getInstance().getAppContext();
+        CharSequence text = "Login Failed. Please Try Again";
+        int duration = Toast.LENGTH_SHORT;
 
-        if (cookieHeaders != null)
-        {
-            for (String cHeader : cookieHeaders)
-            {
-                cookieJar.add(cHeader.substring(0, cHeader.indexOf(";")));
-            }
-        }
-        editor.putString(getResources().getString(R.string.session_id), cookieJar.get(0));
-        editor.putString(getResources().getString(R.string.user_id), cookieJar.get(1));
-        editor.commit();
-        System.out.println("DEBUG: Successfully saved Cookie Information");
-    }
-
-    private void startNextActivity()
-    {
-        finish();
-        Intent intent = new Intent(this, MainScreen.class);
-        intent.putExtra(LOGIN_USER, mEmailView.getText().toString());
-        startActivity(intent);
+        Toast toast = Toast.makeText(this, text, duration);
+        toast.show();
     }
 }

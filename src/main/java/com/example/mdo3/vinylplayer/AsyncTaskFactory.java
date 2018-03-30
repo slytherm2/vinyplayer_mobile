@@ -17,6 +17,7 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.util.HashMap;
 
 /**
  * Created by jose.medina on 3/24/2018.
@@ -30,6 +31,21 @@ public class AsyncTaskFactory
         {
             case "Search":
                 return new SearchTask(input, url, userId, sessionId);
+            case "Login":
+                return null;
+            default:
+                return null;
+        }
+    }
+
+    public AsyncTask generateAsyncTask(String type)
+    {
+        switch(type)
+        {
+            case "Search":
+                return null;
+            case "Login":
+                return new LoginTask();
             default:
                 return null;
         }
