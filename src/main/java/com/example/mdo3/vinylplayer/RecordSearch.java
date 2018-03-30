@@ -112,8 +112,9 @@ public class RecordSearch extends AppCompatActivity {
             String artist = queries[0];
             String album = queries[1];
             Log.d("RecordSearch", "handleIntent called");
+            //Todo: change from local server to remote server
             SearchTask task = (SearchTask) factory.generateAsyncTask("Search", query,
-                    getResources().getString(R.string.http_url_test_search_jose), this.userId, this.sessionId);
+                    getResources().getString(R.string.http_url_test_search), this.userId, this.sessionId);
 
             try
             {
