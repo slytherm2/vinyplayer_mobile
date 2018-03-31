@@ -17,6 +17,7 @@ import android.support.v7.widget.SearchView;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
+import android.view.View;
 
 import java.util.ArrayList;
 import java.util.concurrent.ExecutionException;
@@ -55,12 +56,14 @@ public class RecordSearch extends AppCompatActivity {
         adapter = new RecordAdapter(this, records);
         recordResults.setAdapter(adapter);
 
-        // intent isn't currently working
-//        // get userId & sessionId from Main Screen
-//        Bundle extras = getIntent().getExtras();
-//        if (extras == null) {
-//            return;
-//        }
+        // get userId & sessionId from Main Screen
+        Bundle extras = getIntent().getExtras();
+        if (extras == null ) {
+            return;
+        }
+
+        if(this.userId == null) { this.userId = extras.getString("userId"); }
+        if(this.sessionId == null) { this.sessionId = extras.getString("sessionId"); }
     }
 
     @Override
@@ -106,15 +109,23 @@ public class RecordSearch extends AppCompatActivity {
     // Get the intent, verify the action and get the query
     private void handleIntent(Intent intent) {
         if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
-
+            if(this.userId == null || this.sessionId == null )
+            {
+                Log.d("RecordSearch", "User not logged in");
+                return;
+            }
             String query = intent.getStringExtra(SearchManager.QUERY);
             String queries[] = query.split("-");
             String artist = queries[0];
             String album = queries[1];
             Log.d("RecordSearch", "handleIntent called");
             //Todo: change from local server to remote server
+            // SearchTask task = (SearchTask) factory.generateAsyncTask("Search", query,
+
+            //         getResources().getString(R.string.http_url_test_search), this.userId, this.sessionId);
+            
             SearchTask task = (SearchTask) factory.generateAsyncTask("Search", query,
-                    getResources().getString(R.string.http_url_test_search), this.userId, this.sessionId);
+                    getResources().getString(R.string.http_url_test_search_jose_home), this.userId, this.sessionId);
 
             try
             {

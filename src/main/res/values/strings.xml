@@ -80,7 +80,7 @@
     <string name="http_url_test_records_id">http://192.168.56.1:3001/records/:id</string>
     <string name="http_url_test_create_user">http://192.168.56.1:3001/createUser</string>
 
-    <!-- jose testing data -->
+    <!-- jose testing work -->
     <string name="http_url_test_login_jose">http://10.32.230.240:3001/login</string>
     <string name="http_url_test_catalog_jose">http://10.32.230.240:3001/catalog</string>
     <string name="http_url_test_getalbuminfo_jose">http://10.32.230.240:3001/getAlbumInfo</string>
@@ -89,6 +89,18 @@
     <string name="http_url_test_search_id_jose">http://10.32.230.240:3001/search/:id</string>
     <string name="http_url_test_records_id_jose">http://10.32.230.240:3001/records/:id</string>
     <string name="http_url_test_create_user_jose">http://10.32.230.240:3001/createUser</string>
+
+    <!-- jose testing home -->
+    <string name="http_url_test_login_jose_home">http://192.168.1.67:3001/login</string>
+    <string name="http_url_test_catalog_jose_home">http://192.168.1.67:3001/catalog</string>
+    <string name="http_url_test_getalbuminfo_jose_home">http://192.168.1.67:3001/getAlbumInfo</string>
+    <string name="http_url_test_addalbum_jose_home">http://192.168.1.67:3001/addAlbum</string>
+    <string name="http_url_test_search_jose_home">http://192.168.1.67:3001/search</string>
+    <string name="http_url_test_search_id_jose_home">http://192.168.1.67:3001/search/:id</string>
+    <string name="http_url_test_records_id_jose_home">http://192.168.1.67:3001/records/:id</string>
+    <string name="http_url_test_create_user_jose_home">http://192.168.1.67:3001/createUser</string>
+
+
 
     <!-- Music Player -->
     <string name="artist_album">Artist - Album</string>

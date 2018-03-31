@@ -138,9 +138,8 @@ public class Login extends AppCompatActivity {
     /*
     Attempts to sign in the user with the credentials
      */
-    private void attemptLogin()
+    private boolean attemptLogin()
     {
-
         showProgress( true);
         // Reset errors.
         mEmailView.setError(null);
@@ -179,6 +178,7 @@ public class Login extends AppCompatActivity {
             // There was an error; don't attempt login and focus the first
             // form field with an error.
             focusView.requestFocus();
+            return false;
         }
         else
         {

@@ -6,9 +6,9 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.view.View.OnClickListener;
 
 import java.util.ArrayList;
 
@@ -23,12 +23,7 @@ public class RecordAdapter extends RecyclerView.Adapter<RecordAdapter.ViewHolder
     public LayoutInflater inflater;
     public ArrayList<Record> records;
     public Context context;
-    // private final OnClickListener listener;
 
-
-    // interface for onClickListener
-    private OnItemClicked onClick;
-    public interface OnItemClicked { void onItemClick(int position); }
 
     public RecordAdapter(Context context, ArrayList<Record> records)
     {
@@ -51,7 +46,7 @@ public class RecordAdapter extends RecyclerView.Adapter<RecordAdapter.ViewHolder
         final Record record = records.get(position);
         holder.artist_TextView.setText(record.getArtist());
         holder.album_TextView.setText((record.getAlbum()));
-        holder.artist_TextView.setOnClickListener(new View.OnClickListener(){
+        holder.record_Layout.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v)
             {
@@ -70,15 +65,16 @@ public class RecordAdapter extends RecyclerView.Adapter<RecordAdapter.ViewHolder
     {
         TextView artist_TextView;
         TextView album_TextView;
-        ViewHolder(View view) {
+        ImageView cover_ImageView;
+        LinearLayout record_Layout;
+
+        ViewHolder(View view)
+        {
             super(view);
             artist_TextView = view.findViewById(R.id.recycler_record_artist);
             album_TextView = view.findViewById(R.id.recycler_record_album);
-        }
-
-        public void bind(final Record record, final AdapterView.OnItemClickListener listener)
-        {
+            cover_ImageView = view.findViewById(R.id.recycler_record_cover);
+            record_Layout = (LinearLayout) view.findViewById(R.id.recycler_record);
         }
     }
-
 }
