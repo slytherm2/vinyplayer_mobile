@@ -141,6 +141,7 @@ public class Login extends AppCompatActivity {
     private boolean attemptLogin()
     {
         showProgress( true);
+
         // Reset errors.
         mEmailView.setError(null);
         mPasswordView.setError(null);
@@ -355,6 +356,7 @@ public class Login extends AppCompatActivity {
             loginTask = factory.generateAsyncTask("Login");
             result = (Boolean) loginTask.execute(params).get();
             System.out.println(DEBUG?"DEBUG: Authenticate user":"");
+
         }
         catch (InterruptedException e)
         {
