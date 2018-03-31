@@ -50,7 +50,6 @@ public class BluetoothConnection extends Activity
     private final int BUFFER_SIZE = 1024;
     private final String MC_CONTROL = "Nord";
 
-    private boolean found_device = false;
     private BluetoothSocket mmSocket = null;
     private BluetoothDevice mmDevice = null;
     private OutputStream outputStream = null;

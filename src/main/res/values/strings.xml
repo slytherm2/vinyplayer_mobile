@@ -26,11 +26,11 @@
     <string name="error_field_required">This field is required</string>
     <string name="permission_rationale">"Contacts permissions are needed for providing email completions."</string>
     <string name="BT_LE_NotFound"> Bluetooth Low Energy Not Found </string>
-    <string name="BT_name">WARP</string>
+    <string name="BT_name">W.A.R.P.</string>
     <string name="unknown_service">Unknown Services</string>
     <string name="unknown_characteristic">Unknown Characteristics</string>
     <!-- <string name="mc_address">FD:23:10:33:D4:37</string> -->
-    <string name="mc_address">FE:C8:50:0A:49:EB</string>
+    <!--<string name="mc_address">FE:C8:50:0A:49:EB</string> -->
     <string name="title_activity_main_screen_beta">MainScreen_beta</string>
 
     <string name="navigation_drawer_open">Open navigation drawer</string>
@@ -71,7 +71,7 @@
     <string name="conn_error">Connection Timed Out</string>
 
     <!-- testing data -->
-    <string name="http_url_test_login">http://192.168.56.1:3001/login</string>
+    <string name="http_url_test_login">http://192.168.1.111:3001/login</string>
     <string name="http_url_test_catalog">http://192.168.56.1:3001/catalog</string>
     <string name="http_url_test_getalbuminfo">http://192.168.56.1:3001/getAlbumInfo</string>
     <string name="http_url_test_addalbum">http://192.168.56.1:3001/addAlbum</string>
