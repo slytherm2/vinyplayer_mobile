@@ -103,7 +103,7 @@ public class Login extends AppCompatActivity {
 
         //if user already has valid cookie
         //automatically sign user into application
-       if(hasCookies())
+       if(Utils.hasCookies(this))
         {
             showProgress(true);
             sessionId = preferences.getString(getResources().getString(R.string.session_id), null);
@@ -318,23 +318,6 @@ public class Login extends AppCompatActivity {
                 return true;
             }
         }
-        return false;
-    }
-
-
-    //check for previously saved cookies from the application
-    private boolean hasCookies()
-    {
-        System.out.println("DEBUG: Checking XML");
-        sessionId = preferences.getString(getResources().getString(R.string.session_id),null);
-        userId = preferences.getString(getResources().getString(R.string.user_id), null);
-
-        if(sessionId != null && userId != null)
-        {
-            System.out.println("DEBUG: cookies are available");
-            return true;
-        }
-        System.out.println("DEBUG: no cookies available");
         return false;
     }
 

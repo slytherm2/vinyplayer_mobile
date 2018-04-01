@@ -71,7 +71,7 @@
     <string name="conn_error">Connection Timed Out</string>
 
     <!-- testing data -->
-    <string name="http_url_test_login">http://192.168.1.111:3001/login</string>
+    <string name="http_url_test_login">http://192.168.56.1:3001/catalog</string>
     <string name="http_url_test_catalog">http://192.168.56.1:3001/catalog</string>
     <string name="http_url_test_getalbuminfo">http://192.168.56.1:3001/getAlbumInfo</string>
     <string name="http_url_test_addalbum">http://192.168.56.1:3001/addAlbum</string>
@@ -79,6 +79,16 @@
     <string name="http_url_test_search_id">http://192.168.56.1:3001/search/:id</string>
     <string name="http_url_test_records_id">http://192.168.56.1:3001/records/:id</string>
     <string name="http_url_test_create_user">http://192.168.56.1:3001/createUser</string>
+
+    <!-- home -->
+    <string name="http_url_test_login_home">http://192.168.1.111:3001/login</string>
+    <string name="http_url_test_catalog_home">http://192.168.1.111:3001/catalog</string>
+    <string name="http_url_test_getalbuminfo_home">http://192.168.1.111:3001/getAlbumInfo</string>
+    <string name="http_url_test_addalbum_home">http://192.168.1.111:3001/addAlbum</string>
+    <string name="http_url_test_search_home">http://192.168.1.111:3001/search</string>
+    <string name="http_url_test_search_id_home">http://192.168.1.111:3001/search/:id</string>
+    <string name="http_url_test_records_id_home">http://192.168.1.111:3001/records/:id</string>
+    <string name="http_url_test_create_user_home">http://192.168.1.111:3001/createUser</string>
 
     <!-- jose testing work -->
     <string name="http_url_test_login_jose">http://10.32.230.240:3001/login</string>
