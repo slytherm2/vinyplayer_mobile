@@ -2,6 +2,7 @@ package com.example.mdo3.vinylplayer;
 import android.Manifest;
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothClass;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCallback;
@@ -52,6 +53,7 @@ public class LowEnergyBlueTooth extends Activity
     private static final int SUCCESS = 2;
     private static final int FAILURE = 1;
     private int mConnectionState = 0;
+    HashMap<String,BluetoothDevice> devicesList = new HashMap<>();
 
     //Bluetooth Variables
     private BluetoothAdapter mBluetoothAdapter = null;
@@ -106,7 +108,6 @@ public class LowEnergyBlueTooth extends Activity
 
         ble_msg = getResources().getString(R.string.BT_LE_NotFound);
         BLUETOOTH_NAME = getResources().getString(R.string.BT_name);
-        BLUETOOTH_ADDRESS = getResources().getString(R.string.mc_address);
 
         //Checks if device has bluetooth LE capabilities
         if (!getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE) || mBluetoothAdapter == null)
@@ -179,8 +180,8 @@ public class LowEnergyBlueTooth extends Activity
                 returnToMain(FAILURE);
             }
         }, SCAN_PERIOD);
-        btleScanner.startScan(createFilter(), createScanSettings(), mScanCallback);
-        //btleScanner.startScan(mScanCallback);
+        //btleScanner.startScan(createFilter(), createScanSettings(), mScanCallback);
+        btleScanner.startScan(mScanCallback);
     }
 
     //called after startActivityForResult()
@@ -206,14 +207,14 @@ public class LowEnergyBlueTooth extends Activity
     {
         public void onScanResult(int callbackType, ScanResult result)
         {
-            System.out.println("DEBUG: " + result.getDevice().getName());
-            System.out.println("DEBUG: " + result.getDevice().getAddress());
-            if(DEBUG){System.out.println("DEBUG: onScanResult");}
-            BluetoothDevice tmpDevice = result.getDevice();
-            if(tmpDevice!=null && tmpDevice.getName().contains(BLUETOOTH_NAME))
+            devicesList.put(result.getDevice().getName(),result.getDevice());
+            if(devicesList.size() > 0)
             {
-                if(DEBUG){System.out.println("DEBUG: Found " + tmpDevice.getName());}
-                connectToDevice(tmpDevice);
+                BluetoothDevice targetDevice = devicesList.get(BLUETOOTH_NAME);
+                if(targetDevice != null)
+                {
+                    connectToDevice(targetDevice);
+                }
             }
         }
 

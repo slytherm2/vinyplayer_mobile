@@ -75,7 +75,6 @@ public class Login extends AppCompatActivity {
     private View mLoginFormView;
 
     public static final String LOGIN_USER = "John Doe";
-    private ArrayList<String> cookieJar;
     private boolean validCookies;
     private String sessionId = null;
     private String userId = null;
@@ -99,7 +98,6 @@ public class Login extends AppCompatActivity {
         mPasswordView = (EditText) findViewById(R.id.log_passwd);
         mLoginFormView = findViewById(R.id.login_form);
         mProgressView = findViewById(R.id.login_progress);
-        cookieJar = new ArrayList<>();
         preferences = PreferenceManager.getDefaultSharedPreferences(this);
         factory = new AsyncTaskFactory();
         httpURL = getResources().getString(R.string.http_url_test_login);
@@ -114,11 +112,15 @@ public class Login extends AppCompatActivity {
             sessionId = preferences.getString(getResources().getString(R.string.session_id), null);
             userId = preferences.getString(getResources().getString(R.string.user_id), null);
 
+            System.out.println(DEBUG?"DEBUG: Creating Task":"");
             loginTask = factory.generateAsyncTask("Login");
             if(loginTask != null)
             {
+                System.out.println(DEBUG?"DEBUG: Task successfully created":"");
                 if (sessionId != null && userId != null && !sessionId.isEmpty() && !userId.isEmpty())
                 {
+                    System.out.println(DEBUG?"DEBUG: Authenticating cookies":"");
+                    showProgress(true);
                     if(authenticateUser(COOKIEFLAG, userId, sessionId))
                     {
                         showProgress(false);
@@ -352,7 +354,7 @@ public class Login extends AppCompatActivity {
             String[] params = {flag, userIdEmail, userSessionPass, httpURL};
             loginTask = factory.generateAsyncTask("Login");
             result = (Boolean) loginTask.execute(params).get();
-            System.out.println(DEBUG?"Authenticate user":"");
+            System.out.println(DEBUG?"DEBUG: Authenticate user":"");
         }
         catch (InterruptedException e)
         {
