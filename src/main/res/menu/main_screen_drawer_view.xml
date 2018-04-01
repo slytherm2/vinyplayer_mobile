@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_profile"
+            android:icon="@drawable/ic_action_name"
+            android:title="@string/profile" />
+        <item
+        android:id="@+id/nav_add_device"
+        android:icon="@drawable/add_device"
+        android:title="@string/add_device" />
+        <item
+            android:id="@+id/nav_search_records"
+            android:icon="@drawable/search"
+            android:title="@string/search_records" />
+        <item
+            android:id="@+id/nav_camera_search"
+            android:icon="@drawable/ic_menu_camera"
+            android:title="@string/camera_search" />
+        <item
+            android:id="@+id/nav_manual_add"
+            android:icon="@drawable/manual_add"
+            android:title="@string/manual_add" />
+        <item
+            android:id="@+id/nav_test"
+            android:icon="@drawable/ic_menu_manage"
+            android:title="@string/test" />
+        <!--
+        No logout feature for now...
+        no route to log the user out
+        <item
+            android:id="@+id/nav_log_out"
+            android:icon="@drawable/log_out"
+            android:title="@string/log_out" />
+            -->
+    </group>
+</menu>
