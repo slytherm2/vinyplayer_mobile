@@ -57,9 +57,6 @@ import java.util.concurrent.Future;
  *data/data/YOUR_PACKAGE_NAME/shared_prefs/YOUR_PACKAGE_NAME_preferences.xml
  */
 
-//TODO: how to pass the bluetooth class among different activities
-    //TODO: connecting to bluetooth device
-    //todo: fragements for nav menu bar
 public class Login extends AppCompatActivity {
 
     /**
