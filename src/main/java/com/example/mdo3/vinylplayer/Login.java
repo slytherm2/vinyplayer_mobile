@@ -57,9 +57,6 @@ import java.util.concurrent.Future;
  *data/data/YOUR_PACKAGE_NAME/shared_prefs/YOUR_PACKAGE_NAME_preferences.xml
  */
 
-//TODO: how to pass the bluetooth class among different activities
-    //TODO: connecting to bluetooth device
-    //todo: fragements for nav menu bar
 public class Login extends AppCompatActivity {
 
     /**
@@ -138,10 +135,10 @@ public class Login extends AppCompatActivity {
     /*
     Attempts to sign in the user with the credentials
      */
-    private boolean attemptLogin()
+    private void attemptLogin()
     {
-        showProgress( true);
 
+        showProgress( true);
         // Reset errors.
         mEmailView.setError(null);
         mPasswordView.setError(null);
@@ -179,7 +176,6 @@ public class Login extends AppCompatActivity {
             // There was an error; don't attempt login and focus the first
             // form field with an error.
             focusView.requestFocus();
-            return false;
         }
         else
         {
@@ -356,7 +352,6 @@ public class Login extends AppCompatActivity {
             loginTask = factory.generateAsyncTask("Login");
             result = (Boolean) loginTask.execute(params).get();
             System.out.println(DEBUG?"DEBUG: Authenticate user":"");
-
         }
         catch (InterruptedException e)
         {
