@@ -56,15 +56,6 @@ public class RecordSearch extends AppCompatActivity {
         // specify adapter
         adapter = new RecordAdapter(this, records);
         recordResults.setAdapter(adapter);
-
-        // get userId & sessionId from Main Screen
-        Bundle extras = getIntent().getExtras();
-        if (extras == null ) {
-            return;
-        }
-
-        if(this.userId == null) { this.userId = extras.getString("userId"); }
-        if(this.sessionId == null) { this.sessionId = extras.getString("sessionId"); }
     }
 
     @Override
@@ -144,7 +135,7 @@ public class RecordSearch extends AppCompatActivity {
             //         getResources().getString(R.string.http_url_test_search), this.userId, this.sessionId);
             
             SearchTask task = (SearchTask) factory.generateAsyncTask("Search", query,
-                    getResources().getString(R.string.http_url_test_search_home), this.userId, this.sessionId);
+                    getResources().getString(R.string.http_url_test_search), this.userId, this.sessionId);
 
             try
             {

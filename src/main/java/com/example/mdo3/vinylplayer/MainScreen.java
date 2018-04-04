@@ -4,8 +4,10 @@ import android.Manifest;
 import android.app.Activity;
 import android.app.Service;
 import android.bluetooth.BluetoothAdapter;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
@@ -14,6 +16,7 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Binder;
+import android.os.Parcelable;
 import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
@@ -61,7 +64,7 @@ public class MainScreen extends AppCompatActivity
     private String newTitle = null;
     private Intent intent = null;
     private Intent cameraIntent = null;
-    private Button btn = null;
+    private static Button btn = null;
     private ListView listview = null;
     private DatabaseTask dbt = null;
     private ArrayList<String> list = null;
@@ -236,6 +239,10 @@ public class MainScreen extends AppCompatActivity
 
             }
         });
+
+        //TODO: uncomment to enable checking of bluetooth devices
+        //Intent bt_intent = new Intent(this, LowEnergyBlueTooth.class);
+        //startActivityForResult(bt_intent, REQUEST_ENABLE_BT);
     }
 
     public class DatabaseTask extends AsyncTask<Void, Void, Boolean>
@@ -382,7 +389,6 @@ public class MainScreen extends AppCompatActivity
                 btn = findViewById(R.id.main_stateBTN);
                 btn.setBackgroundTintList(ColorStateList.valueOf(Color.RED));
                 btn.setText(vinylNotConnected);
-                return;
             }
         }
 
@@ -464,10 +470,6 @@ public class MainScreen extends AppCompatActivity
         else if(id == R.id.nav_search_records)
         {
             intent = new Intent(MainScreen.this, RecordSearch.class);
-            String sid = preferences.getString(getResources().getString(R.string.session_id),"");
-            String uid = preferences.getString(getResources().getString(R.string.user_id),"");
-            intent.putExtra("userId", uid);
-            intent.putExtra("sessionId", sid);
         }
         //connect to bluetooth device
         else if(id == R.id.nav_add_device)
@@ -476,5 +478,10 @@ public class MainScreen extends AppCompatActivity
             startActivityForResult(intent, REQUEST_ENABLE_BT);
         }
         startActivity(intent);
+    }
+
+    public static Button getButton()
+    {
+        return btn;
     }
 }

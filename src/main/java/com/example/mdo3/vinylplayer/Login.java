@@ -3,6 +3,7 @@ package com.example.mdo3.vinylplayer;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -97,41 +98,14 @@ public class Login extends AppCompatActivity {
         mProgressView = findViewById(R.id.login_progress);
         preferences = PreferenceManager.getDefaultSharedPreferences(this);
         factory = new AsyncTaskFactory();
-        httpURL = getResources().getString(R.string.http_url_test_login);
+        httpURL = getResources().getString(R.string.https_url_login);
         ApplicationContext appContext = ApplicationContext.getInstance();
         appContext.setAppContext(this);
 
         //if user already has valid cookie
         //automatically sign user into application
-       if(Utils.hasCookies(this))
-        {
-            showProgress(true);
-            sessionId = preferences.getString(getResources().getString(R.string.session_id), null);
-            userId = preferences.getString(getResources().getString(R.string.user_id), null);
-
-            System.out.println(DEBUG?"DEBUG: Creating Task":"");
-            loginTask = factory.generateAsyncTask("Login");
-            if(loginTask != null)
-            {
-                System.out.println(DEBUG?"DEBUG: Task successfully created":"");
-                if (sessionId != null && userId != null && !sessionId.isEmpty() && !userId.isEmpty())
-                {
-                    System.out.println(DEBUG?"DEBUG: Authenticating cookies":"");
-                    showProgress(true);
-                    if(authenticateUser(COOKIEFLAG, userId, sessionId))
-                    {
-                        showProgress(false);
-                        startNextActivity();
-                    }
-                    else
-                    {
-                        showProgress(false);
-                    }
-                }
-            }
-        }
+        isLoggedIn();
     }
-
     /*
     Attempts to sign in the user with the credentials
      */
@@ -183,6 +157,7 @@ public class Login extends AppCompatActivity {
             // perform the user login attempt.
             if (email != null && password != null)
             {
+                showProgress(true);
                 if(authenticateUser(NOCOOKIEFLAG, email, password))
                 {
                     startNextActivity();
@@ -271,7 +246,8 @@ public class Login extends AppCompatActivity {
     /** sign in button on the log in page */
     public void signIn(View view) throws InterruptedException
     {
-       attemptLogin();
+        showProgress(true);
+        attemptLogin();
 
         //todo: uncomment method and remove intent
         //Intent intent = new Intent(this,MainScreen.class);
@@ -323,6 +299,7 @@ public class Login extends AppCompatActivity {
 
     private void startNextActivity()
     {
+        showProgress(false);
         Intent intent = new Intent(this, MainScreen.class);
         startActivity(intent);
     }
@@ -333,8 +310,8 @@ public class Login extends AppCompatActivity {
         {
             String[] params = {flag, userIdEmail, userSessionPass, httpURL};
             loginTask = factory.generateAsyncTask("Login");
-            result = (Boolean) loginTask.execute(params).get();
-            System.out.println(DEBUG?"DEBUG: Authenticate user":"");
+            result = (boolean) loginTask.execute(params).get();
+            System.out.println(DEBUG?"DEBUG: Authenticate user " + result:"");
         }
         catch (InterruptedException e)
         {
@@ -358,5 +335,34 @@ public class Login extends AppCompatActivity {
 
         Toast toast = Toast.makeText(this, text, duration);
         toast.show();
+    }
+
+    private void isLoggedIn()
+    {
+        if(Utils.hasCookies(this))
+        {
+            sessionId = preferences.getString(getResources().getString(R.string.session_id), null);
+            userId = preferences.getString(getResources().getString(R.string.user_id), null);
+
+            System.out.println(DEBUG?"DEBUG: Creating Task":"");
+            loginTask = factory.generateAsyncTask("Login");
+            if(loginTask != null)
+            {
+                System.out.println(DEBUG?"DEBUG: Task successfully created":"");
+                if (sessionId != null && userId != null && !sessionId.isEmpty() && !userId.isEmpty())
+                {
+                    System.out.println(DEBUG?"DEBUG: Authenticating cookies":"");
+                    if(authenticateUser(COOKIEFLAG, userId, sessionId))
+                    {
+                        System.out.println(DEBUG?"DEBUG: User Authenticated":"");
+                        startNextActivity();
+                    }
+                    else
+                    {
+                        showProgress(false);
+                    }
+                }
+            }
+        }
     }
 }

@@ -19,13 +19,18 @@ import android.bluetooth.le.ScanSettings;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.hardware.camera2.params.ColorSpaceTransform;
 import android.os.Bundle;
 import android.os.Handler;
+import android.preference.PreferenceManager;
+import android.provider.ContactsContract;
 import android.support.v4.app.ActivityCompat;
+import android.widget.Button;
 import android.widget.Toast;
 
 import java.lang.reflect.Array;
@@ -48,10 +53,8 @@ public class LowEnergyBlueTooth extends Activity
 {
     //Constants
     private static final int REQUEST_ENABLE_BT = 1;
-    private static final long SCAN_PERIOD = 100000; //10secs
+    private static final long SCAN_PERIOD = 5000; //5secs
     private static final int MY_PERMISSIONS_REQUEST_ACCESS_COARSE_LOCATION = 1;
-    private static final int SUCCESS = 2;
-    private static final int FAILURE = 1;
     private int mConnectionState = 0;
     HashMap<String,BluetoothDevice> devicesList = new HashMap<>();
 
@@ -95,6 +98,7 @@ public class LowEnergyBlueTooth extends Activity
     //singleton class to store information about the bluetooth to be used
     //throughtout the application
     BluetoothLESingleton leSingleton = BluetoothLESingleton.getInstance();
+    Context staticContext;
 
     @Override
     public void onCreate(Bundle savedInstanceState)
@@ -105,6 +109,7 @@ public class LowEnergyBlueTooth extends Activity
         setContentView(R.layout.please_wait);
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         mHandler = new Handler();
+        staticContext = ApplicationContext.getInstance().getAppContext();
 
         ble_msg = getResources().getString(R.string.BT_LE_NotFound);
         BLUETOOTH_NAME = getResources().getString(R.string.BT_name);
@@ -113,7 +118,7 @@ public class LowEnergyBlueTooth extends Activity
         if (!getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE) || mBluetoothAdapter == null)
         {
             Toast.makeText(this, ble_msg, Toast.LENGTH_SHORT).show();
-            returnToMain(FAILURE);
+            returnToMain(Activity.RESULT_CANCELED);
         }
 
         //Explicitly state access to coarse location (required for BT LE)
@@ -122,6 +127,7 @@ public class LowEnergyBlueTooth extends Activity
                 MY_PERMISSIONS_REQUEST_ACCESS_COARSE_LOCATION);
 
         leSingleton.setBluetoothAdapter(mBluetoothAdapter);
+
         //If BT isn't enabled, ask user to enable BT
         if (!mBluetoothAdapter.isEnabled())
         {
@@ -177,7 +183,7 @@ public class LowEnergyBlueTooth extends Activity
             public void run()
             {
                 btleScanner.stopScan(mScanCallback);
-                returnToMain(FAILURE);
+                returnToMain(Activity.RESULT_CANCELED);
             }
         }, SCAN_PERIOD);
         //btleScanner.startScan(createFilter(), createScanSettings(), mScanCallback);
@@ -194,7 +200,7 @@ public class LowEnergyBlueTooth extends Activity
         if (requestCode == REQUEST_ENABLE_BT && resultCode == Activity.RESULT_CANCELED)
         {
             System.out.println("DEBUG: BT LE disabled by user");
-            returnToMain(FAILURE);
+            returnToMain(Activity.RESULT_CANCELED);
         }
         else if(requestCode == REQUEST_ENABLE_BT && resultCode == Activity.RESULT_OK)
         {
@@ -231,17 +237,15 @@ public class LowEnergyBlueTooth extends Activity
         }
     };
 
-    //1 = Failure
-    //2 = success
     private void returnToMain(int result)
     {
         Intent returnIntent = new Intent();
 
-        if(result == 1)
+        if(result == Activity.RESULT_CANCELED)
         {
             setResult(Activity.RESULT_CANCELED, returnIntent);
         }
-        else if(result == 2)
+        else if(result == Activity.RESULT_OK)
         {
             setResult(Activity.RESULT_OK, returnIntent);
         }
@@ -250,7 +254,6 @@ public class LowEnergyBlueTooth extends Activity
 
     private void connectToDevice(BluetoothDevice device)
     {
-
         if (DEBUG) {System.out.println("DEBUG: Connecting to " + device.getName());}
 
         cancelAdapterDiscovery(mBluetoothAdapter);
@@ -276,14 +279,19 @@ public class LowEnergyBlueTooth extends Activity
                 leSingleton.setGatt(gatt);
                 gatt.discoverServices();
 
-                returnToMain(SUCCESS);
+                MainScreen.getButton().setBackgroundTintList(ColorStateList.valueOf(Color.GREEN));
+                MainScreen.getButton().setText(staticContext.getResources().getString(R.string.label_con));
+                returnToMain(Activity.RESULT_OK);
 
             } else if (newState == BluetoothProfile.STATE_DISCONNECTED)
             {
                 if (DEBUG) {System.out.println("DEBUG:Gatt Disconnected");}
                 intentAction = ACTION_GATT_DISCONNECTED;
                 mConnectionState = STATE_DISCONNECTED;
-                returnToMain(FAILURE);
+
+                MainScreen.getButton().setBackgroundTintList(ColorStateList.valueOf(Color.RED));
+                MainScreen.getButton().setText(staticContext.getResources().getString(R.string.label_not_con));
+                returnToMain(Activity.RESULT_CANCELED);
             }
         }
 
@@ -432,5 +440,12 @@ public class LowEnergyBlueTooth extends Activity
         characteristic.setValue(data);
         characteristic.setWriteType(BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE);
         return mBluetoothGatt.writeCharacteristic(characteristic);
+    }
+
+    @Override
+    protected void onDestroy()
+    {
+        super.onDestroy();
+        cancelAdapterDiscovery(mBluetoothAdapter);
     }
 }

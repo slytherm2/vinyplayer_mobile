@@ -1,5 +1,6 @@
 package com.example.mdo3.vinylplayer.asyncTask;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
@@ -9,6 +10,7 @@ import android.widget.Toast;
 
 import com.example.mdo3.vinylplayer.ApplicationContext;
 import com.example.mdo3.vinylplayer.AsyncTaskFactory;
+import com.example.mdo3.vinylplayer.Login;
 import com.example.mdo3.vinylplayer.R;
 
 import java.io.BufferedOutputStream;
@@ -55,6 +57,10 @@ public class LoginTask extends AsyncTask<String, Void, Boolean>
     private HttpURLConnection urlConnection = null;
     private ArrayList<String> cookieJar = new ArrayList<>();
 
+
+    @Override
+    protected void onPreExecute() {
+    }
 
     @Override
     protected Boolean doInBackground(String... params)
