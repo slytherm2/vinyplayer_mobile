@@ -2,6 +2,7 @@ package com.example.mdo3.vinylplayer;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.Application;
 import android.app.Service;
 import android.bluetooth.BluetoothAdapter;
 import android.content.BroadcastReceiver;
@@ -13,9 +14,15 @@ import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
+import android.graphics.Camera;
 import android.graphics.Color;
+import android.hardware.camera2.CameraAccessException;
+import android.hardware.camera2.CameraCharacteristics;
+import android.hardware.camera2.CameraDevice;
+import android.hardware.camera2.CameraManager;
 import android.os.AsyncTask;
 import android.os.Binder;
+import android.os.Handler;
 import android.os.Parcelable;
 import android.preference.PreferenceManager;
 import android.provider.MediaStore;
@@ -129,18 +136,15 @@ public class MainScreen extends AppCompatActivity
         //best to use fragments when working with the navigation drawer
         mDrawerLayout = findViewById(R.id.drawer_layout);
         NavigationView navigationView = findViewById(R.id.nav_view);
-
         navigationView.setNavigationItemSelectedListener(
                 new NavigationView.OnNavigationItemSelectedListener()
                 {
                     public boolean onNavigationItemSelected(MenuItem menuItem)
                     {
-                        // set item as selected to persist highlight
-                        menuItem.setChecked(true);
                         // close drawer when item is tapped
                         mDrawerLayout.closeDrawers();
-
-                        System.out.println("DEBUG: " + menuItem.toString() + "has been pressed");
+                        menuItem.setChecked(false);
+                        System.out.println("DEBUG: " + menuItem.toString() + " has been pressed");
                         launchMenuActivity(menuItem);
                         return true;
                     }
@@ -194,20 +198,7 @@ public class MainScreen extends AppCompatActivity
                 Snackbar.make(view, getResources().getString(R.string.launching_camera), Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
 
-                //Manifest requires camera use, user must give permission to use camera.
-                //-1 = no camera permission
-                //0 = camera permission granted
-                int cameraPermission = checkSelfPermission(Manifest.permission.CAMERA);
-                if (cameraPermission != PackageManager.PERMISSION_GRANTED)
-                {
-                    requestPermissions(new String[]{Manifest.permission.CAMERA},
-                            ENABLE_CAMERA);
-                }
-                else
-                {
-                    System.out.println("DEBUG: Calling Camera");
-                    callCamera();
-                }
+                checkCamPerms();
             }
         });
 
@@ -401,6 +392,9 @@ public class MainScreen extends AppCompatActivity
                 //TODO: send image to image analysis application for discovery
                 Bitmap image = (Bitmap) data.getExtras().get("data");
 
+                Intent intent = new Intent(this, MainScreen.class);
+                startActivity(intent);
+
             } else if (resultCode == Activity.RESULT_CANCELED)
             {
                 return;
@@ -426,6 +420,7 @@ public class MainScreen extends AppCompatActivity
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults)
     {
+        System.out.println("DEBUG: requesting permission");
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == ENABLE_CAMERA)
         {
@@ -435,17 +430,9 @@ public class MainScreen extends AppCompatActivity
             }
             else
             {
+                System.out.println("DEBUG: return");
                 return;
             }
-        }
-    }
-
-    private void callCamera()
-    {
-        cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        if (cameraIntent.resolveActivity(getPackageManager()) != null)
-        {
-            startActivityForResult(cameraIntent, ENABLE_CAMERA);
         }
     }
 
@@ -465,7 +452,13 @@ public class MainScreen extends AppCompatActivity
             intent = new Intent(this,manual_add.class);
         //Launching camera, to search record based on camera
         else if(id == R.id.nav_camera_search)
-            callCamera();
+        {
+            View view = findViewById(android.R.id.content);
+            Snackbar.make(view, getResources().getString(R.string.launching_camera), Snackbar.LENGTH_LONG)
+                    .setAction("Action", null).show();
+            checkCamPerms();
+            return;  //must call return to close out of menu bar and launch camera application
+        }
         //search records by input
         else if(id == R.id.nav_search_records)
         {
@@ -483,5 +476,32 @@ public class MainScreen extends AppCompatActivity
     public static Button getButton()
     {
         return btn;
+    }
+
+    private void checkCamPerms()
+    {
+        //Manifest requires camera use, user must give permission to use camera.
+        //-1 = no camera permission
+        //0 = camera permission granted
+        int cameraPermission = checkSelfPermission(Manifest.permission.CAMERA);
+        if (cameraPermission != PackageManager.PERMISSION_GRANTED)
+        {
+            requestPermissions(new String[]{Manifest.permission.CAMERA},
+                    ENABLE_CAMERA);
+        }
+        else
+        {
+            System.out.println("DEBUG: Calling Camera");
+            callCamera();
+        }
+    }
+
+    private void callCamera()
+    {
+        Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        if (cameraIntent.resolveActivity(getPackageManager()) != null)
+        {
+            startActivityForResult(cameraIntent, ENABLE_CAMERA);
+        }
     }
 }
