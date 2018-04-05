@@ -1,55 +1,23 @@
 package com.example.mdo3.vinylplayer;
 
-import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
-import android.annotation.TargetApi;
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
 import android.preference.PreferenceManager;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
-import android.app.LoaderManager.LoaderCallbacks;
 
-import android.content.CursorLoader;
-import android.content.Loader;
-import android.database.Cursor;
-import android.net.Uri;
 import android.os.AsyncTask;
 
-import android.os.Build;
 import android.os.Bundle;
-import android.provider.ContactsContract;
 import android.text.TextUtils;
-import android.util.Log;
-import android.view.KeyEvent;
 import android.view.View;
-import android.view.View.OnClickListener;
-import android.view.inputmethod.EditorInfo;
-import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
-import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ProgressBar;
-import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.mdo3.vinylplayer.asyncTask.LoginTask;
-
-import org.apache.commons.lang3.concurrent.ConcurrentException;
-
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 
 /**
  * A login screen that offers login via email/password.
@@ -73,11 +41,9 @@ public class Login extends AppCompatActivity {
     private View mLoginFormView;
 
     public static final String LOGIN_USER = "John Doe";
-    private boolean validCookies;
     private String sessionId = null;
     private String userId = null;
     private static SharedPreferences preferences;
-    private static Map<String, List<String>> headerFields;
 
     private final String COOKIEFLAG = "cookie";
     private final String NOCOOKIEFLAG = "noCookie";
@@ -88,6 +54,7 @@ public class Login extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
@@ -95,10 +62,9 @@ public class Login extends AppCompatActivity {
         mEmailView = (AutoCompleteTextView) findViewById(R.id.log_email);
         mPasswordView = (EditText) findViewById(R.id.log_passwd);
         mLoginFormView = findViewById(R.id.login_form);
-        mProgressView = findViewById(R.id.login_progress);
         preferences = PreferenceManager.getDefaultSharedPreferences(this);
         factory = new AsyncTaskFactory();
-        httpURL = getResources().getString(R.string.https_url_login);
+        httpURL = getResources().getString(R.string.http_url_test_login_home);
         ApplicationContext appContext = ApplicationContext.getInstance();
         appContext.setAppContext(this);
 
@@ -112,7 +78,6 @@ public class Login extends AppCompatActivity {
     private void attemptLogin()
     {
 
-        showProgress( true);
         // Reset errors.
         mEmailView.setError(null);
         mPasswordView.setError(null);
@@ -157,7 +122,6 @@ public class Login extends AppCompatActivity {
             // perform the user login attempt.
             if (email != null && password != null)
             {
-                showProgress(true);
                 if(authenticateUser(NOCOOKIEFLAG, email, password))
                 {
                     startNextActivity();
@@ -203,50 +167,9 @@ public class Login extends AppCompatActivity {
         return (hasCap && hasNum && hasSize);
     }
 
-    /**
-     * Shows the progress UI and hides the login form.
-     */
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
-    private void showProgress(final boolean show)
-    {
-        // On Honeycomb MR2 we have the ViewPropertyAnimator APIs, which allow
-        // for very easy animations. If available, use these APIs to fade-in
-        // the progress spinner.
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2)
-        {
-            int shortAnimTime = getResources().getInteger(android.R.integer.config_shortAnimTime);
-
-            mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
-            mLoginFormView.animate().setDuration(shortAnimTime).alpha(
-                    show ? 0 : 1).setListener(new AnimatorListenerAdapter() {
-                @Override
-                public void onAnimationEnd(Animator animation) {
-                    mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
-                }
-            });
-
-            mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
-            mProgressView.animate().setDuration(shortAnimTime).alpha(
-                    show ? 1 : 0).setListener(new AnimatorListenerAdapter() {
-                @Override
-                public void onAnimationEnd(Animator animation) {
-                    mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
-                }
-            });
-        }
-        else
-        {
-            // The ViewPropertyAnimator APIs are not available, so simply show
-            // and hide the relevant UI components.
-            mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
-            mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
-        }
-    }
-
     /** sign in button on the log in page */
     public void signIn(View view) throws InterruptedException
     {
-        showProgress(true);
         attemptLogin();
 
         //todo: uncomment method and remove intent
@@ -299,7 +222,6 @@ public class Login extends AppCompatActivity {
 
     private void startNextActivity()
     {
-        showProgress(false);
         Intent intent = new Intent(this, MainScreen.class);
         startActivity(intent);
     }
@@ -328,17 +250,15 @@ public class Login extends AppCompatActivity {
 
     private void showError()
     {
-        showProgress(false);
         Context context = ApplicationContext.getInstance().getAppContext();
-        CharSequence text = "Login Failed. Please Try Again";
-        int duration = Toast.LENGTH_SHORT;
-
-        Toast toast = Toast.makeText(this, text, duration);
+        Toast toast = Toast.makeText(this, R.string.login_failed, Toast.LENGTH_SHORT);
         toast.show();
     }
 
     private void isLoggedIn()
     {
+        Toast.makeText(this, R.string.loading_msg, Toast.LENGTH_LONG).show();
+
         if(Utils.hasCookies(this))
         {
             sessionId = preferences.getString(getResources().getString(R.string.session_id), null);
@@ -348,20 +268,26 @@ public class Login extends AppCompatActivity {
             loginTask = factory.generateAsyncTask("Login");
             if(loginTask != null)
             {
-                System.out.println(DEBUG?"DEBUG: Task successfully created":"");
-                if (sessionId != null && userId != null && !sessionId.isEmpty() && !userId.isEmpty())
-                {
-                    System.out.println(DEBUG?"DEBUG: Authenticating cookies":"");
-                    if(authenticateUser(COOKIEFLAG, userId, sessionId))
+                Thread t1 = new Thread(new Runnable() {
+                    public void run()
                     {
-                        System.out.println(DEBUG?"DEBUG: User Authenticated":"");
-                        startNextActivity();
+                        System.out.println(DEBUG?"DEBUG: Task successfully created":"");
+                        if (sessionId != null && userId != null && !sessionId.isEmpty() && !userId.isEmpty())
+                        {
+                            System.out.println(DEBUG?"DEBUG: Authenticating cookies":"");
+                            if(authenticateUser(COOKIEFLAG, userId, sessionId))
+                            {
+                                System.out.println(DEBUG?"DEBUG: User Authenticated":"");
+                                startNextActivity();
+                            }
+                            else
+                            {
+                                return;
+                            }
+                        }
                     }
-                    else
-                    {
-                        showProgress(false);
-                    }
-                }
+                });
+                t1.start();
             }
         }
     }

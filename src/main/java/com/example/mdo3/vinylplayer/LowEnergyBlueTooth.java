@@ -106,7 +106,7 @@ public class LowEnergyBlueTooth extends Activity
         if (DEBUG) {System.out.println("DEBUG: OnCreate");}
 
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.please_wait);
+        //setContentView(R.layout.please_wait);
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         mHandler = new Handler();
         staticContext = ApplicationContext.getInstance().getAppContext();
@@ -119,6 +119,7 @@ public class LowEnergyBlueTooth extends Activity
         {
             Toast.makeText(this, ble_msg, Toast.LENGTH_SHORT).show();
             returnToMain(Activity.RESULT_CANCELED);
+            return;
         }
 
         //Explicitly state access to coarse location (required for BT LE)
@@ -413,7 +414,7 @@ public class LowEnergyBlueTooth extends Activity
 
     private void cancelAdapterDiscovery(BluetoothAdapter bt)
     {
-        if(bt.isDiscovering())
+        if(bt != null && bt.isDiscovering())
             bt.cancelDiscovery();
         else
             return;

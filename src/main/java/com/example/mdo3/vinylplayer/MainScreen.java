@@ -44,6 +44,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
@@ -231,9 +232,15 @@ public class MainScreen extends AppCompatActivity
             }
         });
 
-        //TODO: uncomment to enable checking of bluetooth devices
-        //Intent bt_intent = new Intent(this, LowEnergyBlueTooth.class);
-        //startActivityForResult(bt_intent, REQUEST_ENABLE_BT);
+        //automatically enable bluetooth if available
+        Thread t1 = new Thread(new Runnable()
+        {
+            public void run()
+            {
+                startBT();
+            }
+        });
+        t1.start();
     }
 
     public class DatabaseTask extends AsyncTask<Void, Void, Boolean>
@@ -356,6 +363,13 @@ public class MainScreen extends AppCompatActivity
 
 
     public void startBT(View view)
+    {
+        Toast.makeText(this, R.string.launchingBT_msg, Toast.LENGTH_SHORT).show();
+        Intent bt_intent = new Intent(this, LowEnergyBlueTooth.class);
+        startActivityForResult(bt_intent, REQUEST_ENABLE_BT);
+    }
+
+    private void startBT()
     {
         Intent bt_intent = new Intent(this, LowEnergyBlueTooth.class);
         startActivityForResult(bt_intent, REQUEST_ENABLE_BT);

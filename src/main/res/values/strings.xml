@@ -73,7 +73,7 @@
     <string name="conn_error">Connection Timed Out</string>
 
     <!-- testing data -->
-    <string name="http_url_test_login">http://10.32.202.8:3001/login</string>
+    <string name="http_url_test_login">http://192.168.56.1:3001/login</string>
     <string name="http_url_test_catalog">http://192.168.56.1:3001/catalog</string>
     <string name="http_url_test_getalbuminfo">http://192.168.56.1:3001/getAlbumInfo</string>
     <string name="http_url_test_addalbum">http://192.168.56.1:3001/addAlbum</string>
@@ -120,5 +120,10 @@
 
     <!-- Search Widget/Fragment -->
     <string name="search_hint">Search artists and albums</string>
+
+    <!-- messages -->
+    <string name="loading_msg">Loading...Please Wait</string>
+    <string name="launchingBT_msg">Searching for Bluetooth Device</string>
+    <string name="login_failed">Login Failed. Please Try Again</string>
 
 </resources>
