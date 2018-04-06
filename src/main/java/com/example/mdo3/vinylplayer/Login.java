@@ -3,6 +3,7 @@ package com.example.mdo3.vinylplayer;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Looper;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 
@@ -64,7 +65,7 @@ public class Login extends AppCompatActivity {
         mLoginFormView = findViewById(R.id.login_form);
         preferences = PreferenceManager.getDefaultSharedPreferences(this);
         factory = new AsyncTaskFactory();
-        httpURL = getResources().getString(R.string.http_url_test_login_home);
+        httpURL = getResources().getString(R.string.http_url_test_login);
         ApplicationContext appContext = ApplicationContext.getInstance();
         appContext.setAppContext(this);
 

@@ -46,6 +46,8 @@ public class AsyncTaskFactory
                 return null;
             case "Login":
                 return new LoginTask();
+            case "SignUp":
+                return new SignUpTask();
             default:
                 return null;
         }

@@ -7,17 +7,25 @@ import android.content.Context;
 import android.content.CursorLoader;
 import android.content.Intent;
 import android.content.Loader;
+import android.content.SharedPreferences;
+import android.content.res.Resources;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
+import android.os.Handler;
+import android.os.HandlerThread;
+import android.os.Looper;
+import android.preference.PreferenceManager;
 import android.provider.ContactsContract;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
-import android.widget.AutoCompleteTextView;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
@@ -31,7 +39,8 @@ import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
-import java.util.ArrayList;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutionException;
 
 import javax.net.ssl.HttpsURLConnection;
 
@@ -48,12 +57,18 @@ public class SignUp extends AppCompatActivity
     private EditText address = null;
     private EditText city = null;
     private EditText state = null;
-    private UserLoginTask mAuthTask = null;
 
-    private View mProgressView;
     private View mLoginFormView;
+    private Toolbar mTopToolbar;
+    private String httpURL = null;
+    private Boolean result;
+
+    private String email;
+    private String password;
+    private String password2;
 
     public static final String SIGNUP_USER = "Vinyl User";
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -68,9 +83,16 @@ public class SignUp extends AppCompatActivity
         address = (EditText) findViewById(R.id.signup_address);
         city = (EditText) findViewById(R.id.signup_city);
         state = (EditText) findViewById(R.id.signup_state);
+        httpURL = this.getResources().getString(R.string.http_url_test_login);
 
         mLoginFormView = findViewById(R.id.signup_form);
-        mProgressView = findViewById(R.id.signup_progress);
+
+        //adding tool bar with back arrow to go back to activity
+        //it goes to the activity listed in the android manifest
+        mTopToolbar = (Toolbar) findViewById(R.id.signup_toolbar);
+        setSupportActionBar(mTopToolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
     }
 
     /*
@@ -78,19 +100,14 @@ public class SignUp extends AppCompatActivity
      */
     private void attemptLogin()
     {
-        if (mAuthTask != null)
-        {
-            return;
-        }
-
         // Reset errors.
         inputEmail.setError(null);
         inputPassword.setError(null);
 
         // Store values at the time of the login attempt.
-        String email = inputEmail.getText().toString();
-        String password = inputPassword.getText().toString();
-        String password2 = inputPassword2.getText().toString();
+        email = inputEmail.getText().toString();
+        password = inputPassword.getText().toString();
+        password2 = inputPassword2.getText().toString();
 
         boolean cancel = false;
         View focusView = null;
@@ -104,181 +121,94 @@ public class SignUp extends AppCompatActivity
         }
 
         // Check for a valid email address.
-        if (TextUtils.isEmpty(email)) {
+        if (TextUtils.isEmpty(email))
+        {
             inputEmail.setError(getString(R.string.error_field_required));
             focusView = inputEmail;
             cancel = true;
-        } else if (!isEmailValid(email)) {
+        } else if (!isEmailValid(email))
+        {
             inputEmail.setError(getString(R.string.error_invalid_email));
             focusView = inputEmail;
             cancel = true;
         }
 
-        if (cancel) {
+        if (cancel)
+        {
             // There was an error; don't attempt login and focus the first
             // form field with an error.
             focusView.requestFocus();
-        } else {
-            // Show a progress spinner, and kick off a background task to
-            // perform the user login attempt.
-            showProgress(true);
-            mAuthTask = new UserLoginTask(email, password, this);
-            mAuthTask.execute((Void) null);
         }
-    }
-
-    public class UserLoginTask extends AsyncTask<Void, Void, Boolean>
-    {
-        private final String mEmail;
-        private final String mPassword;
-        private Context context;
-
-        public UserLoginTask(String email, String password, Context context) {
-            mEmail = email;
-            mPassword = password;
-            this.context = context;
-        }
-
-        @Override
-        protected Boolean doInBackground(Void... voids) {
-            boolean urlResponse = false;
-
+        else
+        {
+            final CountDownLatch latch = new CountDownLatch(1);
+            result = false;
             try {
+                Thread thread1 = new HandlerThread("SignUp")
+                {
+                    AsyncTaskFactory factory = new AsyncTaskFactory();
+                    AsyncTask signUpTask = factory.generateAsyncTask("SignUp");
+                    String[] params = {email, password, httpURL};
 
-                StringBuilder str = new StringBuilder();
-                str.append(URLEncoder.encode("email", "UTF-8"));
-                str.append("=");
-                str.append(URLEncoder.encode(mEmail, "UTF-8"));
-                str.append("&");
-                str.append(URLEncoder.encode("password", "UTF-8"));
-                str.append("=");
-                str.append(URLEncoder.encode(mPassword, "UTF-8"));
-                String postParams = str.toString();
-
-                URL url = new URL("https://vinyl-player-server.herokuapp.com/createUser");
-                HttpsURLConnection urlConnection =  (HttpsURLConnection) url.openConnection();
-                urlConnection.setDoOutput(true);
-                urlConnection.setRequestMethod("POST");
-                urlConnection.setDoInput(true);
-                urlConnection.setRequestProperty("Content-length", String.valueOf(postParams.length()));
-                urlConnection.setRequestProperty("Content-Type","application/x-www-form-urlencoded");
-                urlConnection.setRequestProperty("User-Agent", "Mozilla/5.0 (compatible; MSIE 5.0;Windows98;DigExt)");
-
-                OutputStream outputPost = new BufferedOutputStream((urlConnection.getOutputStream()));
-                BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(outputPost, "UTF-8"));
-                writer.write(postParams);
-                writer.flush();
-                writer.close();
-                outputPost.close();
-                urlConnection.connect();
-                Thread.sleep(2000);
-
-                if (urlConnection.getResponseCode() == urlConnection.HTTP_OK)
-                    urlResponse = true;
-                else
-                    urlResponse = false;
-
-                System.out.println("POST code " + urlConnection.getResponseCode());
-                System.out.println(urlConnection.getResponseMessage());
-                getPostResponse(urlConnection);
-
-            } catch(MalformedURLException error) {
-                System.err.println("Malformed Problem: " + error);
-                return false;
-            } catch(SocketTimeoutException error) {
-                System.err.println("Socket Problem: " + error);
-                return false;
-            } catch (IOException error) {
-                System.err.println("IO Problem: " + error);
-                return false;
-            } catch (InterruptedException e) {
-                System.err.print("Interrupted Problem: " + e);
-                return false;
-            }catch(Exception e) {
-                System.err.print("General Problem: " + e);
-                return false;
+                    @Override
+                    public void run()
+                    {
+                        try
+                        {
+                            result = (Boolean) signUpTask.execute(params).get();
+                            latch.countDown();
+                        } catch (ExecutionException ex) {
+                            Log.d("Exception", ex.getMessage());
+                            result = false;
+                            latch.countDown();
+                        } catch (InterruptedException ex) {
+                            Log.d("Exception", ex.getMessage());
+                            result = false;
+                            latch.countDown();
+                        }
+                    }
+                };
+                thread1.start();
+                latch.await();
+            }
+            catch(InterruptedException ex)
+            {
+                Log.d("Exception", ex.getMessage());
             }
 
-            return urlResponse;
-        }
-
-        @Override
-        protected void onPostExecute(final Boolean success) {
-            mAuthTask = null;
-            showProgress(false);
-
-            if (success)
+            if(result)
             {
-                finish();
-                Intent intent = new Intent(context, MainScreen.class);
-                intent.putExtra(SIGNUP_USER, inputEmail.getText().toString());
+                SharedPreferences preferences =
+                        PreferenceManager.getDefaultSharedPreferences(this);
+                SharedPreferences.Editor editor = preferences.edit();
 
+                Resources rsrc = this.getResources();
+                editor.putString(rsrc.getString(R.string.signup_email), email);
+                editor.putString(rsrc.getString(R.string.signup_address),
+                        address.getText().toString());
+                editor.putString(rsrc.getString(R.string.signup_name),
+                        name.getText().toString());
+                editor.putString(rsrc.getString(R.string.signup_city),
+                        city.getText().toString());
+                editor.putString(rsrc.getString(R.string.signup_state),
+                        state.getText().toString());
+                editor.putString(rsrc.getString(R.string.signup_phone),
+                        phone.getText().toString());
+                editor.commit();
+
+                Intent intent = new Intent(this, MainScreen.class);
                 startActivity(intent);
             }
             else
             {
-                inputPassword.setError(getString(R.string.error_incorrect_password));
-                inputPassword.requestFocus();
+                Toast toast = Toast.makeText(this, R.string.signup_failed, Toast.LENGTH_SHORT);
+                toast.show();
             }
         }
-
-        @Override
-        protected void onCancelled() {
-            mAuthTask = null;
-            showProgress(false);
-        }
     }
 
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
-    private void showProgress(final boolean show) {
-        // On Honeycomb MR2 we have the ViewPropertyAnimator APIs, which allow
-        // for very easy animations. If available, use these APIs to fade-in
-        // the progress spinner.
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
-            int shortAnimTime = getResources().getInteger(android.R.integer.config_shortAnimTime);
-
-            mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
-            mLoginFormView.animate().setDuration(shortAnimTime).alpha(
-                    show ? 0 : 1).setListener(new AnimatorListenerAdapter() {
-                @Override
-                public void onAnimationEnd(Animator animation) {
-                    mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
-                }
-            });
-
-            mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
-            mProgressView.animate().setDuration(shortAnimTime).alpha(
-                    show ? 1 : 0).setListener(new AnimatorListenerAdapter() {
-                @Override
-                public void onAnimationEnd(Animator animation) {
-                    mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
-                }
-            });
-        } else {
-            // The ViewPropertyAnimator APIs are not available, so simply show
-            // and hide the relevant UI components.
-            mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
-            mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
-        }
-    }
-
-    public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
-        return new CursorLoader(this,
-                // Retrieve data rows for the device user's 'profile' contact.
-                Uri.withAppendedPath(ContactsContract.Profile.CONTENT_URI,
-                        ContactsContract.Contacts.Data.CONTENT_DIRECTORY), ProfileQuery.PROJECTION,
-
-                // Select only email addresses.
-                ContactsContract.Contacts.Data.MIMETYPE +
-                        " = ?", new String[]{ContactsContract.CommonDataKinds.Email
-                .CONTENT_ITEM_TYPE},
-
-                // Show primary email addresses first. Note that there won't be
-                // a primary email address if the user hasn't specified one.
-                ContactsContract.Contacts.Data.IS_PRIMARY + " DESC");
-    }
-
-    private boolean isEmailValid(String email) {
+    private boolean isEmailValid(String email)
+    {
         boolean endingValid = false;
         boolean hasSymbol = false;
 
@@ -312,30 +242,6 @@ public class SignUp extends AppCompatActivity
         }
 
         return (hasCap && hasNum && hasSize && samePass);
-    }
-
-    private interface ProfileQuery {
-        String[] PROJECTION = {
-                ContactsContract.CommonDataKinds.Email.ADDRESS,
-                ContactsContract.CommonDataKinds.Email.IS_PRIMARY,
-        };
-
-        int ADDRESS = 0;
-        int IS_PRIMARY = 1;
-    }
-
-    //Sign up button located on the signup activity
-    public void btn_signup(View view)
-    {
-        System.out.println("signup activity: signup button has been pressed");
-        attemptLogin();
-    }
-
-    //Cancel button located on the signup activity
-    public void btn_cancel(View view)
-    {
-        Intent intent = new Intent(this, Login.class);
-        startActivity(intent);
     }
 
     public boolean CheckDomains(String temp)
@@ -374,6 +280,20 @@ public class SignUp extends AppCompatActivity
         return false;
     }
 
+    //Sign up button located on the signup activity
+    public void btn_signup(View view)
+    {
+        attemptLogin();
+    }
+
+    //Cancel button located on the signup activity
+    public void btn_cancel(View view)
+    {
+        Intent intent = new Intent(this, Login.class);
+        startActivity(intent);
+    }
+
+    /*
     private void getPostResponse(URLConnection conn)
     {
         String inputLine = null;
@@ -396,4 +316,5 @@ public class SignUp extends AppCompatActivity
 
         System.out.println("Response: " + response.toString());
     }
+    */
 }

@@ -1,17 +1,16 @@
 package com.example.mdo3.vinylplayer.asyncTask;
 
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.content.res.Resources;
 import android.os.AsyncTask;
+import android.os.Handler;
+import android.os.Looper;
 import android.preference.PreferenceManager;
 import android.widget.Toast;
 
 import com.example.mdo3.vinylplayer.ApplicationContext;
-import com.example.mdo3.vinylplayer.AsyncTaskFactory;
-import com.example.mdo3.vinylplayer.Login;
 import com.example.mdo3.vinylplayer.R;
+import com.example.mdo3.vinylplayer.SignUp;
 
 import java.io.BufferedOutputStream;
 import java.io.BufferedWriter;
@@ -24,22 +23,14 @@ import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.net.ssl.HttpsURLConnection;
-
 /**
- * Created by mdo3 on 3/30/2018.
+ * Created by mdo3 on 4/5/2018.
  */
 
-/**
- * Represents an asynchronous login/registration task used to authenticate
- * the user.
- */
-
-public class LoginTask extends AsyncTask<String, Void, Boolean>
+public class SignUpTask extends AsyncTask<String, Void, Boolean >
 {
     private final int THREAD_TIMEOUT = 2000;
     private static final int HTTP_TIMEOUT = 10000; //10 seconds
@@ -59,18 +50,18 @@ public class LoginTask extends AsyncTask<String, Void, Boolean>
 
 
     @Override
-    protected void onPreExecute() {
+    protected void onPreExecute()
+    {
     }
 
     @Override
     protected Boolean doInBackground(String... params)
     {
-        if(params.length == 4)
+        if(params.length == 3)
         {
-            flag = params[0];
-            userId_email = params[1];
-            session_pass = params[2];
-            url = params[3];
+            userId_email = params[0];
+            session_pass = params[1];
+            url = params[2];
         }
         else
         {
@@ -110,12 +101,8 @@ public class LoginTask extends AsyncTask<String, Void, Boolean>
                 success: save cookies information
                 success: if it already exist, don't do anything
                  */
-
-                if(flag.equalsIgnoreCase("nocookie"))
-                {
-                    saveCookieInfo(urlConnection.getHeaderFields());
-                }
-               result = true;
+                saveCookieInfo(urlConnection.getHeaderFields());
+                result = true;
             }
             //Cookie has been accepted by the server
             //HTTP_ACCEPTED = user has been logged in
@@ -158,7 +145,7 @@ public class LoginTask extends AsyncTask<String, Void, Boolean>
     @Override
     protected void onCancelled()
     {
-       // mAuthTask = null;
+        // mAuthTask = null;
         //showProgress(false);
     }
 
@@ -185,37 +172,25 @@ public class LoginTask extends AsyncTask<String, Void, Boolean>
             urlConnection.setConnectTimeout(HTTP_TIMEOUT);
             urlConnection.setReadTimeout(HTTP_TIMEOUT);
 
-            //Creating http request with cookie
-            if(flag.equalsIgnoreCase("cookie"))
-            {
-                StringBuilder str = new StringBuilder();
-                str.append(mEmail);
-                str.append(";");
-                str.append(mPassword);
-                urlConnection.setRequestProperty("Cookie", str.toString());
-            }
             //creating http request with username and password
-            else if(flag.equalsIgnoreCase("noCookie"))
-            {
-                String postParams = null;
-                StringBuilder str = new StringBuilder();
-                str.append(URLEncoder.encode("email", "UTF-8"));
-                str.append("=");
-                str.append(URLEncoder.encode(mEmail, "UTF-8"));
-                str.append("&");
-                str.append(URLEncoder.encode("password", "UTF-8"));
-                str.append("=");
-                str.append(URLEncoder.encode(mPassword, "UTF-8"));
-                postParams = str.toString();
+            String postParams = null;
+            StringBuilder str = new StringBuilder();
+            str.append(URLEncoder.encode("email", "UTF-8"));
+            str.append("=");
+            str.append(URLEncoder.encode(mEmail, "UTF-8"));
+            str.append("&");
+            str.append(URLEncoder.encode("password", "UTF-8"));
+            str.append("=");
+            str.append(URLEncoder.encode(mPassword, "UTF-8"));
+            postParams = str.toString();
 
-                urlConnection.setRequestProperty("Content-length", String.valueOf(postParams.length()));
-                OutputStream outputPost = new BufferedOutputStream((urlConnection.getOutputStream()));
-                BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(outputPost, "UTF-8"));
-                writer.write(postParams);
-                writer.flush();
-                writer.close();
-                outputPost.close();
-            }
+            urlConnection.setRequestProperty("Content-length", String.valueOf(postParams.length()));
+            OutputStream outputPost = new BufferedOutputStream((urlConnection.getOutputStream()));
+            BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(outputPost, "UTF-8"));
+            writer.write(postParams);
+            writer.flush();
+            writer.close();
+            outputPost.close();
             return urlConnection;
         }
         catch(MalformedURLException error)
@@ -240,7 +215,7 @@ public class LoginTask extends AsyncTask<String, Void, Boolean>
         ApplicationContext appContext = ApplicationContext.getInstance();
         Context context = appContext.getAppContext();
 
-        SharedPreferences  preferences = PreferenceManager.getDefaultSharedPreferences(context);
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
         SharedPreferences.Editor editor = preferences.edit();
         List<String> cookieHeaders = headerFields.get(context.getResources().getString(R.string.cooke_header));
 

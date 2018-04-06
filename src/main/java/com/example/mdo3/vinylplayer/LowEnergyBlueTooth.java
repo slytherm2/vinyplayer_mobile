@@ -273,26 +273,38 @@ public class LowEnergyBlueTooth extends Activity
             if (newState == BluetoothProfile.STATE_CONNECTED)
             {
                 if (DEBUG) {System.out.println("DEBUG: Gatt Connected");}
-                intentAction = ACTION_GATT_CONNECTED;
-                mConnectionState = STATE_CONNECTED;
 
-                if (DEBUG) {System.out.println("DEBUG:Discovering Services");}
                 leSingleton.setGatt(gatt);
                 gatt.discoverServices();
 
-                MainScreen.getButton().setBackgroundTintList(ColorStateList.valueOf(Color.GREEN));
-                MainScreen.getButton().setText(staticContext.getResources().getString(R.string.label_con));
-                returnToMain(Activity.RESULT_OK);
+                Button btn = MainScreen.getButton();
+                if(btn != null)
+                {
+                    btn.setBackgroundTintList(ColorStateList.valueOf(Color.GREEN));
+                    btn.setText(staticContext.getResources().getString(R.string.label_con));
+                    returnToMain(Activity.RESULT_OK);
+                }
+                else
+                {
+                    return;
+                }
+
 
             } else if (newState == BluetoothProfile.STATE_DISCONNECTED)
             {
                 if (DEBUG) {System.out.println("DEBUG:Gatt Disconnected");}
-                intentAction = ACTION_GATT_DISCONNECTED;
-                mConnectionState = STATE_DISCONNECTED;
 
-                MainScreen.getButton().setBackgroundTintList(ColorStateList.valueOf(Color.RED));
-                MainScreen.getButton().setText(staticContext.getResources().getString(R.string.label_not_con));
-                returnToMain(Activity.RESULT_CANCELED);
+                Button btn = MainScreen.getButton();
+                if(btn != null)
+                {
+                    btn.setBackgroundTintList(ColorStateList.valueOf(Color.RED));
+                    btn.setText(staticContext.getResources().getString(R.string.label_not_con));
+                    returnToMain(Activity.RESULT_CANCELED);
+                }
+                else
+                {
+                    return;
+                }
             }
         }
 

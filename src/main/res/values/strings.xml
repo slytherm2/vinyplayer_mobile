@@ -73,7 +73,7 @@
     <string name="conn_error">Connection Timed Out</string>
 
     <!-- testing data -->
-    <string name="http_url_test_login">http://192.168.56.1:3001/login</string>
+    <string name="http_url_test_login">http://10.32.245.30:3001/login</string>
     <string name="http_url_test_catalog">http://192.168.56.1:3001/catalog</string>
     <string name="http_url_test_getalbuminfo">http://192.168.56.1:3001/getAlbumInfo</string>
     <string name="http_url_test_addalbum">http://192.168.56.1:3001/addAlbum</string>
@@ -113,6 +113,13 @@
     <string name="http_url_test_create_user_jose_home">http://192.168.1.67:3001/createUser</string>
 
 
+    <!-- user profile information -->
+    <string name="signup_email">Email</string>
+    <string name="signup_name">Name</string>
+    <string name="signup_phone">Phone</string>
+    <string name="signup_address">Address</string>
+    <string name="signup_city">City</string>
+    <string name="signup_state">State</string>
 
     <!-- Music Player -->
     <string name="artist_album">Artist - Album</string>
@@ -125,5 +132,7 @@
     <string name="loading_msg">Loading...Please Wait</string>
     <string name="launchingBT_msg">Searching for Bluetooth Device</string>
     <string name="login_failed">Login Failed. Please Try Again</string>
+    <string name="signup_failed">Sign Up Failed. Please Try Again</string>
+    <string name="login_signin">Please Sign In</string>
 
 </resources>
