@@ -65,7 +65,7 @@ public class Login extends AppCompatActivity {
         mLoginFormView = findViewById(R.id.login_form);
         preferences = PreferenceManager.getDefaultSharedPreferences(this);
         factory = new AsyncTaskFactory();
-        httpURL = getResources().getString(R.string.http_url_test_login);
+        httpURL = getResources().getString(R.string.https_url_login);
         ApplicationContext appContext = ApplicationContext.getInstance();
         appContext.setAppContext(this);
 

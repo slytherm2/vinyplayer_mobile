@@ -42,6 +42,9 @@ public class testing extends AppCompatActivity
         System.out.println("DEBUG: button clicked");
         byte[] data = textbox.getText().toString().getBytes();
         System.out.println("DEBUG: Sending Data...");
+        FormulaClass c = new FormulaClass();
+        System.out.println("DEBUG: " + c.getValue());
+        data = String.valueOf(c.getValue()).getBytes();
         LowEnergyBlueTooth.send(mGattService, SERVICE_UUID, mGatt, data);
         textbox.setText("");
     }

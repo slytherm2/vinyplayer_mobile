@@ -46,22 +46,15 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.net.CookieManager;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.SocketTimeoutException;
 import java.net.URL;
-import java.net.URLEncoder;
 import java.util.ArrayList;
 
-import javax.net.ssl.HttpsURLConnection;
 
 public class MainScreen extends AppCompatActivity
 {
@@ -71,8 +64,6 @@ public class MainScreen extends AppCompatActivity
 
     private String newTitle = null;
     private Intent intent = null;
-    private Intent cameraIntent = null;
-    private static Button btn = null;
     private ListView listview = null;
     private DatabaseTask dbt = null;
     private ArrayList<String> list = null;
@@ -86,7 +77,9 @@ public class MainScreen extends AppCompatActivity
 
     private String sessionID = null;
     private String userID = null;
+    private String email = null;
 
+    private static Button btn = null;
     private SharedPreferences preferences;
 
     @Override
@@ -99,7 +92,10 @@ public class MainScreen extends AppCompatActivity
         vinylNotConnected =  getResources().getString(R.string.label_not_con);
         BluetoothLESingleton leSingleton = BluetoothLESingleton.getInstance();
         preferences = PreferenceManager.getDefaultSharedPreferences(this);
+        Resources rsrc = this.getResources();
+        email = preferences.getString(rsrc.getString(R.string.label_email), null);
 
+        /*
         //get the user email from the previous activity (login/signup)
         String user = null;
         if (intent != null)
@@ -123,6 +119,7 @@ public class MainScreen extends AppCompatActivity
             String tempStr = user.substring(0, user.indexOf('@'));
             newTitle = tempStr + " " + getString(R.string.label_Welcome);
         }
+                */
 
         //update title to reflect user "welcome ...username"
         TextView title = (TextView) findViewById(R.id.main_title);
@@ -136,7 +133,7 @@ public class MainScreen extends AppCompatActivity
        //Deals with the items inside the navigation drawer aka hamburger menu
         //best to use fragments when working with the navigation drawer
         mDrawerLayout = findViewById(R.id.drawer_layout);
-        NavigationView navigationView = findViewById(R.id.nav_view);
+        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(
                 new NavigationView.OnNavigationItemSelectedListener()
                 {
@@ -150,6 +147,17 @@ public class MainScreen extends AppCompatActivity
                         return true;
                     }
                 });
+        //changing the nav_main_screen.xml username and email
+        View headerLayout = navigationView.getHeaderView(0);
+        TextView tempTextView = (TextView) headerLayout.findViewById(R.id.nav_user_name);
+        String temp = preferences.getString(email + rsrc.getString(R.string.label_name), null);
+        if(temp != null)
+            tempTextView.setText(temp);
+        else
+            tempTextView.setText("User");
+
+        tempTextView = (TextView) headerLayout.findViewById(R.id.nav_email);
+        tempTextView.setText(email);
 
         //deals with the nav menu bar or hamburger menu
         Toolbar toolbar = findViewById(R.id.toolbar);
@@ -275,7 +283,6 @@ public class MainScreen extends AppCompatActivity
 
 
                 StringBuilder strBld = new StringBuilder();
-                SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
                 sessionID = preferences.getString(getResources().getString(R.string.session_id),"");
                 userID = preferences.getString(getResources().getString(R.string.user_id),"");
 

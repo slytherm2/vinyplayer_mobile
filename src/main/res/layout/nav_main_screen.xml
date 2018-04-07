@@ -14,7 +14,7 @@
         android:layout_gravity="start"
         android:scaleType="fitStart"
         android:baselineAlignBottom="false"
-        android:src="@drawable/ic_menu_manage"
+        android:src="@drawable/ic_action_name"
         android:contentDescription="@string/nav_main_screen_image"/>
 
     <TextView

@@ -86,6 +86,8 @@ public class SignUp extends AppCompatActivity
         httpURL = this.getResources().getString(R.string.http_url_test_login);
 
         mLoginFormView = findViewById(R.id.signup_form);
+        ApplicationContext contextInst = ApplicationContext.getInstance();
+        contextInst.setAppContext(this);
 
         //adding tool bar with back arrow to go back to activity
         //it goes to the activity listed in the android manifest
@@ -181,18 +183,19 @@ public class SignUp extends AppCompatActivity
                 SharedPreferences preferences =
                         PreferenceManager.getDefaultSharedPreferences(this);
                 SharedPreferences.Editor editor = preferences.edit();
-
                 Resources rsrc = this.getResources();
+
+                String userTag = email;
                 editor.putString(rsrc.getString(R.string.signup_email), email);
-                editor.putString(rsrc.getString(R.string.signup_address),
+                editor.putString(userTag + rsrc.getString(R.string.signup_address),
                         address.getText().toString());
-                editor.putString(rsrc.getString(R.string.signup_name),
+                editor.putString(userTag + rsrc.getString(R.string.signup_name),
                         name.getText().toString());
-                editor.putString(rsrc.getString(R.string.signup_city),
+                editor.putString(userTag + rsrc.getString(R.string.signup_city),
                         city.getText().toString());
-                editor.putString(rsrc.getString(R.string.signup_state),
+                editor.putString(userTag + rsrc.getString(R.string.signup_state),
                         state.getText().toString());
-                editor.putString(rsrc.getString(R.string.signup_phone),
+                editor.putString(userTag + rsrc.getString(R.string.signup_phone),
                         phone.getText().toString());
                 editor.commit();
 

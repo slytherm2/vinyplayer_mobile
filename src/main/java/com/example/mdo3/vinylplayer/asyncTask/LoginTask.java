@@ -170,12 +170,12 @@ public class LoginTask extends AsyncTask<String, Void, Boolean>
         {
             //todo: change from local to remote
             //local server
-            URL url = new URL(urlString);
-            HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+            //URL url = new URL(urlString);
+            //HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
 
             //Remote server
-            //URL url = new URL(urlString);
-            //HttpsURLConnection urlConnection =  (HttpsURLConnection) url.openConnection();
+            URL url = new URL(urlString);
+            HttpsURLConnection urlConnection =  (HttpsURLConnection) url.openConnection();
 
             urlConnection.setDoOutput(true);
             urlConnection.setDoInput(true);
@@ -251,6 +251,7 @@ public class LoginTask extends AsyncTask<String, Void, Boolean>
                 cookieJar.add(cHeader.substring(0, cHeader.indexOf(";")));
             }
         }
+        editor.putString(context.getResources().getString(R.string.label_email), userId_email);
         editor.putString(context.getResources().getString(R.string.session_id), cookieJar.get(0));
         editor.putString(context.getResources().getString(R.string.user_id), cookieJar.get(1));
         editor.commit();

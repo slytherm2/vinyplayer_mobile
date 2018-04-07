@@ -61,6 +61,7 @@
     <string name="manual_add">Manually Add Record</string>
     <string name="log_out">Log Out</string>
     <string name="test">Test</string>
+    <string name="profile_change">Change</string>
 
     <!-- HTTP data -->
     <string name="https_url_login">https://vinyl-player-server.herokuapp.com/login</string>
@@ -114,6 +115,7 @@
 
 
     <!-- user profile information -->
+    <string name="user_profile">User Profile</string>
     <string name="signup_email">Email</string>
     <string name="signup_name">Name</string>
     <string name="signup_phone">Phone</string>
