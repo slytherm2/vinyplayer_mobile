@@ -18,6 +18,7 @@ public class testing extends AppCompatActivity
     private BluetoothGattService mGattService = leSingleton.getGattService();
 
     EditText textbox;
+    EditText textbox2;
     byte[] data;
 
     private Toolbar mTopToolbar;
@@ -28,6 +29,7 @@ public class testing extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_testing);
         textbox = (EditText) findViewById(R.id.testing_textbox);
+        textbox2 = (EditText) findViewById(R.id.testing_spacing);
 
         //adding tool bar with back arrow to go back to activity
         //it goes to the activity listed in the android manifest
@@ -40,12 +42,29 @@ public class testing extends AppCompatActivity
     public void button(View view)
     {
         System.out.println("DEBUG: button clicked");
-        byte[] data = textbox.getText().toString().getBytes();
+        byte[] data = "0".getBytes();
         System.out.println("DEBUG: Sending Data...");
-        FormulaClass c = new FormulaClass();
-        System.out.println("DEBUG: " + c.getValue());
-        data = String.valueOf(c.getValue()).getBytes();
+
+        Utils util = new Utils();
+        int x = util.calcValueST(Double.valueOf(textbox.getText().toString()));
+        data = String.valueOf(x).getBytes();
+
         LowEnergyBlueTooth.send(mGattService, SERVICE_UUID, mGatt, data);
         textbox.setText("");
+    }
+
+
+    public void buttonTwo(View view)
+    {
+        System.out.println("DEBUG: button2 clicked");
+        byte[] data = "0".getBytes();
+        System.out.println("DEBUG: Sending Data...");
+
+        Utils util = new Utils();
+        int x = util.calValueS(Double.valueOf(textbox2.getText().toString()));
+        data = String.valueOf(x).getBytes();
+
+        LowEnergyBlueTooth.send(mGattService, SERVICE_UUID, mGatt, data);
+        textbox2.setText("");
     }
 }

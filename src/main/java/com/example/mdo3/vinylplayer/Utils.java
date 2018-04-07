@@ -13,10 +13,13 @@ import java.net.URL;
 
 /**
  * Created by Jr on 3/30/2018.
+ * Altered by Martin Do 4/7/2018
  */
 
 public class Utils
 {
+
+
 
     public static Bitmap LoadImageFromWeb(String url)
     {
@@ -65,5 +68,124 @@ public class Utils
         }
         System.out.println("DEBUG: no cookies available");
         return false;
+    }
+
+    public int calcValueST(double startTime)
+    {
+        String units = "in";
+        double armLength = 7.75;
+        double spacing = .012; //inches
+        double offset = 30.0; //degrees
+        double stepAngle = .005859375; //degrees
+
+        double rpm = 33.3;
+        //startTime = 0.0;
+
+        double angle = 0.0;
+        int steps = 0;
+
+        double x = Math.pow((spacing * (rpm/60) * startTime),2);
+        double y = 2 * Math.pow(armLength,2);
+
+        double z = (x-y) / -y;
+        angle = (180/Math.PI) * Math.acos(z) + offset;
+        steps =(int) Math.ceil(angle/stepAngle);
+
+        System.out.println("DEBUG: x " + x);
+        System.out.println("DEBUG: y " + y);
+        System.out.println("DEBUG: z " + z);
+        System.out.println("DEBUG: angle " + angle);
+        System.out.println("DEBUG: steps " + steps);
+        return steps + 20000;
+    }
+
+    public int calValueS(double spacing)
+    {
+        String units = "in";
+        double armLength = 7.75;
+        //spacing = .012; //inches
+        double offset = 30.0; //degrees
+        double stepAngle = .005859375; //degrees
+
+        double rpm = 33.3;
+        double startTime = 0.0;
+
+        double angle = 0.0;
+        int steps = 0;
+
+        double x = Math.pow((spacing * (rpm/60) * startTime),2);
+        double y = 2 * Math.pow(armLength,2);
+
+        double z = (x-y) / -y;
+        angle = (180/Math.PI) * Math.acos(z) + offset;
+        steps =(int) Math.ceil(angle/stepAngle);
+
+        System.out.println("DEBUG: x " + x);
+        System.out.println("DEBUG: y " + y);
+        System.out.println("DEBUG: z " + z);
+        System.out.println("DEBUG: angle " + angle);
+        System.out.println("DEBUG: steps " + steps);
+        return steps + 20000;
+    }
+
+
+
+    /*
+    First digit - instruction
+    Next digits - details
+    0 - start/stop
+    1 - change speed
+        0 - 33
+        1 - 45
+    2 - change song
+        XXXX - steps
+    3 - return home
+     */
+
+
+    public static byte[] getStartStop(String command)
+    {
+        //size of one
+        if(command.length() == 1)
+            return command.getBytes();
+        return null;
+    }
+
+    public static byte[] getChangeSpeed(String command)
+    {
+        if(command.length() == 2)
+            return command.getBytes();
+        return null;
+    }
+
+    public static byte[] getChangeSong(String command)
+    {
+        int length = command.length();
+
+        if(length == 5)
+            return command.getBytes();
+            //The micro controller requires this command to have 5bytes of data
+            //1 byte command
+            //2-5 bytes to be the number of steps
+            //1 - 9999 steps
+        else if(length < 5)
+        {
+            StringBuilder str = new StringBuilder(command);
+            while(true)
+            {
+                str.insert(1,"0");
+                if(str.length() >= 5)
+                    break;
+            }
+            return str.toString().getBytes();
+        }
+        return null;
+    }
+
+    public static byte[] getHome(String command)
+    {
+        if(command.length() == 1)
+            return command.getBytes();
+        return null;
     }
 }

@@ -41,7 +41,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:ems="10"
-            android:hint="Data to Send"
+            android:hint="start time"
             android:inputType="text" />
 
         <Button
@@ -49,6 +49,21 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:onClick="button"
-            android:text="Send Data" />
+            android:text="Start Time" />
+
+        <EditText
+            android:id="@+id/testing_spacing"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:hint="spacing"
+            android:inputType="textPersonName"
+            android:onClick="buttonTwo" />
+
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:onClick="buttonTwo"
+            android:text="Spacing" />
     </LinearLayout>
 </android.support.constraint.ConstraintLayout>

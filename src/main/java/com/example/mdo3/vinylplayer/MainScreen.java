@@ -147,6 +147,7 @@ public class MainScreen extends AppCompatActivity
                         return true;
                     }
                 });
+
         //changing the nav_main_screen.xml username and email
         View headerLayout = navigationView.getHeaderView(0);
         TextView tempTextView = (TextView) headerLayout.findViewById(R.id.nav_user_name);
