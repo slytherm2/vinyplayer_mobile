@@ -67,7 +67,12 @@
     <string name="https_url_login">https://vinyl-player-server.herokuapp.com/login</string>
     <string name="https_url_catalog">https://vinyl-player-server.herokuapp.com/catalog</string>
     <string name="https_url_getalbuminfo">https://vinyl-player-server.herokuapp.com/getAlbumInfo</string>
+    <string name="https_url_addalbum">https://vinyl-player-server.herokuapp.com/addAlbum</string>
     <string name="https_url_search">https://vinyl-player-server.herokuapp.com/search</string>
+    <string name="https_url_search_id">https://vinyl-player-server.herokuapp.com/search/:id</string>
+    <string name="https_url_records_id">https://vinyl-player-server.herokuapp.com/records/:id</string>
+    <string name="https_url_logout">https://vinyl-player-server.herokuapp.com/logout</string>
+    <string name="https_url_createuser">https://vinyl-player-server.herokuapp.com/createUser</string>
     <string name="cooke_header">Set-Cookie</string>
     <string name="session_id">vinylPlayer_sessionId</string>
     <string name="user_id">vinylPlayer_userId</string>

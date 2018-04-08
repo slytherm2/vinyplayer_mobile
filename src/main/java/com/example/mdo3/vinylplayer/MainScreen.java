@@ -37,6 +37,7 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
@@ -46,6 +47,8 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.apache.commons.lang3.concurrent.ConcurrentException;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -54,6 +57,9 @@ import java.net.MalformedURLException;
 import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 
 public class MainScreen extends AppCompatActivity
@@ -94,6 +100,8 @@ public class MainScreen extends AppCompatActivity
         preferences = PreferenceManager.getDefaultSharedPreferences(this);
         Resources rsrc = this.getResources();
         email = preferences.getString(rsrc.getString(R.string.label_email), null);
+        sessionID = preferences.getString(getResources().getString(R.string.session_id),"");
+        userID = preferences.getString(getResources().getString(R.string.user_id),"");
 
         /*
         //get the user email from the previous activity (login/signup)
@@ -462,6 +470,7 @@ public class MainScreen extends AppCompatActivity
     {
         //referenced to the id located on teh main_screen_drawer_view.xml
         int id = item.getItemId();
+        intent = new Intent(this, MainScreen.class);
 
         //profile page
         if(id == R.id.nav_profile)
@@ -492,7 +501,44 @@ public class MainScreen extends AppCompatActivity
             intent = new Intent(this, LowEnergyBlueTooth.class);
             startActivityForResult(intent, REQUEST_ENABLE_BT);
         }
-        startActivity(intent);
+        else if(id == R.id.nav_log_out)
+        {
+            //clear email from xml file
+            //clear session id
+            //clear user id
+            //make call to database to clear session cookies
+
+
+            System.out.println("DEBUG: Logging user out now...");
+
+            AsyncTaskFactory factory = new AsyncTaskFactory();
+            AsyncTask logOutTask = factory.generateAsyncTask("Logout");
+            try
+            {
+                if(sessionID != null && !sessionID.isEmpty() && userID != null && !userID.isEmpty())
+                {
+                    String httpURL = this.getResources().getString(R.string.https_url_logout);
+                    if(httpURL != null)
+                    {
+                        //clear cookie from database
+                        String[] params = {userID, sessionID, httpURL};
+                        Boolean result = (Boolean) logOutTask.execute(params).get();
+
+                        if(result)
+                            intent = new Intent(this, Login.class);
+                    }
+                }
+            }
+            catch (InterruptedException e)
+            {
+                Log.d("Exception", e.getMessage());
+            }
+            catch(ExecutionException e)
+            {
+                Log.d("Exception", e.getMessage());
+            }
+        }
+       startActivity(intent);
     }
 
     public static Button getButton()

@@ -61,7 +61,7 @@ public class Utils
         sessionId = preferences.getString(context.getResources().getString(R.string.session_id),null);
         userId = preferences.getString(context.getResources().getString(R.string.user_id), null);
 
-        if(sessionId != null && userId != null)
+        if(sessionId != null && userId != null && !sessionId.isEmpty() && !userId.isEmpty())
         {
             System.out.println("DEBUG: cookies are available");
             return true;
@@ -70,11 +70,10 @@ public class Utils
         return false;
     }
 
-    public int calcValueST(double startTime)
+    public int calcValue(double startTime, double spacing)
     {
         String units = "in";
         double armLength = 7.75;
-        double spacing = .012; //inches
         double offset = 30.0; //degrees
         double stepAngle = .005859375; //degrees
 
@@ -98,37 +97,6 @@ public class Utils
         System.out.println("DEBUG: steps " + steps);
         return steps + 20000;
     }
-
-    public int calValueS(double spacing)
-    {
-        String units = "in";
-        double armLength = 7.75;
-        //spacing = .012; //inches
-        double offset = 30.0; //degrees
-        double stepAngle = .005859375; //degrees
-
-        double rpm = 33.3;
-        double startTime = 0.0;
-
-        double angle = 0.0;
-        int steps = 0;
-
-        double x = Math.pow((spacing * (rpm/60) * startTime),2);
-        double y = 2 * Math.pow(armLength,2);
-
-        double z = (x-y) / -y;
-        angle = (180/Math.PI) * Math.acos(z) + offset;
-        steps =(int) Math.ceil(angle/stepAngle);
-
-        System.out.println("DEBUG: x " + x);
-        System.out.println("DEBUG: y " + y);
-        System.out.println("DEBUG: z " + z);
-        System.out.println("DEBUG: angle " + angle);
-        System.out.println("DEBUG: steps " + steps);
-        return steps + 20000;
-    }
-
-
 
     /*
     First digit - instruction

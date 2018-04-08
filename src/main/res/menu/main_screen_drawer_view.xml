@@ -25,13 +25,10 @@
             android:id="@+id/nav_test"
             android:icon="@drawable/ic_menu_manage"
             android:title="@string/test" />
-        <!--
-        No logout feature for now...
-        no route to log the user out
+
         <item
             android:id="@+id/nav_log_out"
             android:icon="@drawable/log_out"
             android:title="@string/log_out" />
-            -->
     </group>
 </menu>

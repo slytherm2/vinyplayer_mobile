@@ -67,9 +67,6 @@ public class SignUp extends AppCompatActivity
     private String password;
     private String password2;
 
-    public static final String SIGNUP_USER = "Vinyl User";
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
@@ -83,7 +80,7 @@ public class SignUp extends AppCompatActivity
         address = (EditText) findViewById(R.id.signup_address);
         city = (EditText) findViewById(R.id.signup_city);
         state = (EditText) findViewById(R.id.signup_state);
-        httpURL = this.getResources().getString(R.string.http_url_test_login);
+        httpURL = this.getResources().getString(R.string.https_url_createuser);
 
         mLoginFormView = findViewById(R.id.signup_form);
         ApplicationContext contextInst = ApplicationContext.getInstance();

@@ -125,7 +125,13 @@ public class Login extends AppCompatActivity {
             {
                 if(authenticateUser(NOCOOKIEFLAG, email, password))
                 {
-                    startNextActivity();
+                    //save user email after successful login
+                    SharedPreferences.Editor editor = preferences.edit();
+                    editor.putString(this.getResources().getString(R.string.label_email), email);
+                    if(editor.commit())
+                        startNextActivity();
+                    else
+                        return;
                 }
                 else
                 {

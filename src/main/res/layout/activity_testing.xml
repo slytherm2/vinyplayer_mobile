@@ -18,7 +18,8 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="1.0">
 
         <android.support.v7.widget.Toolbar
             android:id="@+id/testing_toolbar"
@@ -44,6 +45,15 @@
             android:hint="start time"
             android:inputType="text" />
 
+        <EditText
+            android:id="@+id/testing_spacing"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:hint="spacing"
+            android:inputType="text"
+            android:onClick="buttonTwo" />
+
         <Button
             android:id="@+id/testing_button"
             android:layout_width="match_parent"
@@ -51,19 +61,5 @@
             android:onClick="button"
             android:text="Start Time" />
 
-        <EditText
-            android:id="@+id/testing_spacing"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:ems="10"
-            android:hint="spacing"
-            android:inputType="textPersonName"
-            android:onClick="buttonTwo" />
-
-        <Button
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:onClick="buttonTwo"
-            android:text="Spacing" />
     </LinearLayout>
 </android.support.constraint.ConstraintLayout>
