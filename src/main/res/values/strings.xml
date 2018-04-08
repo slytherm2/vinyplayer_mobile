@@ -142,4 +142,9 @@
     <string name="signup_failed">Sign Up Failed. Please Try Again</string>
     <string name="login_signin">Please Sign In</string>
 
+    <!-- manual add activity -->
+    <string name="add_song">Add Song</string>
+    <string name="rpm_33">33 1/3 RPM</string>
+    <string name="rpm_45">45 RPM</string>
+
 </resources>

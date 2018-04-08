@@ -503,12 +503,6 @@ public class MainScreen extends AppCompatActivity
         }
         else if(id == R.id.nav_log_out)
         {
-            //clear email from xml file
-            //clear session id
-            //clear user id
-            //make call to database to clear session cookies
-
-
             System.out.println("DEBUG: Logging user out now...");
 
             AsyncTaskFactory factory = new AsyncTaskFactory();
