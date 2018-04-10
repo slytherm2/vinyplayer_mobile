@@ -1,15 +1,25 @@
 package com.example.mdo3.vinylplayer;
 
+import android.content.ContentResolver;
+import android.content.ContentUris;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.preference.PreferenceManager;
+import android.provider.MediaStore;
 import android.util.Log;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.URL;
+import java.util.ArrayList;
 
 /**
  * Created by Jr on 3/30/2018.
@@ -155,5 +165,40 @@ public class Utils
         if(command.length() == 1)
             return command.getBytes();
         return null;
+    }
+
+    public static boolean saveInformation(ArrayList<String> info)
+    {
+        //Comma Separated Value
+        //UserId
+        //Artist, album, Image URI, RPM speed (false = 33 1/3, true = 45rpm)
+        //Song name, start time of song, end time of song
+        String emailTag = info.get(0);
+        StringBuilder strBuilder = new StringBuilder();
+        ApplicationContext contextInst = ApplicationContext.getInstance();
+        Context context = contextInst.getAppContext();
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+        SharedPreferences.Editor editor = preferences.edit();
+
+        //start at 1 because the first one is the user email
+        //the user email will be used as tag to pull up information in the future
+        for(int i = 1; i < info.size(); i++)
+        {
+            strBuilder.append(info.get(i));
+            strBuilder.append(",");
+        }
+
+        //check for exisiting local copy
+        String str = preferences.getString(emailTag + context.getResources().getString(R.string.local_catalog),
+                null);
+        if(str != null)
+        {
+            strBuilder.insert(0, str);
+        }
+        editor.putString(emailTag + context.getResources().getString(R.string.local_catalog),
+                strBuilder.toString());
+        editor.commit();
+
+        return (context != null && preferences != null) ? true : false;
     }
 }

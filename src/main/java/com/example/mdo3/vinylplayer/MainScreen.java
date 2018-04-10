@@ -6,7 +6,9 @@ import android.app.Application;
 import android.app.Service;
 import android.bluetooth.BluetoothAdapter;
 import android.content.BroadcastReceiver;
+import android.content.ContentResolver;
 import android.content.Context;
+import android.content.ContextWrapper;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
@@ -22,15 +24,19 @@ import android.hardware.camera2.CameraDevice;
 import android.hardware.camera2.CameraManager;
 import android.os.AsyncTask;
 import android.os.Binder;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.Parcelable;
 import android.preference.PreferenceManager;
 import android.provider.MediaStore;
+import android.provider.SyncStateContract;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
@@ -50,6 +56,8 @@ import android.widget.Toast;
 import org.apache.commons.lang3.concurrent.ConcurrentException;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
@@ -57,6 +65,8 @@ import java.net.MalformedURLException;
 import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Random;
+import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -87,6 +97,8 @@ public class MainScreen extends AppCompatActivity
 
     private static Button btn = null;
     private SharedPreferences preferences;
+
+    final private int MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = -1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -416,16 +428,50 @@ public class MainScreen extends AppCompatActivity
         //request code 2 = Camera
         if (requestCode == 2)
         {
+            //This saves the image to default directory
+            //Data > Data > Com.example.mdo3.vinylplayer > app_imageDir
+            System.out.println("DEBUG : inside camera ");
             if (resultCode == Activity.RESULT_OK)
             {
-                //get image from camera
                 //TODO: send image to image analysis application for discovery
+                System.out.println("DEBUG : Camera Result good ");
                 Bitmap image = (Bitmap) data.getExtras().get("data");
+                MediaStore.Images.Media.insertImage(getContentResolver(),
+                        image,
+                        UUID.randomUUID().toString(),
+                        "vinyl_Image");
 
+                //Bitmap compression into jpg
+                //Bitmap compression into png doesn't use quality level
+                /*
+                String root = Environment.getExternalStorageDirectory().toString();
+                File myDir = new File(root + "/vinyl_images");
+                myDir.mkdirs();
+                Random generator = new Random();
+                int n = 10000;
+                n = generator.nextInt(n);
+                String fname = "Image-" + n + ".jpg";
+                File file = new File(myDir, fname);
+
+                if (file.exists())
+                    file.delete();
+                try {
+                    FileOutputStream out = new FileOutputStream(file);
+                    image.compress(Bitmap.CompressFormat.PNG, 100, out);
+                    out.flush();
+                    out.close();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+               */
+               // return directory.getAbsolutePath();
+
+                System.out.println("DEBUG: image saved");
                 Intent intent = new Intent(this, MainScreen.class);
                 startActivity(intent);
-
-            } else if (resultCode == Activity.RESULT_CANCELED)
+            }
+            else if (resultCode == Activity.RESULT_CANCELED)
             {
                 return;
             }
@@ -560,10 +606,25 @@ public class MainScreen extends AppCompatActivity
 
     private void callCamera()
     {
-        Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        if (cameraIntent.resolveActivity(getPackageManager()) != null)
+        int permissionCheck = ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        if (permissionCheck != PackageManager.PERMISSION_GRANTED)
         {
-            startActivityForResult(cameraIntent, ENABLE_CAMERA);
+            ActivityCompat.requestPermissions(
+                    this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
+
+            Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+            if (cameraIntent.resolveActivity(getPackageManager()) != null)
+            {
+                startActivityForResult(cameraIntent, ENABLE_CAMERA);
+            }
+        }
+        else
+        {
+            Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+            if (cameraIntent.resolveActivity(getPackageManager()) != null)
+            {
+                startActivityForResult(cameraIntent, ENABLE_CAMERA);
+            }
         }
     }
 }

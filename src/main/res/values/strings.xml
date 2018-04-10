@@ -146,5 +146,6 @@
     <string name="add_song">Add Song</string>
     <string name="rpm_33">33 1/3 RPM</string>
     <string name="rpm_45">45 RPM</string>
+    <string name="local_catalog">LocalCat</string>
 
 </resources>

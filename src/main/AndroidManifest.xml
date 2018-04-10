@@ -10,6 +10,8 @@
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.MANAGE_DOCUMENTS" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
     <uses-feature
         android:name="android.hardware.bluetooth_le"
@@ -52,7 +54,8 @@
             android:parentActivityName=".MainScreen" />
         <activity
             android:name=".manual_add"
-            android:parentActivityName=".MainScreen" />
+            android:parentActivityName=".MainScreen"
+            android:windowSoftInputMode="adjustResize"/>
         <activity android:name=".profile"
             android:parentActivityName=".MainScreen" />
 
