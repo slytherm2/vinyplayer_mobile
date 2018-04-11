@@ -195,6 +195,10 @@ public class Utils
         {
             strBuilder.insert(0, str);
         }
+
+        strBuilder.append(context.getString(R.string.stop_flag));
+        strBuilder.append(",");
+
         editor.putString(emailTag + context.getResources().getString(R.string.local_catalog),
                 strBuilder.toString());
         editor.commit();

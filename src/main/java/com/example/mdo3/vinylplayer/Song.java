@@ -27,6 +27,14 @@ public class Song implements Parcelable{
         return;
     }
 
+    public Song(String title, String  position, String duration)
+    {
+        this.title = title;
+        this.duration = duration;
+        this.position = position;
+        return;
+    }
+
     protected Song(Parcel in) {
         title = in.readString();
         duration = in.readString();

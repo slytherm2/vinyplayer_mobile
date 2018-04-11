@@ -120,22 +120,6 @@ public class manual_add extends AppCompatActivity
                 else
                     continue;
             }
-            //get the respective start and stop time child from the parent and
-            // Grandparent (songlist)
-            if(songListChild instanceof LinearLayout)
-            {
-                LinearLayout songListGrandChild = (LinearLayout) songListChild;
-                for(int j = 0; j < songListGrandChild.getChildCount(); j++)
-                {
-                    if(songListGrandChild.getChildAt(j) instanceof EditText)
-                    {
-                        EditText edt2 = (EditText) songListGrandChild.getChildAt(j);
-                        System.out.println(edt2.getText().toString());
-                        //songs.add(edt2.getText().toString());
-                        information.add(edt2.getText().toString());
-                    }
-                }
-            }
         }
 
         for(String str : information)
@@ -167,31 +151,16 @@ public class manual_add extends AppCompatActivity
         songInput.setEms(10);
         songInput.setInputType(TYPE_CLASS_TEXT);
 
-        //create a horizontal linear layout
-        LinearLayout hLL = new LinearLayout(this);
-        hLL.setOrientation(LinearLayout.HORIZONTAL);
-        hLL.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT));
-
         //create an edit text for start song input
         EditText startSong = new EditText(this);
         startSong.setLayoutParams(lParams);
-        startSong.setHint("Start Time of Song ");
+        startSong.setHint("Duration of Song");
         startSong.setEms(10);
         startSong.setInputType(TYPE_CLASS_TEXT);
-        hLL.addView(startSong);
-
-        //create an edit text for stop song input
-        startSong = new EditText(this);
-        startSong.setLayoutParams(lParams);
-        startSong.setHint("End Time of Song");
-        startSong.setEms(10);
-        startSong.setInputType(TYPE_CLASS_TEXT);
-        hLL.addView(startSong);
 
         //add the horizontal linear layout to the vertical linear layout
         songList.addView(songInput, songList.getChildCount());
-        songList.addView(hLL, songList.getChildCount());
+        songList.addView(startSong, songList.getChildCount());
         scrollBottom(songListScroll);
     }
 

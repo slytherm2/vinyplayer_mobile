@@ -83,7 +83,7 @@
     <string name="http_url_test_catalog">http://192.168.56.1:3001/catalog</string>
     <string name="http_url_test_getalbuminfo">http://192.168.56.1:3001/getAlbumInfo</string>
     <string name="http_url_test_addalbum">http://192.168.56.1:3001/addAlbum</string>
-    <string name="http_url_test_search">http://192.168.56.1:3001/search</string>
+    <string name="http_url_test_search">http://10.32.253.146:3001/search</string>
     <string name="http_url_test_search_id">http://192.168.56.1:3001/search/:id</string>
     <string name="http_url_test_records_id">http://192.168.56.1:3001/records/:id</string>
     <string name="http_url_test_create_user">http://192.168.56.1:3001/createUser</string>
@@ -147,5 +147,6 @@
     <string name="rpm_33">33 1/3 RPM</string>
     <string name="rpm_45">45 RPM</string>
     <string name="local_catalog">LocalCat</string>
+    <string name="stop_flag">STOPNULL</string>
 
 </resources>

@@ -13,6 +13,8 @@ public class Record implements Parcelable{
     private String artist = null;
     private String album = null;
     private ArrayList<Song> tracklist;
+    private String filePath;
+    private String rpm;
 
     public Record(String artist, String album)
     {
@@ -26,6 +28,16 @@ public class Record implements Parcelable{
         this.album = album;
         this.tracklist = tracklist;
     }
+
+    public Record(String artist, String album, ArrayList<Song> tracklist, String rpm, String filePath)
+    {
+        this.artist = artist;
+        this.album = album;
+        this.tracklist = tracklist;
+        this.filePath = filePath;
+        this.rpm = rpm;
+    }
+
 
     public Record(Parcel in)
     {
@@ -63,9 +75,13 @@ public class Record implements Parcelable{
     public String getAlbum() { return this.album; }
     public String getArtist() { return this.artist; }
     public ArrayList<Song> getTracklist() { return this.tracklist; }
+    public String getFilePath() { return this.filePath; }
+    public String getRpm() { return this.rpm; }
     public void setArtist(String artist) { this.artist = artist; }
     public void setAlbum(String album) { this.album = album; }
     public void setTrackList(ArrayList<Song> tracklist) { this.tracklist = tracklist; }
+    public void setFilePath(String filePath) { this.filePath = filePath; }
+    public void setRpm(String rpm) { this.rpm = rpm; }
 
     // regular methods
     public void addSong(Song newSong) { this.tracklist.add(newSong); }

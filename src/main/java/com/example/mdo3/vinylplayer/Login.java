@@ -72,6 +72,7 @@ public class Login extends AppCompatActivity {
         //if user already has valid cookie
         //automatically sign user into application
         isLoggedIn();
+        //startNextActivity();
     }
     /*
     Attempts to sign in the user with the credentials

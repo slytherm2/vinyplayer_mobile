@@ -22,6 +22,7 @@ import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CameraDevice;
 import android.hardware.camera2.CameraManager;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Binder;
 import android.os.Environment;
@@ -49,27 +50,19 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.apache.commons.lang3.concurrent.ConcurrentException;
+import org.apache.commons.math3.geometry.euclidean.twod.Line;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.SocketTimeoutException;
-import java.net.URL;
+import java.net.URI;
 import java.util.ArrayList;
-import java.util.Random;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 
 public class MainScreen extends AppCompatActivity
@@ -81,8 +74,6 @@ public class MainScreen extends AppCompatActivity
     private String newTitle = null;
     private Intent intent = null;
     private ListView listview = null;
-    private DatabaseTask dbt = null;
-    private ArrayList<String> list = null;
     private ArrayAdapter adapter = null;
     private String intentClass = null;
     private DrawerLayout mDrawerLayout;
@@ -97,6 +88,11 @@ public class MainScreen extends AppCompatActivity
 
     private static Button btn = null;
     private SharedPreferences preferences;
+
+    private ListView catalogListView;
+    private ArrayList<Record> recordList;
+    private ArrayList<String> lv;
+    private String[] recordSet;
 
     final private int MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = -1;
 
@@ -114,32 +110,8 @@ public class MainScreen extends AppCompatActivity
         email = preferences.getString(rsrc.getString(R.string.label_email), null);
         sessionID = preferences.getString(getResources().getString(R.string.session_id),"");
         userID = preferences.getString(getResources().getString(R.string.user_id),"");
-
-        /*
-        //get the user email from the previous activity (login/signup)
-        String user = null;
-        if (intent != null)
-        {
-            if (Login.LOGIN_USER != null)
-            {
-                user = intent.getStringExtra(Login.LOGIN_USER);
-                intentClass = "Login";
-            }
-            if (SignUp.SIGNUP_USER != null)
-            {
-                user = intent.getStringExtra(SignUp.SIGNUP_USER);
-                intentClass = "SignUp";
-            }
-        }
-
-        //creates a new title with "welcome" and "user email before the @"
-        newTitle = null;
-        if (user != null)
-        {
-            String tempStr = user.substring(0, user.indexOf('@'));
-            newTitle = tempStr + " " + getString(R.string.label_Welcome);
-        }
-                */
+        catalogListView = (ListView) findViewById(R.id.main_albumList);
+        recordList = new ArrayList<>();
 
         //update title to reflect user "welcome ...username"
         TextView title = (TextView) findViewById(R.id.main_title);
@@ -232,35 +204,6 @@ public class MainScreen extends AppCompatActivity
             }
         });
 
-
-        //sets up the listview with items from the array
-        //TODO: connect to database and pull information relating to the specific user
-        //dbt = new DatabaseTask(this);
-       // dbt.execute((Void) null);
-        String[] strValues = {"Martin", "Jonathan", "Lucy", "Cece", "Bob", "Linda", "Jonny", "Jim","Carol", "John", "Jacob", "Heimer"};
-        list = new ArrayList<String>();
-        for(String str : strValues)
-            list.add(str + "\n" + "Friend");
-
-
-        //When an item on the list gets clicked on, do some action
-        //TODO: modify click to bring to music player
-        //todo: include picture, album, artist
-        listview = (ListView) findViewById(R.id.main_albumList);
-        adapter = new ArrayAdapter(this, android.R.layout.simple_list_item_1, list);
-        listview.setAdapter(adapter);
-        listview.setOnItemClickListener(new AdapterView.OnItemClickListener()
-        {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view,int position, long id)
-            {
-                String yourData = list.get(position);
-                System.out.println("DEBUG: " + yourData);
-                System.out.println("DEBUG: " + position+1);
-
-            }
-        });
-
         //automatically enable bluetooth if available
         Thread t1 = new Thread(new Runnable()
         {
@@ -270,125 +213,49 @@ public class MainScreen extends AppCompatActivity
             }
         });
         t1.start();
-    }
 
-    public class DatabaseTask extends AsyncTask<Void, Void, Boolean>
-    {
+        //sets up the listview with items from the array
+        //TODO: connect to database and pull information relating to the specific user
+       String str = preferences.getString(email + this.getResources().getString(R.string.local_catalog),
+               null);
 
-        private Context context;
+       if(str != null)
+           recordList = splitInformation(str);
 
-        private DatabaseTask(Context context)
+       //Album : Artist
+        lv = new ArrayList<>();
+        ArrayList<String> values = new ArrayList<>();
+        for(int i = 0; i < recordList.size(); i++)
         {
-            this.context = context;
+            Record rc1 = recordList.get(i);
+            String album = rc1.getAlbum();
+            String artist = rc1.getArtist();
+            String uri = rc1.getFilePath();
+            lv.add(album + "\n" + artist);
+            values.add(uri);
+            System.out.println("DEBUG: " + album + "\n" + artist);
         }
 
-        @Override
-        protected Boolean doInBackground(Void... params)
+
+        //When an item on the list gets clicked on, do some action
+        //TODO: modify click to bring to music player
+        //todo: include picture, album, artist
+        listview = (ListView) findViewById(R.id.main_albumList);
+        adapter = new ArrayAdapter(this, R.layout.mainscreen_listview, R.id.Itemname, lv);
+        listview.setAdapter(adapter);
+        listview.setOnItemClickListener(new AdapterView.OnItemClickListener()
         {
-
-            boolean urlResponse = false;
-            String postParams = null;
-            try {
-
-                //todo : change url from local to main server
-                System.out.println("DEBUG: starting callout catalog");
-                URL url = new URL(getResources().getString(R.string.http_url_test_catalog));
-                //HttpsURLConnection urlConnection =  (HttpsURLConnection) url.openConnection();
-                HttpURLConnection urlConnection =  (HttpURLConnection) url.openConnection();
-
-                urlConnection.setDoOutput(true);
-                urlConnection.setRequestMethod("POST");
-                urlConnection.setDoInput(true);
-                urlConnection.setRequestProperty("Content-Type","application/x-www-form-urlencoded");
-                urlConnection.setRequestProperty("User-Agent", "Mozilla/5.0 (compatible; MSIE 5.0;Windows98;DigExt)");
-
-
-                StringBuilder strBld = new StringBuilder();
-                sessionID = preferences.getString(getResources().getString(R.string.session_id),"");
-                userID = preferences.getString(getResources().getString(R.string.user_id),"");
-
-                if(userID != null && sessionID != null)
-                    urlConnection.setRequestProperty("Cookie", strBld.toString());
-                else
-                    return false;
-                /*
-                OutputStream outputPost = new BufferedOutputStream((urlConnection.getOutputStream()));
-                BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(outputPost, "UTF-8"));
-                writer.write(postParams);
-                writer.flush();
-                writer.close();
-                outputPost.close();
-                */
-
-                urlConnection.connect();
-                Thread.sleep(2000);
-
-                if (urlConnection.getResponseCode() == urlConnection.HTTP_OK)
-                {
-                    urlResponse = true;
-                    System.out.println("DEBUG: connection successful");
-                }
-                else
-                {
-                    urlResponse = false;
-                    System.out.println("DEBUG: Connnection failed");
-                    System.out.println("DEBUG: " + urlConnection.getResponseCode());
-                    System.out.println("DEBUG: " + urlConnection.getResponseMessage());
-                }
-
-                System.out.println("DEBUG: Reading data from database");
-                String json_response = "";
-                String text = "";
-                InputStreamReader in = new InputStreamReader(urlConnection.getInputStream());
-                BufferedReader br = new BufferedReader(in);
-                while ((text = br.readLine()) != null) {
-                    json_response += text;
-                }
-
-                System.out.println("Response Code " + urlConnection.getResponseCode());
-                System.out.println("Response Message  " + json_response);
-
-            } catch(MalformedURLException error) {
-                System.err.println("Malformed Problem: " + error);
-                return false;
-            } catch(SocketTimeoutException error) {
-                System.err.println("Socket Problem: " + error);
-                return false;
-            } catch (IOException error) {
-                System.err.println("IO Problem: " + error);
-                return false;
-            } catch (InterruptedException e) {
-                System.err.print("Interrupted Problem: " + e);
-                return false;
-            }catch(Exception e) {
-                System.err.print("General Problem: " + e);
-                return false;
-            }
-
-            return urlResponse;
-        }
-
-        @Override
-        protected void onPostExecute(final Boolean success)
-        {
-            dbt = null;
-
-            if (success)
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view,int position, long id)
             {
-                //finish();
-            }
-            else
-            {
-            }
-        }
+                String yourData = lv.get(position);
+                System.out.println("DEBUG: " + yourData);
+                System.out.println("DEBUG: " + position + 1);
 
-        @Override
-        protected void onCancelled()
-        {
-            dbt = null;
-        }
+            }
+        });
+
     }
-
 
     public void startBT(View view)
     {
@@ -435,6 +302,7 @@ public class MainScreen extends AppCompatActivity
             {
                 //TODO: send image to image analysis application for discovery
                 System.out.println("DEBUG : Camera Result good ");
+
                 Bitmap image = (Bitmap) data.getExtras().get("data");
                 MediaStore.Images.Media.insertImage(getContentResolver(),
                         image,
@@ -626,5 +494,82 @@ public class MainScreen extends AppCompatActivity
                 startActivityForResult(cameraIntent, ENABLE_CAMERA);
             }
         }
+    }
+
+    private ArrayList<Record> splitInformation(String list)
+    {
+        ArrayList<Record> recordList = new ArrayList<>();
+        ArrayList<Song> songList = new ArrayList<>();
+
+        if (list == null)
+            return null;
+        else if(list.isEmpty())
+            return null;
+
+        //List is CSV, the start of each album is marked by STOPNULL
+        String[] temp = list.split(",");
+        Record record;
+        Song song;
+        String artist;
+        String album;
+        String uri;
+        String rpm;
+        String status;
+        int songPos = 1;
+        int counter = 0;
+
+        //List : album name, artist name, uri, rotation speed, song, duration
+        //Record(String artist, String album, ArrayList<Song> tracklist, String rpm, String filePath)
+        //Song(String title, int position, String duration)
+        for(int i = counter; i < temp.length - 4; i=counter)
+        {
+            album = temp[counter];
+            artist = temp[++counter];
+            uri = temp[++counter];
+            rpm = temp[++counter];
+
+            while(counter < temp.length - 4)
+            {
+                song = new Song(temp[++counter], String.valueOf(songPos), temp[++counter]);
+                songList.add(song);
+                songPos++;
+                if (temp[counter+1].equals(this.getResources().getString(R.string.stop_flag)))
+                {
+                    counter++;
+                    counter++;
+                    break;
+                }
+            }
+            record = new Record(artist, album, songList, rpm, uri);
+            recordList.add(record);
+        }
+        return recordList;
+    }
+
+    private LinearLayout addSong(String filepath, String song)
+    {
+        //Layout params 1 = width, param 2 = height
+        LinearLayout.LayoutParams lParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT);
+
+        //create a horizontal linear layout
+        LinearLayout hLL = new LinearLayout(this);
+        hLL.setOrientation(LinearLayout.HORIZONTAL);
+        hLL.setLayoutParams(lParams);
+
+        //create an image view for album picture
+        ImageView image = new ImageView(this);
+        image.setImageURI(Uri.parse(filepath));
+        hLL.addView(image);
+
+        //Corresponding album name and artist name
+        TextView catalog = new TextView(this);
+        catalog.setLayoutParams(lParams);
+        catalog.setEms(10);
+        catalog.setText(song);
+        hLL.addView(catalog);
+
+        //add the horizontal linear layout to the vertical linear layout
+        return hLL;
     }
 }
