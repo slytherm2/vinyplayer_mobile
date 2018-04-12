@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.example.mdo3.vinylplayer.MusicPlayer">
+
+<ImageView
+    android:id="@+id/cover_ImageView"
+    android:layout_width="237dp"
+    android:layout_height="265dp"
+    android:layout_marginBottom="32dp"
+    android:layout_marginEnd="32dp"
+    android:layout_marginStart="32dp"
+    android:layout_marginTop="32dp"
+    app:layout_constraintBottom_toBottomOf="parent"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toTopOf="parent"
+    app:layout_constraintVertical_bias="0.35000002"
+    app:srcCompat="@mipmap/ic_launcher_round" />
+
+    <TextView
+        android:id="@+id/song_TextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="9dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="25dp"
+        android:text="@string/song"
+        app:layout_constraintBottom_toTopOf="@+id/artist_album_TextView"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/cover_ImageView" />
+
+    <TextView
+        android:id="@+id/artist_album_TextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="191dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:text="@string/artist_album"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/song_TextView" />
+
+<Button
+    android:id="@+id/previous_Button"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="8dp"
+    android:background="@android:drawable/ic_media_previous"
+    app:layout_constraintBottom_toBottomOf="parent"
+    app:layout_constraintEnd_toStartOf="@+id/play_Button"
+    app:layout_constraintHorizontal_bias="0.5"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toBottomOf="@+id/artist_album_TextView" />
+
+<Button
+    android:id="@+id/play_Button"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="8dp"
+    android:background="@android:drawable/ic_media_play"
+    app:layout_constraintBottom_toBottomOf="@+id/previous_Button"
+    app:layout_constraintEnd_toStartOf="@+id/next_Button"
+    app:layout_constraintHorizontal_bias="0.5"
+    app:layout_constraintStart_toEndOf="@+id/previous_Button"
+    app:layout_constraintTop_toTopOf="@+id/previous_Button"
+    app:layout_constraintVertical_bias="0.0" />
+
+<Button
+    android:id="@+id/next_Button"
+    android:layout_width="77dp"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="8dp"
+    android:background="@android:drawable/ic_media_next"
+    app:layout_constraintBottom_toBottomOf="@+id/play_Button"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintHorizontal_bias="0.5"
+    app:layout_constraintStart_toEndOf="@+id/play_Button"
+    app:layout_constraintTop_toTopOf="@+id/play_Button"
+    app:layout_constraintVertical_bias="0.0" />
+
+<Button
+    android:id="@+id/back_Button"
+    android:layout_width="50dp"
+    android:layout_height="50dp"
+    android:layout_marginBottom="8dp"
+    android:layout_marginEnd="8dp"
+    android:layout_marginStart="8dp"
+    android:layout_marginTop="8dp"
+    android:background="@android:drawable/arrow_down_float"
+    android:rotation="90"
+    app:layout_constraintBottom_toBottomOf="@+id/cover_ImageView"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintHorizontal_bias="0.05"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toTopOf="parent"
+    app:layout_constraintVertical_bias="0.01999998" />
+
+</android.support.constraint.ConstraintLayout>

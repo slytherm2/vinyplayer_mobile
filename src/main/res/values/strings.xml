@@ -1,0 +1,152 @@
+<resources>
+    <string name="app_name">VinylPlayer</string>
+
+    <!-- Strings related to login -->
+    <string name="prompt_email">Email</string>
+    <string name="prompt_password">Password</string>
+    <string name="action_sign_up">Sign Up</string>
+    <string name="action_sign_in">Sign In</string>
+    <string name="action_sign_in_short">Sign in</string>
+    <string name="action_cancel">Cancel</string>
+    <string name="label_name">Name</string>
+    <string name="label_password">Password</string>
+    <string name="label_email">Email</string>
+    <string name="label_Welcome">Vinyl Collection</string>
+    <string name="label_user_info">User Info</string>
+    <string name="label_phone">012-345-6789</string>
+    <string name="label_address">1234 vinyl lane</string>
+    <string name="label_confirm_pass">Confirm Password</string>
+    <string name="label_city">City</string>
+    <string name="label_state">State</string>
+    <string name="label_not_con">Vinyl Player Not Connected</string>
+    <string name="label_con">Vinyl Player Connected</string>
+    <string name="error_invalid_email">This email address is invalid</string>
+    <string name="error_invalid_password">This password is too short</string>
+    <string name="error_incorrect_password">This password is incorrect</string>
+    <string name="error_field_required">This field is required</string>
+    <string name="permission_rationale">"Contacts permissions are needed for providing email completions."</string>
+    <string name="BT_LE_NotFound"> Bluetooth Low Energy Not Found </string>
+    <string name="BT_name">W.A.R.P.</string>
+    <string name="unknown_service">Unknown Services</string>
+    <string name="unknown_characteristic">Unknown Characteristics</string>
+    <!-- <string name="mc_address">FD:23:10:33:D4:37</string> -->
+    <!--<string name="mc_address">FE:C8:50:0A:49:EB</string> -->
+    <string name="mc_name">mc_name</string>
+    <string name="mc_address">mc_address</string>
+    <string name="title_activity_main_screen_beta">MainScreen_beta</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="user_email">user@gmail.com</string>
+    <string name="user">User</string>
+    <string name="nav_main_screen_image">User profile image</string>
+    <string name="launching_camera">Launching Camera</string>
+    <string name="starting_bt">Connecting to Bluetooth</string>
+    <string name="bt_conn_failed">Bluetooth Connection Failed</string>
+    <string name="please_wait">Please Wait</string>
+
+    <!-- Manual Add activity page -->
+    <string name="ma_title">Add Vinyl Record</string>
+    <string name="ma_album_name">Album Name</string>
+    <string name="ma_artist">Artist Name</string>
+    <string name="ma_rotation_speed">Rotation Speed: </string>
+    <string name="ma_submit">Submit</string>
+
+    <!-- Hamburger menu Strings -->
+    <string name="action_settings">Settings</string>
+    <string name="profile">Profile</string>
+    <string name="add_device">Add Device</string>
+    <string name="search_records">Search Records</string>
+    <string name="camera_search">Camera Search</string>
+    <string name="manual_add">Manually Add Record</string>
+    <string name="log_out">Log Out</string>
+    <string name="test">Test</string>
+    <string name="profile_change">Change</string>
+
+    <!-- HTTP data -->
+    <string name="https_url_login">https://vinyl-player-server.herokuapp.com/login</string>
+    <string name="https_url_catalog">https://vinyl-player-server.herokuapp.com/catalog</string>
+    <string name="https_url_getalbuminfo">https://vinyl-player-server.herokuapp.com/getAlbumInfo</string>
+    <string name="https_url_addalbum">https://vinyl-player-server.herokuapp.com/addAlbum</string>
+    <string name="https_url_search">https://vinyl-player-server.herokuapp.com/search</string>
+    <string name="https_url_search_id">https://vinyl-player-server.herokuapp.com/search/:id</string>
+    <string name="https_url_records_id">https://vinyl-player-server.herokuapp.com/records/:id</string>
+    <string name="https_url_logout">https://vinyl-player-server.herokuapp.com/logout</string>
+    <string name="https_url_createuser">https://vinyl-player-server.herokuapp.com/createUser</string>
+    <string name="cooke_header">Set-Cookie</string>
+    <string name="session_id">vinylPlayer_sessionId</string>
+    <string name="user_id">vinylPlayer_userId</string>
+    <string name="conn_error">Connection Timed Out</string>
+
+    <!-- testing data -->
+    <string name="http_url_test_login">http://10.32.245.30:3001/login</string>
+    <string name="http_url_test_catalog">http://192.168.56.1:3001/catalog</string>
+    <string name="http_url_test_getalbuminfo">http://192.168.56.1:3001/getAlbumInfo</string>
+    <string name="http_url_test_addalbum">http://192.168.56.1:3001/addAlbum</string>
+    <string name="http_url_test_search">http://10.32.253.146:3001/search</string>
+    <string name="http_url_test_search_id">http://192.168.56.1:3001/search/:id</string>
+    <string name="http_url_test_records_id">http://192.168.56.1:3001/records/:id</string>
+    <string name="http_url_test_create_user">http://192.168.56.1:3001/createUser</string>
+
+    <!-- home -->
+    <string name="http_url_test_login_home">http://192.168.1.111:3001/login</string>
+    <string name="http_url_test_catalog_home">http://192.168.1.111:3001/catalog</string>
+    <string name="http_url_test_getalbuminfo_home">http://192.168.1.111:3001/getAlbumInfo</string>
+    <string name="http_url_test_addalbum_home">http://192.168.1.111:3001/addAlbum</string>
+    <string name="http_url_test_search_home">http://192.168.1.111:3001/search</string>
+    <string name="http_url_test_search_id_home">http://192.168.1.111:3001/search/:id</string>
+    <string name="http_url_test_records_id_home">http://192.168.1.111:3001/records/:id</string>
+    <string name="http_url_test_create_user_home">http://192.168.1.111:3001/createUser</string>
+
+    <!-- jose testing work -->
+    <string name="http_url_test_login_jose">http://10.32.230.240:3001/login</string>
+    <string name="http_url_test_catalog_jose">http://10.32.230.240:3001/catalog</string>
+    <string name="http_url_test_getalbuminfo_jose">http://10.32.230.240:3001/getAlbumInfo</string>
+    <string name="http_url_test_addalbum_jose">http://10.32.230.240:3001/addAlbum</string>
+    <string name="http_url_test_search_jose">http://10.32.230.240:3001/search</string>
+    <string name="http_url_test_search_id_jose">http://10.32.230.240:3001/search/:id</string>
+    <string name="http_url_test_records_id_jose">http://10.32.230.240:3001/records/:id</string>
+    <string name="http_url_test_create_user_jose">http://10.32.230.240:3001/createUser</string>
+
+    <!-- jose testing home -->
+    <string name="http_url_test_login_jose_home">http://192.168.1.67:3001/login</string>
+    <string name="http_url_test_catalog_jose_home">http://192.168.1.67:3001/catalog</string>
+    <string name="http_url_test_getalbuminfo_jose_home">http://192.168.1.67:3001/getAlbumInfo</string>
+    <string name="http_url_test_addalbum_jose_home">http://192.168.1.67:3001/addAlbum</string>
+    <string name="http_url_test_search_jose_home">http://192.168.1.67:3001/search</string>
+    <string name="http_url_test_search_id_jose_home">http://192.168.1.67:3001/search/:id</string>
+    <string name="http_url_test_records_id_jose_home">http://192.168.1.67:3001/records/:id</string>
+    <string name="http_url_test_create_user_jose_home">http://192.168.1.67:3001/createUser</string>
+
+
+    <!-- user profile information -->
+    <string name="user_profile">User Profile</string>
+    <string name="signup_email">Email</string>
+    <string name="signup_name">Name</string>
+    <string name="signup_phone">Phone</string>
+    <string name="signup_address">Address</string>
+    <string name="signup_city">City</string>
+    <string name="signup_state">State</string>
+
+    <!-- Music Player -->
+    <string name="artist_album">Artist - Album</string>
+    <string name="song">Song</string>
+
+    <!-- Search Widget/Fragment -->
+    <string name="search_hint">Search artists and albums</string>
+
+    <!-- messages -->
+    <string name="loading_msg">Loading...Please Wait</string>
+    <string name="launchingBT_msg">Searching for Bluetooth Device</string>
+    <string name="login_failed">Login Failed. Please Try Again</string>
+    <string name="signup_failed">Sign Up Failed. Please Try Again</string>
+    <string name="login_signin">Please Sign In</string>
+
+    <!-- manual add activity -->
+    <string name="add_song">Add Song</string>
+    <string name="rpm_33">33 1/3 RPM</string>
+    <string name="rpm_45">45 RPM</string>
+    <string name="local_catalog">LocalCat</string>
+    <string name="stop_flag">STOPNULL</string>
+
+</resources>
