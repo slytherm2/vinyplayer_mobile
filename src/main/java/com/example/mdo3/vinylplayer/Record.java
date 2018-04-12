@@ -9,12 +9,13 @@ import java.util.ArrayList;
  * Created by jose.medina on 3/24/2018.
  */
 
-public class Record implements Parcelable{
+public class Record implements Parcelable
+{
     private String artist = null;
     private String album = null;
-    private ArrayList<Song> tracklist;
-    private String filePath;
-    private String rpm;
+    private ArrayList<Song> tracklist = null; //list of songs
+    private String filePath = null; //Where image is located
+    private String rpm = null; //rotations per minute false = 33 1/3, true = 45rpm
 
     public Record(String artist, String album)
     {

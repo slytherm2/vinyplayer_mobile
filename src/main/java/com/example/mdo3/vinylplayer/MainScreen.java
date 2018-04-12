@@ -2,41 +2,22 @@ package com.example.mdo3.vinylplayer;
 
 import android.Manifest;
 import android.app.Activity;
-import android.app.Application;
-import android.app.Service;
-import android.bluetooth.BluetoothAdapter;
-import android.content.BroadcastReceiver;
-import android.content.ContentResolver;
-import android.content.Context;
-import android.content.ContextWrapper;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
-import android.graphics.Camera;
 import android.graphics.Color;
-import android.hardware.camera2.CameraAccessException;
-import android.hardware.camera2.CameraCharacteristics;
-import android.hardware.camera2.CameraDevice;
-import android.hardware.camera2.CameraManager;
 import android.net.Uri;
 import android.os.AsyncTask;
-import android.os.Binder;
-import android.os.Environment;
-import android.os.Handler;
-import android.os.Parcelable;
 import android.preference.PreferenceManager;
 import android.provider.MediaStore;
-import android.provider.SyncStateContract;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -48,18 +29,13 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.apache.commons.math3.geometry.euclidean.twod.Line;
-
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
@@ -74,8 +50,6 @@ public class MainScreen extends AppCompatActivity
     private String newTitle = null;
     private Intent intent = null;
     private ListView listview = null;
-    private ArrayAdapter adapter = null;
-    private String intentClass = null;
     private DrawerLayout mDrawerLayout;
 
     private boolean DEBUG = true;
@@ -89,12 +63,8 @@ public class MainScreen extends AppCompatActivity
     private static Button btn = null;
     private SharedPreferences preferences;
 
-    private ListView catalogListView;
     private ArrayList<Record> recordList;
-    private ArrayList<String> lv;
-    private String[] recordSet;
-
-    final private int MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = -1;
+    private CatalogRecordAdapter catRecAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -110,7 +80,6 @@ public class MainScreen extends AppCompatActivity
         email = preferences.getString(rsrc.getString(R.string.label_email), null);
         sessionID = preferences.getString(getResources().getString(R.string.session_id),"");
         userID = preferences.getString(getResources().getString(R.string.user_id),"");
-        catalogListView = (ListView) findViewById(R.id.main_albumList);
         recordList = new ArrayList<>();
 
         //update title to reflect user "welcome ...username"
@@ -222,36 +191,18 @@ public class MainScreen extends AppCompatActivity
        if(str != null)
            recordList = splitInformation(str);
 
-       //Album : Artist
-        lv = new ArrayList<>();
-        ArrayList<String> values = new ArrayList<>();
-        for(int i = 0; i < recordList.size(); i++)
-        {
-            Record rc1 = recordList.get(i);
-            String album = rc1.getAlbum();
-            String artist = rc1.getArtist();
-            String uri = rc1.getFilePath();
-            lv.add(album + "\n" + artist);
-            values.add(uri);
-            System.out.println("DEBUG: " + album + "\n" + artist);
-        }
-
-
         //When an item on the list gets clicked on, do some action
         //TODO: modify click to bring to music player
         //todo: include picture, album, artist
         listview = (ListView) findViewById(R.id.main_albumList);
-        adapter = new ArrayAdapter(this, R.layout.mainscreen_listview, R.id.Itemname, lv);
-        listview.setAdapter(adapter);
+        catRecAdapter = new CatalogRecordAdapter(this, recordList);
+        listview.setAdapter(catRecAdapter);
         listview.setOnItemClickListener(new AdapterView.OnItemClickListener()
         {
             @Override
             public void onItemClick(AdapterView<?> parent, View view,int position, long id)
             {
-                String yourData = lv.get(position);
-                System.out.println("DEBUG: " + yourData);
-                System.out.println("DEBUG: " + position + 1);
-
+                startMusicPlayer(recordList.get(position));
             }
         });
 
@@ -260,14 +211,21 @@ public class MainScreen extends AppCompatActivity
     public void startBT(View view)
     {
         Toast.makeText(this, R.string.launchingBT_msg, Toast.LENGTH_SHORT).show();
-        Intent bt_intent = new Intent(this, LowEnergyBlueTooth.class);
-        startActivityForResult(bt_intent, REQUEST_ENABLE_BT);
+        startBT();
     }
 
     private void startBT()
     {
         Intent bt_intent = new Intent(this, LowEnergyBlueTooth.class);
         startActivityForResult(bt_intent, REQUEST_ENABLE_BT);
+    }
+
+    private void startMusicPlayer(Record record)
+    {
+        final String recordKey = "VinylRecord";
+        Intent intent = new Intent(this, MusicPlayer.class);
+        intent.putExtra(recordKey, record);
+        startActivity(intent);
     }
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data)
@@ -499,7 +457,7 @@ public class MainScreen extends AppCompatActivity
     private ArrayList<Record> splitInformation(String list)
     {
         ArrayList<Record> recordList = new ArrayList<>();
-        ArrayList<Song> songList = new ArrayList<>();
+        ArrayList<Song> songList;
 
         if (list == null)
             return null;
@@ -523,12 +481,12 @@ public class MainScreen extends AppCompatActivity
         //Song(String title, int position, String duration)
         for(int i = counter; i < temp.length - 4; i=counter)
         {
+            songList = new ArrayList<>();
             album = temp[counter];
             artist = temp[++counter];
             uri = temp[++counter];
             rpm = temp[++counter];
-
-            while(counter < temp.length - 4)
+            while(counter < temp.length - 3)
             {
                 song = new Song(temp[++counter], String.valueOf(songPos), temp[++counter]);
                 songList.add(song);

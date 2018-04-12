@@ -6,102 +6,121 @@
     android:layout_height="match_parent"
     tools:context="com.example.mdo3.vinylplayer.MusicPlayer">
 
-<ImageView
-    android:id="@+id/cover_ImageView"
-    android:layout_width="237dp"
-    android:layout_height="265dp"
-    android:layout_marginBottom="32dp"
-    android:layout_marginEnd="32dp"
-    android:layout_marginStart="32dp"
-    android:layout_marginTop="32dp"
-    app:layout_constraintBottom_toBottomOf="parent"
-    app:layout_constraintEnd_toEndOf="parent"
-    app:layout_constraintStart_toStartOf="parent"
-    app:layout_constraintTop_toTopOf="parent"
-    app:layout_constraintVertical_bias="0.35000002"
-    app:srcCompat="@mipmap/ic_launcher_round" />
-
-    <TextView
-        android:id="@+id/song_TextView"
-        android:layout_width="wrap_content"
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/mp_toolbar"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="9dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="25dp"
-        android:text="@string/song"
-        app:layout_constraintBottom_toTopOf="@+id/artist_album_TextView"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/cover_ImageView" />
+        android:background="?attr/colorPrimary"
+        android:minHeight="?attr/actionBarSize"
+        android:theme="?attr/actionBarTheme" />
 
-    <TextView
-        android:id="@+id/artist_album_TextView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="191dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:text="@string/artist_album"
+    <LinearLayout
+        android:id="@+id/linearLayout4"
+        android:layout_width="0dp"
+        android:layout_height="507dp"
+        android:background="@color/SoarTech_Blue"
+        android:backgroundTintMode="multiply"
+        android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/song_TextView" />
+        app:layout_constraintTop_toBottomOf="@+id/mp_toolbar">
 
-<Button
-    android:id="@+id/previous_Button"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:layout_marginBottom="8dp"
-    android:background="@android:drawable/ic_media_previous"
-    app:layout_constraintBottom_toBottomOf="parent"
-    app:layout_constraintEnd_toStartOf="@+id/play_Button"
-    app:layout_constraintHorizontal_bias="0.5"
-    app:layout_constraintStart_toStartOf="parent"
-    app:layout_constraintTop_toBottomOf="@+id/artist_album_TextView" />
+        <android.support.constraint.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
 
-<Button
-    android:id="@+id/play_Button"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:layout_marginBottom="8dp"
-    android:background="@android:drawable/ic_media_play"
-    app:layout_constraintBottom_toBottomOf="@+id/previous_Button"
-    app:layout_constraintEnd_toStartOf="@+id/next_Button"
-    app:layout_constraintHorizontal_bias="0.5"
-    app:layout_constraintStart_toEndOf="@+id/previous_Button"
-    app:layout_constraintTop_toTopOf="@+id/previous_Button"
-    app:layout_constraintVertical_bias="0.0" />
+            <ImageView
+                android:id="@+id/cover_ImageView"
+                android:layout_width="76dp"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="4dp"
+                android:layout_marginEnd="20dp"
+                android:layout_marginStart="20dp"
+                android:layout_marginTop="4dp"
+                android:layout_weight="1"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:srcCompat="@mipmap/ic_launcher_round" />
 
-<Button
-    android:id="@+id/next_Button"
-    android:layout_width="77dp"
-    android:layout_height="wrap_content"
-    android:layout_marginBottom="8dp"
-    android:background="@android:drawable/ic_media_next"
-    app:layout_constraintBottom_toBottomOf="@+id/play_Button"
-    app:layout_constraintEnd_toEndOf="parent"
-    app:layout_constraintHorizontal_bias="0.5"
-    app:layout_constraintStart_toEndOf="@+id/play_Button"
-    app:layout_constraintTop_toTopOf="@+id/play_Button"
-    app:layout_constraintVertical_bias="0.0" />
+        </android.support.constraint.ConstraintLayout>
 
-<Button
-    android:id="@+id/back_Button"
-    android:layout_width="50dp"
-    android:layout_height="50dp"
-    android:layout_marginBottom="8dp"
-    android:layout_marginEnd="8dp"
-    android:layout_marginStart="8dp"
-    android:layout_marginTop="8dp"
-    android:background="@android:drawable/arrow_down_float"
-    android:rotation="90"
-    app:layout_constraintBottom_toBottomOf="@+id/cover_ImageView"
-    app:layout_constraintEnd_toEndOf="parent"
-    app:layout_constraintHorizontal_bias="0.05"
-    app:layout_constraintStart_toStartOf="parent"
-    app:layout_constraintTop_toTopOf="parent"
-    app:layout_constraintVertical_bias="0.01999998" />
+        <ListView
+            android:id="@+id/mp_songlist"
+            android:layout_width="match_parent"
+            android:layout_height="337dp"
+            android:scrollbars="vertical" />
+
+        <TextView
+            android:id="@+id/artist_album_TextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/SoarTech_Blue"
+            android:text="@string/artist_album"
+            android:textAlignment="center"
+            android:textColor="@android:color/background_light" />
+
+
+        <TextView
+            android:id="@+id/song_TextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/SoarTech_Blue"
+            android:text="@string/song"
+            android:textAlignment="center"
+            android:textColor="@android:color/background_light" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/SoarTech_Blue"
+            android:backgroundTint="@color/SoarTech_Blue"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/previous_Button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@android:drawable/ic_media_previous"
+                android:onClick="backBtn" />
+
+            <ViewSwitcher
+                android:id="@+id/switch_play_stop"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+
+                <Button
+                    android:id="@+id/play_Button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:background="@android:drawable/ic_media_play"
+                    android:onClick="playBtn" />
+
+                <Button
+                    android:id="@+id/stop_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:background="@drawable/ic_stop_btn"
+                    android:onClick="stopBtn" />
+
+            </ViewSwitcher>
+
+            <Button
+                android:id="@+id/next_Button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@android:drawable/ic_media_next"
+                android:onClick="forwardBtn" />
+
+        </LinearLayout>
+
+    </LinearLayout>
 
 </android.support.constraint.ConstraintLayout>
