@@ -222,7 +222,7 @@ public class MainScreen extends AppCompatActivity
 
     private void startMusicPlayer(Record record)
     {
-        final String recordKey = "VinylRecord";
+        final String recordKey = this.getResources().getString(R.string.record);
         Intent intent = new Intent(this, MusicPlayer.class);
         intent.putExtra(recordKey, record);
         startActivity(intent);

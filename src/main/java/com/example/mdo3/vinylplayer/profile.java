@@ -105,6 +105,7 @@ public class profile extends AppCompatActivity
         ViewSwitcher tempSwitcher = (ViewSwitcher) findViewById(R.id.name_switcher);
         EditText v = (EditText) tempSwitcher.getNextView();
         v.setText(mName);
+        v.setHint(this.getResources().getString(R.string.label_email));
         tempSwitcher.showNext(); //or switcher.showPrevious();
 
         tempSwitcher = (ViewSwitcher) findViewById(R.id.phone_switcher);

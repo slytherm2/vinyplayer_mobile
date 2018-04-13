@@ -29,8 +29,6 @@ import java.util.ArrayList;
 public class Utils
 {
 
-
-
     public static Bitmap LoadImageFromWeb(String url)
     {
         try {
@@ -80,7 +78,7 @@ public class Utils
         return false;
     }
 
-    public int calcValue(double startTime, double spacing)
+    public static int calcValue(double startTime, double spacing)
     {
         String units = "in";
         double armLength = 7.75;
@@ -97,76 +95,21 @@ public class Utils
         double y = 2 * Math.pow(armLength,2);
 
         double z = (x-y) / -y;
-        angle = (180/Math.PI) * Math.acos(z) + offset;
+        angle = (180/Math.PI) * Math.acos(Math.toRadians(z)) + offset;
         steps =(int) Math.ceil(angle/stepAngle);
 
+        /*
         System.out.println("DEBUG: x " + x);
         System.out.println("DEBUG: y " + y);
         System.out.println("DEBUG: z " + z);
         System.out.println("DEBUG: angle " + angle);
         System.out.println("DEBUG: steps " + steps);
+        */
         return steps + 20000;
     }
 
-    /*
-    First digit - instruction
-    Next digits - details
-    0 - start/stop
-    1 - change speed
-        0 - 33
-        1 - 45
-    2 - change song
-        XXXX - steps
-    3 - return home
-     */
-
-
-    public static byte[] getStartStop(String command)
-    {
-        //size of one
-        if(command.length() == 1)
-            return command.getBytes();
-        return null;
-    }
-
-    public static byte[] getChangeSpeed(String command)
-    {
-        if(command.length() == 2)
-            return command.getBytes();
-        return null;
-    }
-
-    public static byte[] getChangeSong(String command)
-    {
-        int length = command.length();
-
-        if(length == 5)
-            return command.getBytes();
-            //The micro controller requires this command to have 5bytes of data
-            //1 byte command
-            //2-5 bytes to be the number of steps
-            //1 - 9999 steps
-        else if(length < 5)
-        {
-            StringBuilder str = new StringBuilder(command);
-            while(true)
-            {
-                str.insert(1,"0");
-                if(str.length() >= 5)
-                    break;
-            }
-            return str.toString().getBytes();
-        }
-        return null;
-    }
-
-    public static byte[] getHome(String command)
-    {
-        if(command.length() == 1)
-            return command.getBytes();
-        return null;
-    }
-
+    //save the information into an xml file
+    //location is the default location, set by preference manager
     public static boolean saveInformation(ArrayList<String> info)
     {
         //Comma Separated Value
@@ -204,5 +147,52 @@ public class Utils
         editor.commit();
 
         return (context != null && preferences != null) ? true : false;
+    }
+
+    //used to convert the song times into seconds
+    public static int convertToSeconds(String time)
+    {
+        double minutes = 0;
+        double seconds = 0;
+        int minPos = 0;
+        int secPos = 0;
+
+        time= time.trim();
+       minPos = time.indexOf(":");
+       //calculate the number of seconds when user disregards : symbol
+       if(minPos == -1)
+       {
+           if(time.length() >= 3)
+           {
+               int  powerCounter = time.length() - 3;
+               int x = 0;
+                for(int i = 0; i < time.length() - 2; i++)
+                {
+                    x = Character.getNumericValue(time.charAt(i));
+                    minutes += x * Math.pow((double) 10, (double) powerCounter);
+                    powerCounter--;
+                }
+                int y = time.length();
+               seconds = Character.getNumericValue(time.charAt(y - 2)) * 10
+                       + Character.getNumericValue(time.charAt(y - 1));
+           }
+       }
+       //calculate the number of seconds when the user inputs the : symbol
+       else
+       {
+           int powerCounter = minPos - 1;
+           int x = 0;
+            for(int i = 0; i < minPos; i++)
+            {
+                x = Character.getNumericValue(time.charAt(i));
+                minutes += x * Math.pow((double) 10, (double) powerCounter);
+                powerCounter--;
+            }
+            seconds = Character.getNumericValue(time.charAt(minPos + 1)) * 10
+                        + Character.getNumericValue(time.charAt(minPos + 2));
+       }
+        System.out.println("DEBUG: Minutes " + minutes);
+       System.out.println("DEBUG: Seconds " + seconds);
+       return (int) minutes * 60 + (int) seconds;
     }
 }

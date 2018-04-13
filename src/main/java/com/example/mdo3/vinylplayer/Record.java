@@ -45,6 +45,8 @@ public class Record implements Parcelable
         artist = in.readString();
         album = in.readString();
         tracklist = in.readArrayList(Song.class.getClassLoader());
+        filePath = in.readString();
+        rpm = in.readString();
     }
 
     public static final Creator<Record> CREATOR = new Creator<Record>() {
@@ -70,6 +72,8 @@ public class Record implements Parcelable
         dest.writeString(artist);
         dest.writeString(album);
         dest.writeList(tracklist);
+        dest.writeString(filePath);
+        dest.writeString(rpm);
     }
 
     // setter & getter methods

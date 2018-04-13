@@ -149,4 +149,10 @@
     <string name="local_catalog">LocalCat</string>
     <string name="stop_flag">STOPNULL</string>
 
+    <!-- Music Player -->
+    <string name="record">Record</string>
+    <string name="default_album_artist">Album - Artist</string>
+    <string name="default_song">Song</string>
+    <string name="end_of_playlist">Reached End Of PlayList</string>
+    <string name="replay_song">Replaying Song</string>
 </resources>

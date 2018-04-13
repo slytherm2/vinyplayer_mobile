@@ -81,11 +81,19 @@
             android:orientation="horizontal">
 
             <Button
+                android:id="@+id/mp_home"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@drawable/home"
+                android:onClick="homeBtn" />
+
+            <Button
                 android:id="@+id/previous_Button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:background="@android:drawable/ic_media_previous"
+                android:background="@drawable/skip_back"
                 android:onClick="backBtn" />
 
             <ViewSwitcher
@@ -98,7 +106,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:background="@android:drawable/ic_media_play"
+                    android:background="@drawable/play_btn"
                     android:onClick="playBtn" />
 
                 <Button
@@ -106,7 +114,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:background="@drawable/ic_stop_btn"
+                    android:background="@drawable/pause"
                     android:onClick="stopBtn" />
 
             </ViewSwitcher>
@@ -116,8 +124,16 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:background="@android:drawable/ic_media_next"
+                android:background="@drawable/skip_forward"
                 android:onClick="forwardBtn" />
+
+            <Button
+                android:id="@+id/anti_skip"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@drawable/anti_skip"
+                android:onClick="antiSkipBtn" />
 
         </LinearLayout>
 
