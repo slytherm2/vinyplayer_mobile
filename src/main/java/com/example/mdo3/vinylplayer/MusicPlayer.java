@@ -41,6 +41,7 @@ public class MusicPlayer extends AppCompatActivity
     private final int SPEED = 1;
     private final int CHANGESONG = 2;
     private final int HOME = 3;
+    private final int ANTISKIP = 4;
 
     //Calculation variables
     private final int SONGGAPTIME = 5;
@@ -173,9 +174,10 @@ public class MusicPlayer extends AppCompatActivity
 
             startTime = albumSongTime.get(currentPos);
             x = Utils.calcValue((double) startTime, spacing);
+            sendData(CHANGESONG, x);
             System.out.println("DEBUG: Song:" + albumSongs.get(currentPos));
             System.out.println("DEBUG: startTime:" + startTime);
-            sendData(CHANGESONG, x);
+            Toast.makeText(this, R.string.starting_song, Toast.LENGTH_SHORT).show();
         }
         else
         {
@@ -207,6 +209,7 @@ public class MusicPlayer extends AppCompatActivity
         startTime = albumSongTime.get(currentPos);
         x = Utils.calcValue((double) startTime, spacing);
         sendData(CHANGESONG, x);
+        Toast.makeText(this, R.string.starting_song, Toast.LENGTH_SHORT).show();
     }
 
     //resume song
@@ -218,6 +221,7 @@ public class MusicPlayer extends AppCompatActivity
         //play the current song, after being paused
         sendData(STARTSTOP);
         System.out.println("DEBUG: " + albumSongs.get(currentPos));
+        Toast.makeText(this, R.string.starting_song, Toast.LENGTH_SHORT).show();
     }
 
     public void stopBtn(View view)
@@ -233,6 +237,7 @@ public class MusicPlayer extends AppCompatActivity
         tempSwitcher.showNext(); //or switcher.showPrevious();
         sendData(STARTSTOP);
         System.out.println("DEBUG: " + albumSongs.get(currentPos));
+        Toast.makeText(this, R.string.stop_song, Toast.LENGTH_SHORT).show();
     }
 
     public void antiSkipBtn(View view)
@@ -244,6 +249,8 @@ public class MusicPlayer extends AppCompatActivity
     private void antiSkip()
     {
         System.out.println("DEBUG: Anti Skip engaged...");
+        //sendData(ANTISKIP);
+        Toast.makeText(this, R.string.anti_skip, Toast.LENGTH_SHORT).show();
     }
 
     public void homeBtn(View view)
@@ -254,7 +261,12 @@ public class MusicPlayer extends AppCompatActivity
     private void home()
     {
         System.out.println("DEBUG: ET Phone Home");
+
+        if(tempSwitcher.getDisplayedChild() != 0)
+            tempSwitcher.showNext();
+
         sendData(HOME);
+        Toast.makeText(this, R.string.home_stop, Toast.LENGTH_SHORT).show();
     }
 
     private void sendData(int command)

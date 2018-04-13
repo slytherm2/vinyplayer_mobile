@@ -155,4 +155,9 @@
     <string name="default_song">Song</string>
     <string name="end_of_playlist">Reached End Of PlayList</string>
     <string name="replay_song">Replaying Song</string>
+    <string name="starting_song">Starting Song...</string>
+    <string name="pause_song">Pausing Song...</string>
+    <string name="stop_song">Stopping Song...</string>
+    <string name="anti_skip">Anti-Skip Engaged</string>
+    <string name="home_stop">ET Phone Home</string>
 </resources>
