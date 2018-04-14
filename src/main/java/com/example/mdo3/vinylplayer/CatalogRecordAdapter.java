@@ -1,6 +1,7 @@
 package com.example.mdo3.vinylplayer;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.support.annotation.LayoutRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -53,13 +54,17 @@ public class CatalogRecordAdapter extends ArrayAdapter<Record>
             System.out.println("DEBUG : IMage isn't NULL");
             System.out.println("DEBUG: " + imageFilePath);
             ImageView image = (ImageView) listItem.findViewById(R.id.album_pic);
-            //image.setImageResource(record.getFilePath());
+            /*Bitmap bitmap = Utils.LoadImageFromGallery(mContext, record.getFilePath());
+            if(bitmap != null)
+            {
+                image.setImageBitmap(bitmap);
+            }*/
         }
         else
         {
             System.out.println("DEBUG : IMage was NULL....using default picture");
             ImageView image = (ImageView) listItem.findViewById(R.id.album_pic);
-            image.setImageResource(R.drawable.ic_menu_camera);
+            image.setImageResource(R.drawable.ic_menu_gallery);
         }
 
         TextView albumName = (TextView) listItem.findViewById(R.id.album_name);

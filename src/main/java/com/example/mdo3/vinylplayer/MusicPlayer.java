@@ -1,14 +1,24 @@
 package com.example.mdo3.vinylplayer;
 
+import android.*;
+import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
+import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -16,6 +26,10 @@ import android.widget.ViewSwitcher;
 
 import org.w3c.dom.Text;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,6 +46,9 @@ public class MusicPlayer extends AppCompatActivity
     private ArrayList<Integer> albumSongTime;
     private ArrayList<String> albumSongs;
     private  ViewSwitcher tempSwitcher;
+    private ImageView coverAlbumView;
+    private Uri imageUri;
+    private Bitmap bitmap;
 
     private LowEnergyBlueTooth btle;
     private BluetoothLESingleton btleSingleton;
@@ -43,12 +60,16 @@ public class MusicPlayer extends AppCompatActivity
     private final int HOME = 3;
     private final int ANTISKIP = 4;
 
+    private final static int READPERM = 1;
+
     //Calculation variables
     private final int SONGGAPTIME = 5;
     private int songTime = 0;
     private int currentPos = 0;
     private double spacing = 0.0125; //TODO: more callibration is required
     private Song songObj;
+
+    public boolean DEBUG = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -81,7 +102,8 @@ public class MusicPlayer extends AppCompatActivity
         albumSongs = new ArrayList<>();
         songTime = 0;
         albumSongTime.add(songTime); //The start of the first songe
-        albumSongs.add(songTrackList.get(0).getTitle().toUpperCase().toString());
+        if(songTrackList.size() != 0)
+            albumSongs.add(songTrackList.get(0).getTitle().toUpperCase().toString());
         for(int i = 1; i < songTrackList.size(); i++)
         {
             //account for the gap time between songs
@@ -93,7 +115,8 @@ public class MusicPlayer extends AppCompatActivity
             albumSongs.add(songObj.getTitle().toUpperCase().toString());
         }
 
-        System.out.println("DEBUG: " + albumSongTime);
+        if(DEBUG)
+            System.out.println("DEBUG: " + albumSongTime);
 
         songList = (ListView) findViewById(R.id.mp_songlist);
         songAdapter = new ArrayAdapter<String>(this,
@@ -106,6 +129,7 @@ public class MusicPlayer extends AppCompatActivity
             public void onItemClick(AdapterView<?> parent, View view,int position, long id)
             {
                 String localSong = albumSongs.get(position).toUpperCase().toString();
+                if(DEBUG)
                 System.out.println("DEBUG: " + localSong);
                 album_artist.setText(record.getAlbum() + " - " + record.getArtist());
                 song.setText(localSong);
@@ -114,8 +138,27 @@ public class MusicPlayer extends AppCompatActivity
             }
         });
 
+
+        coverAlbumView = (ImageView) findViewById(R.id.cover_ImageView);
+        int cameraPermission = checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE);
+        if (cameraPermission != PackageManager.PERMISSION_GRANTED)
+        {
+            requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
+                    READPERM);
+        }
+        else
+        {
+            bitmap = null;
+            if(record != null && !record.getFilePath().isEmpty())
+            {
+                bitmap = Utils.LoadImageFromGallery(this, record.getFilePath());
+                if(bitmap != null)
+                    coverAlbumView.setImageBitmap(bitmap);
+            }
+        }
+
         //start at home on start up
-        sendData(HOME);
+        //sendData(HOME);
     }
 
         /*

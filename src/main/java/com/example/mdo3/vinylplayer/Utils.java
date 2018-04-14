@@ -1,25 +1,34 @@
 package com.example.mdo3.vinylplayer;
 
+import android.Manifest;
+import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.provider.MediaStore;
+import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 
+import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Random;
 
 /**
  * Created by Jr on 3/30/2018.
@@ -28,6 +37,35 @@ import java.util.ArrayList;
 
 public class Utils
 {
+    public static Bitmap LoadImageFromGallery(Context context, String filePath)
+    {
+        Bitmap bitmap = null;
+        Uri imageUri = Uri.parse(filePath);
+        final int READPERMISSION = 1;
+        int cameraPermission = context.checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE);
+
+        if(context == null || filePath.isEmpty())
+            return null;
+
+        if (cameraPermission != PackageManager.PERMISSION_GRANTED)
+        {
+            ActivityCompat.requestPermissions((Activity) context,
+                    new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
+                    READPERMISSION);
+        }
+        else
+        {
+            try
+            {
+                bitmap = BitmapFactory.decodeStream(context.getContentResolver().openInputStream(imageUri));
+            }
+            catch(IOException e)
+            {
+                Log.d("Exception", e.getMessage());
+            }
+        }
+        return bitmap;
+    }
 
     public static Bitmap LoadImageFromWeb(String url)
     {
@@ -78,6 +116,7 @@ public class Utils
         return false;
     }
 
+    //calculate the number of steps to send to the MC
     public static int calcValue(double startTime, double spacing)
     {
         String units = "in";
@@ -149,7 +188,7 @@ public class Utils
         return (context != null && preferences != null) ? true : false;
     }
 
-    //used to convert the song times into seconds
+    //used to convert the song times (min:sec or minsec format) into seconds
     public static int convertToSeconds(String time)
     {
         double minutes = 0;

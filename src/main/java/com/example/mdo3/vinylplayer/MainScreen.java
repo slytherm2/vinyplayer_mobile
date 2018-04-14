@@ -267,6 +267,7 @@ public class MainScreen extends AppCompatActivity
                         UUID.randomUUID().toString(),
                         "vinyl_Image");
 
+
                 //Bitmap compression into jpg
                 //Bitmap compression into png doesn't use quality level
                 /*
@@ -432,7 +433,8 @@ public class MainScreen extends AppCompatActivity
 
     private void callCamera()
     {
-        int permissionCheck = ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        int permissionCheck = ContextCompat.checkSelfPermission(this,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE);
         if (permissionCheck != PackageManager.PERMISSION_GRANTED)
         {
             ActivityCompat.requestPermissions(
