@@ -88,6 +88,7 @@ public class RecordSearch extends AppCompatActivity {
         try {
             String artist = record.getString("artist");
             String album = record.getString("album");
+            String url = record.getString("url");
 
             ArrayList<Song> tracklist = new ArrayList<Song>();
             JSONArray tracklist_JSON = record.getJSONArray("tracklist");
@@ -135,7 +136,7 @@ public class RecordSearch extends AppCompatActivity {
             //         getResources().getString(R.string.http_url_test_search), this.userId, this.sessionId);
             
             SearchTask task = (SearchTask) factory.generateAsyncTask("Search", query,
-                    getResources().getString(R.string.http_url_test_search), this.userId, this.sessionId);
+                    getResources().getString(R.string.http_url_test_search_jose), this.userId, this.sessionId);
 
             try
             {

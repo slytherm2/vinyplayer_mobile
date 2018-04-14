@@ -36,6 +36,8 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.mdo3.vinylplayer.asyncTask.ImageAnalysisTask;
+
 import java.util.ArrayList;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
@@ -266,6 +268,11 @@ public class MainScreen extends AppCompatActivity
                         image,
                         UUID.randomUUID().toString(),
                         "vinyl_Image");
+
+                String url = getResources().getString(R.string.http_url_test_analyze_image);
+                AsyncTaskFactory factory = new AsyncTaskFactory();
+                ImageAnalysisTask task = (ImageAnalysisTask) factory.generateAsyncTask("ImageAnalysis", null, url, this.userID, this.sessionID);
+                task.execute(image);
 
                 //Bitmap compression into jpg
                 //Bitmap compression into png doesn't use quality level
