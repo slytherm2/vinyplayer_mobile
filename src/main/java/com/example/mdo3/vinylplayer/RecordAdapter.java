@@ -3,12 +3,16 @@ package com.example.mdo3.vinylplayer;
 import android.content.Context;
 import android.content.Intent;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
+import com.example.mdo3.vinylplayer.asyncTask.DownloadImageTask;
+import com.example.mdo3.vinylplayer.asyncTask.SearchTask;
 
 import java.util.ArrayList;
 
@@ -58,6 +62,21 @@ public class RecordAdapter extends RecyclerView.Adapter<RecordAdapter.ViewHolder
                 context.startActivity(intent);
             }
         });
+
+
+        if(record.getUrl() != null || !record.getUrl().isEmpty())
+        {
+            AsyncTaskFactory factory = new AsyncTaskFactory();
+            DownloadImageTask downloadTask = (DownloadImageTask) factory.generateAsyncTask("Download");
+            try
+            {
+                holder.cover_ImageView.setImageBitmap(downloadTask.execute(record.getUrl()).get());
+            }
+            catch (Exception e)
+            {
+                Log.d("Exception", e.getMessage());
+            }
+        }
     }
 
     @Override

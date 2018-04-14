@@ -57,7 +57,7 @@ public class SearchTask extends AsyncTask<Void, Void, String>
                     URLEncoder.encode(album, charset));
 
             // task is only executable from authenticated users
-            HttpURLConnection connection = createHttpRequest(query);
+            HttpsURLConnection connection = createHttpRequest(query);
             if(connection == null)
             {
                 Log.d("SearchTask", "connection is null");
@@ -113,13 +113,13 @@ public class SearchTask extends AsyncTask<Void, Void, String>
         super.onPostExecute(s);
     }
 
-    private HttpURLConnection createHttpRequest(String query)
+    private HttpsURLConnection createHttpRequest(String query)
     {
         try
         {
             URL url = new URL(this.resourceUrl);
-            // HttpsURLConnection connection = (HttpsURLConnection) url.openConnection(); // real server
-            HttpURLConnection connection = (HttpURLConnection) url.openConnection(); // local connection
+            HttpsURLConnection connection = (HttpsURLConnection) url.openConnection(); // real server
+            //HttpURLConnection connection = (HttpURLConnection) url.openConnection(); // local connection
 
             // allow for input and output request
             connection.setDoInput(true);

@@ -4,8 +4,11 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import com.example.mdo3.vinylplayer.asyncTask.DownloadImageTask;
 
 import java.util.ArrayList;
 
@@ -19,6 +22,7 @@ public class RecordInfo extends AppCompatActivity {
     private String artist;
     private ArrayList<Song> tracklist;
     private Record record;
+    private DownloadImageTask downloadTask;
 
 
     @Override
@@ -44,10 +48,24 @@ public class RecordInfo extends AppCompatActivity {
         }
         record = (Record) extras.getParcelable("record");
 
+       AsyncTaskFactory factory = new AsyncTaskFactory();
+       DownloadImageTask downloadTask = (DownloadImageTask) factory.generateAsyncTask("Download");
+        try
+        {
+            String[] params = {record.getUrl()};
+            cover_ImageView.setImageBitmap(downloadTask.execute(params).get());
+        }
+        catch (Exception e)
+        {
+            Log.d("Exception", e.getMessage());
+        }
+
         // set content
         album_TextView.setText(record.getAlbum());
         artist_TextView.setText(record.getArtist());
         adapter = new SongAdapter(this, record.getTracklist());
         tracklist_RecyclerView.setAdapter(adapter);
+
+
     }
 }

@@ -97,7 +97,8 @@ public class MusicPlayer extends AppCompatActivity
         btleSingleton = BluetoothLESingleton.getInstance();
 
         //Adding the track songs from the record to an array list to be used in the listview
-        songTrackList = record.getTracklist();
+        if(record != null)
+            songTrackList = record.getTracklist();
         albumSongTime = new ArrayList<>();
         albumSongs = new ArrayList<>();
         songTime = 0;
