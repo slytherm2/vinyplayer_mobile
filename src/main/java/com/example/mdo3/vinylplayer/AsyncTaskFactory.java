@@ -35,6 +35,8 @@ public class AsyncTaskFactory
                 return new SearchTask(input, url, userId, sessionId);
             case "Login":
                 return null;
+            case "ImageAnalysis":
+                return new ImageAnalysisTask(url, userId, sessionId);
             default:
                 return null;
         }
