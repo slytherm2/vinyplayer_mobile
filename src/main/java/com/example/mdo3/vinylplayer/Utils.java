@@ -19,6 +19,7 @@ import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.support.v4.app.ActivityCompat;
 import android.util.Log;
+import android.widget.Toast;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -276,5 +277,86 @@ public class Utils
        // System.out.println("DEBUG: Minutes " + minutes);
        //System.out.println("DEBUG: Seconds " + seconds);
        return (int) minutes * 60 + (int) seconds;
+    }
+
+    public static ArrayList<Record> splitInformation(Context mContext, String list, int flag)
+    {
+        ArrayList<Record> recordList = new ArrayList<>();
+        ArrayList<Song> songList;
+
+        if (list == null)
+            return null;
+        else if(list.isEmpty())
+            return null;
+
+        //List is CSV, the start of each album is marked by STOPNULL
+        String[] temp = list.split(",");
+        Record record;
+        Song song;
+        String artist;
+        String album;
+        String uri;
+        String rpm;
+        String status;
+        int songPos = 1;
+        int counter = 0;
+
+        //List : album name, artist name, uri, rotation speed, song, duration
+        //Record(String artist, String album, ArrayList<Song> tracklist, String rpm, String filePath)
+        //Song(String title, int position, String duration)
+        for(int i = counter; i < temp.length - 4; i=counter)
+        {
+            songList = new ArrayList<>();
+            album = temp[counter];
+            artist = temp[++counter];
+            uri = temp[++counter];
+            rpm = temp[++counter];
+            while(counter < temp.length - 3)
+            {
+                song = new Song(temp[++counter], String.valueOf(songPos), temp[++counter]);
+                songList.add(song);
+                songPos++;
+                if (temp[counter+1].equals(mContext.getResources().getString(R.string.stop_flag)))
+                {
+                    counter++;
+                    counter++;
+                    break;
+                }
+            }
+            record = new Record(artist, album, songList, rpm, uri, flag);
+            recordList.add(record);
+        }
+        return recordList;
+    }
+
+    public static ArrayList<String> prepareRecord(Context context, Record record)
+    {
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+        ArrayList<String> recordInfo = new ArrayList<>();
+        String temp = preferences.getString(context.getResources().getString(R.string.label_email),
+                null);
+
+        recordInfo.add(temp); //Email Tag
+        recordInfo.add(record.getArtist());
+        recordInfo.add(record.getAlbum());
+
+        //System.out.println("DEBUG: " + record.getUrl());
+        recordInfo.add(record.getUrl().toString());
+
+        String rpm = record.getRpm();
+        if(rpm == null)
+            recordInfo.add("false");
+        else
+            recordInfo.add(rpm);
+
+
+        for(int i = 0; i < record.getTracklist().size(); i++)
+        {
+            Song songObj = record.getTracklist().get(i);
+            recordInfo.add(songObj.getTitle());
+            recordInfo.add(songObj.getDuration());
+        }
+
+        return recordInfo;
     }
 }

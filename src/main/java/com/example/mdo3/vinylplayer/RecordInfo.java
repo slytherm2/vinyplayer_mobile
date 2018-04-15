@@ -84,6 +84,11 @@ public class RecordInfo extends AppCompatActivity
 
     public void addToCatalogBtn(View view)
     {
+        addToCatalog();
+    }
+
+    private void addToCatalog()
+    {
         //UserId
         //Artist, album, Image URI, RPM speed (false = 33 1/3, true = 45rpm)
         //Song name, duration
@@ -91,37 +96,14 @@ public class RecordInfo extends AppCompatActivity
         System.out.println("DEBUG: Button pressed");
 
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-        ArrayList<String> records = new ArrayList<>();
-        String temp = preferences.getString(this.getResources().getString(R.string.label_email), null);
-        if(temp == null)
-        {
-            Toast.makeText(this, R.string.fail_to_add, Toast.LENGTH_SHORT).show();
-            return;
-        }
-        records.add(temp); //Email Tag
-        records.add(record.getArtist());
-        records.add(record.getAlbum());
-
-        System.out.println("DEBUG: " + record.getUrl());
-        records.add(record.getUrl().toString());
-
-        String rpm = record.getRpm();
-        if(rpm == null)
-            records.add("false");
-        else
-            records.add(rpm);
-
-
-        for(int i = 0; i < record.getTracklist().size(); i++)
-        {
-            Song songObj = record.getTracklist().get(i);
-            records.add(songObj.getTitle());
-            records.add(songObj.getDuration());
-        }
+        ArrayList<String> records = Utils.prepareRecord(this, record);
 
         //Save the information to default xml location
         //under the tag "useremail" "SearchCat"
-        Utils.saveInformationSearch(records);
+        if(records != null)
+            Utils.saveInformationSearch(records);
+        else
+            Toast.makeText(this, R.string.fail_to_add, Toast.LENGTH_SHORT).show();
 
         Intent intent = new Intent(this, MusicPlayer.class);
         intent.putExtra(this.getResources().getString(R.string.record), record);

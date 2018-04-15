@@ -192,12 +192,12 @@ public class MainScreen extends AppCompatActivity
        String str = preferences.getString(email + this.getResources().getString(R.string.local_catalog),
                null);
        if(str != null)
-           fullRecordList = splitInformation(str, SPLITPATH);
+           fullRecordList = Utils.splitInformation(this, str, SPLITPATH);
 
        str = preferences.getString(email + this.getResources().getString(R.string.search_catalog), null);
        if(str != null)
        {
-           recordList = splitInformation(str, SPLITURL);
+           recordList = Utils.splitInformation(this, str, SPLITURL);
            for(int i = 0; i < recordList.size(); i++)
            {
                fullRecordList.add(recordList.get(i));
@@ -467,56 +467,6 @@ public class MainScreen extends AppCompatActivity
                 startActivityForResult(cameraIntent, ENABLE_CAMERA);
             }
         }
-    }
-
-    private ArrayList<Record> splitInformation(String list, int flag)
-    {
-        ArrayList<Record> recordList = new ArrayList<>();
-        ArrayList<Song> songList;
-
-        if (list == null)
-            return null;
-        else if(list.isEmpty())
-            return null;
-
-        //List is CSV, the start of each album is marked by STOPNULL
-        String[] temp = list.split(",");
-        Record record;
-        Song song;
-        String artist;
-        String album;
-        String uri;
-        String rpm;
-        String status;
-        int songPos = 1;
-        int counter = 0;
-
-        //List : album name, artist name, uri, rotation speed, song, duration
-        //Record(String artist, String album, ArrayList<Song> tracklist, String rpm, String filePath)
-        //Song(String title, int position, String duration)
-        for(int i = counter; i < temp.length - 4; i=counter)
-        {
-            songList = new ArrayList<>();
-            album = temp[counter];
-            artist = temp[++counter];
-            uri = temp[++counter];
-            rpm = temp[++counter];
-            while(counter < temp.length - 3)
-            {
-                song = new Song(temp[++counter], String.valueOf(songPos), temp[++counter]);
-                songList.add(song);
-                songPos++;
-                if (temp[counter+1].equals(this.getResources().getString(R.string.stop_flag)))
-                {
-                    counter++;
-                    counter++;
-                    break;
-                }
-            }
-                record = new Record(artist, album, songList, rpm, uri, flag);
-            recordList.add(record);
-        }
-        return recordList;
     }
 
     private LinearLayout addSong(String filepath, String song)

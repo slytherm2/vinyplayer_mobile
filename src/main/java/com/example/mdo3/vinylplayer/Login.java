@@ -14,10 +14,12 @@ import android.text.TextUtils;
 import android.view.View;
 import android.widget.AutoCompleteTextView;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 
 /**
@@ -52,6 +54,8 @@ public class Login extends AppCompatActivity {
     private String httpURL;
 
     private Boolean result;
+    private  ProgressBar pb;
+
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
@@ -71,9 +75,14 @@ public class Login extends AppCompatActivity {
 
         //if user already has valid cookie
         //automatically sign user into application
+
+
+        pb = (ProgressBar) findViewById(R.id.login_progress);
+        pb.setVisibility(View.VISIBLE);
         isLoggedIn();
-        //startNextActivity();
+        pb.setVisibility(View.GONE);
     }
+
     /*
     Attempts to sign in the user with the credentials
      */
@@ -85,8 +94,8 @@ public class Login extends AppCompatActivity {
         mPasswordView.setError(null);
 
         // Store values at the time of the login attempt.
-        String email = mEmailView.getText().toString();
-        String password = mPasswordView.getText().toString();
+        final String email = mEmailView.getText().toString();
+        final String password = mPasswordView.getText().toString();
 
         boolean cancel = false;
         View focusView = null;
@@ -124,21 +133,24 @@ public class Login extends AppCompatActivity {
             // perform the user login attempt.
             if (email != null && password != null)
             {
-                if(authenticateUser(NOCOOKIEFLAG, email, password))
-                {
-                    //save user email after successful login
-                    SharedPreferences.Editor editor = preferences.edit();
-                    editor.putString(this.getResources().getString(R.string.label_email), email);
-                    if(editor.commit())
-                        startNextActivity();
-                    else
-                        return;
-                }
-                else
-                {
-                    showError();
-                }
+                startBackgroundTask(email, password);
             }
+        }
+    }
+
+    private void startBackgroundTask(String email, String password)
+    {
+        if(authenticateUser(NOCOOKIEFLAG, email, password))
+        {
+            //save user email after successful login
+            SharedPreferences.Editor editor = preferences.edit();
+            editor.putString(this.getResources().getString(R.string.label_email), email);
+            if(editor.commit())
+            {
+                startNextActivity();
+            }
+            else
+                return;
         }
     }
 
@@ -178,11 +190,8 @@ public class Login extends AppCompatActivity {
     /** sign in button on the log in page */
     public void signIn(View view) throws InterruptedException
     {
+        pb.setVisibility(View.VISIBLE);
         attemptLogin();
-
-        //todo: uncomment method and remove intent
-        //Intent intent = new Intent(this,MainScreen.class);
-        //startActivity(intent);
     }
 
     /** Sign up button on the log in page */
@@ -239,7 +248,7 @@ public class Login extends AppCompatActivity {
         try
         {
             String[] params = {flag, userIdEmail, userSessionPass, httpURL};
-            loginTask = factory.generateAsyncTask("Login");
+            loginTask = factory.generateAsyncTask("Login", this);
             result = (boolean) loginTask.execute(params).get();
             System.out.println(DEBUG?"DEBUG: Authenticate user " + result:"");
         }
@@ -265,38 +274,33 @@ public class Login extends AppCompatActivity {
 
     private void isLoggedIn()
     {
-        Toast.makeText(this, R.string.loading_msg, Toast.LENGTH_LONG).show();
-
-        if(Utils.hasCookies(this))
+        //Toast.makeText(this, R.string.loading_msg, Toast.LENGTH_LONG).show();
+        if(!Utils.hasCookies(this))
         {
             sessionId = preferences.getString(getResources().getString(R.string.session_id), null);
             userId = preferences.getString(getResources().getString(R.string.user_id), null);
 
             System.out.println(DEBUG?"DEBUG: Creating Task":"");
-            loginTask = factory.generateAsyncTask("Login");
+            loginTask = factory.generateAsyncTask("Login", this);
             if(loginTask != null)
             {
-                Thread t1 = new Thread(new Runnable() {
-                    public void run()
+
+                System.out.println(DEBUG?"DEBUG: Task successfully created":"");
+                if (sessionId != null && userId != null && !sessionId.isEmpty() && !userId.isEmpty())
+                {
+                    System.out.println(DEBUG?"DEBUG: Authenticating cookies":"");
+                    if(authenticateUser(COOKIEFLAG, userId, sessionId))
                     {
-                        System.out.println(DEBUG?"DEBUG: Task successfully created":"");
-                        if (sessionId != null && userId != null && !sessionId.isEmpty() && !userId.isEmpty())
-                        {
-                            System.out.println(DEBUG?"DEBUG: Authenticating cookies":"");
-                            if(authenticateUser(COOKIEFLAG, userId, sessionId))
-                            {
-                                System.out.println(DEBUG?"DEBUG: User Authenticated":"");
-                                startNextActivity();
-                            }
-                            else
-                            {
-                                return;
-                            }
-                        }
+                        System.out.println(DEBUG?"DEBUG: User Authenticated":"");
+                        startNextActivity();
                     }
-                });
-                t1.start();
+                    else
+                    {
+                        return;
+                    }
+                }
             }
         }
+        return;
     }
 }

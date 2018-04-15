@@ -62,11 +62,13 @@ public class CatalogRecordAdapter extends ArrayAdapter<Record>
         LinearLayout.LayoutParams lParams = new LinearLayout.LayoutParams(DEFAULTSIZEWIDTH,
                 DEFAULTSIZEWIDTH);
         image.setLayoutParams(lParams);
+        AsyncTaskFactory factory = new AsyncTaskFactory();
+
         if(imageFilePath != null)
         {
             System.out.println("DEBUG : FilePath isn't NULL");
-            ImageFromGalleryTask ifgt = new ImageFromGalleryTask(mContext, imageFilePath);
-            String[] params = {};
+            ImageFromGalleryTask ifgt = (ImageFromGalleryTask) factory.generateAsyncTask("Image", mContext);
+            String[] params = {imageFilePath};
             try
             {
                 image.setImageBitmap((Bitmap) ifgt.execute(params).get());
@@ -81,7 +83,6 @@ public class CatalogRecordAdapter extends ArrayAdapter<Record>
         if(imageFilePath != null)
         {
             System.out.println("DEBUG : URL isn't NULL");
-           AsyncTaskFactory factory = new AsyncTaskFactory();
            DownloadImageTask dit = (DownloadImageTask) factory.generateAsyncTask("Download");
             String[] params = {imageFilePath};
             try

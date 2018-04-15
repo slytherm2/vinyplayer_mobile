@@ -1,11 +1,14 @@
 package com.example.mdo3.vinylplayer.asyncTask;
 
+import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.os.AsyncTask;
 import android.preference.PreferenceManager;
+import android.view.View;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.example.mdo3.vinylplayer.ApplicationContext;
@@ -57,9 +60,17 @@ public class LoginTask extends AsyncTask<String, Void, Boolean>
     private HttpURLConnection urlConnection = null;
     private ArrayList<String> cookieJar = new ArrayList<>();
 
+    private Context mContext;
+
+
+    public LoginTask(Context context)
+    {
+        this.mContext = context;
+    }
 
     @Override
-    protected void onPreExecute() {
+    protected void onPreExecute()
+    {
     }
 
     @Override
@@ -144,8 +155,10 @@ public class LoginTask extends AsyncTask<String, Void, Boolean>
         return result;
     }
 
+    @Override
     protected void onPostExecute(final Boolean success)
     {
+        super.onPostExecute(success);
 
         if (success)
         {

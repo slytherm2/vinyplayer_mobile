@@ -21,10 +21,9 @@ public class ImageFromGalleryTask extends  AsyncTask<String, Void, Bitmap>
     private String filePath;
     private Context mContext;
 
-    public ImageFromGalleryTask (Context context, String filePath)
+    public ImageFromGalleryTask (Context context)
     {
         this.mContext = context;
-        this.filePath = filePath;
     }
 
     @Override
@@ -32,6 +31,8 @@ public class ImageFromGalleryTask extends  AsyncTask<String, Void, Bitmap>
     {
         System.out.println("DEBUG: inside image from gallery");
         Bitmap bitmap = null;
+        this.filePath = params[0];
+
         try
         {
             bitmap = Utils.LoadImageFromGallery(mContext, filePath);

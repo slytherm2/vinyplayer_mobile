@@ -1,6 +1,8 @@
 package com.example.mdo3.vinylplayer;
 
 import com.example.mdo3.vinylplayer.asyncTask.*;
+
+import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
 
@@ -45,7 +47,7 @@ public class AsyncTaskFactory
             case "Search":
                 return null;
             case "Login":
-                return new LoginTask();
+                //return new LoginTask();
             case "SignUp":
                 return new SignUpTask();
             case "Logout":
@@ -54,6 +56,27 @@ public class AsyncTaskFactory
                 return new DownloadImageTask();
             //case "Image":
                 //return new ImageFromGalleryTask();
+            default:
+                return null;
+        }
+    }
+
+    public AsyncTask generateAsyncTask(String type, Context context)
+    {
+        switch(type)
+        {
+            case "Search":
+                return null;
+            case "Login":
+                return new LoginTask(context);
+            case "SignUp":
+                return null;
+            case "Logout":
+                return null;
+            case "Download":
+                return null;
+            case "Image":
+                return new ImageFromGalleryTask(context);
             default:
                 return null;
         }
