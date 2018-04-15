@@ -150,6 +150,7 @@
     <string name="rpm_33">33 1/3 RPM</string>
     <string name="rpm_45">45 RPM</string>
     <string name="local_catalog">LocalCat</string>
+    <string name="search_catalog">SearchCat</string>
     <string name="stop_flag">STOPNULL</string>
 
     <!-- Music Player -->
@@ -163,4 +164,8 @@
     <string name="stop_song">Stopping Song...</string>
     <string name="anti_skip">Anti-Skip Engaged</string>
     <string name="home_stop">ET Phone Home</string>
+
+    <!-- -->
+    <string name="add_to_catalog">Add To Catalog</string>
+    <string name="fail_to_add">Failed To Add To Catalog</string>
 </resources>

@@ -1,11 +1,14 @@
 package com.example.mdo3.vinylplayer;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.preference.PreferenceManager;
+import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
@@ -38,7 +41,7 @@ public class manual_add extends AppCompatActivity
     private Boolean rpmStat;
     private ArrayList<String> information;
     private ImageView targetImage;
-    private String imageURI;
+    private Uri imageURI;
 
     private String userEmail;
 
@@ -98,8 +101,13 @@ public class manual_add extends AppCompatActivity
         artistSTR = artist.getText().toString();
         information.add(artistSTR);
 
+        System.out.println("DEBUG: "+ imageURI);
         if(imageURI == null)
             information.add(null);
+        else
+            information.add(imageURI.toString());
+
+        System.out.println("DEBUG: " + imageURI);
 
         rpmStat = rpm.isChecked(); //false = 33 1/3 rpm ; true = 45 rpm
         information.add(rpmStat.toString());
@@ -122,12 +130,7 @@ public class manual_add extends AppCompatActivity
             }
         }
 
-        for(String str : information)
-        {
-            System.out.println("DEBUG : " + str);
-        }
-
-        if(Utils.saveInformation(information))
+        if(Utils.saveInformationLocal(information))
         {
             Intent intent = new Intent(this, MainScreen.class);
             startActivity(intent);
@@ -178,7 +181,7 @@ public class manual_add extends AppCompatActivity
     public void imageBtn(View view)
     {
         Intent intent = new Intent(Intent.ACTION_PICK,
-                android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                MediaStore.Images.Media.INTERNAL_CONTENT_URI);
         startActivityForResult(intent, 0);
     }
 
@@ -187,12 +190,12 @@ public class manual_add extends AppCompatActivity
     {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if (resultCode == RESULT_OK && requestCode == 0) {
-
-
+        if (resultCode == RESULT_OK && requestCode == 0)
+        {
             Uri targetUri = data.getData();
-            imageURI = targetUri.getPath();
+            imageURI = targetUri;
             Bitmap bitmap;
+
             try {
                 bitmap = BitmapFactory.decodeStream(getContentResolver().openInputStream(targetUri));
                 if (targetImage != null)

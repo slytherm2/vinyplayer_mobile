@@ -52,6 +52,10 @@ public class AsyncTaskFactory
                 return new SignUpTask();
             case "Logout":
                 return new LogoutTask();
+            case "Download":
+                return new DownloadImageTask();
+            //case "Image":
+                //return new ImageFromGalleryTask();
             default:
                 return null;
         }

@@ -1,25 +1,34 @@
 package com.example.mdo3.vinylplayer;
 
+import android.Manifest;
+import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.provider.MediaStore;
+import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 
+import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Random;
 
 /**
  * Created by Jr on 3/30/2018.
@@ -28,6 +37,35 @@ import java.util.ArrayList;
 
 public class Utils
 {
+    public static Bitmap LoadImageFromGallery(Context context, String filePath)
+    {
+        Bitmap bitmap = null;
+        Uri imageUri = Uri.parse(filePath);
+        final int READPERMISSION = 1;
+        int cameraPermission = context.checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE);
+
+        if(context == null || filePath.isEmpty())
+            return null;
+
+        if (cameraPermission != PackageManager.PERMISSION_GRANTED)
+        {
+            ActivityCompat.requestPermissions((Activity) context,
+                    new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
+                    READPERMISSION);
+        }
+        else
+        {
+            try
+            {
+                bitmap = BitmapFactory.decodeStream(context.getContentResolver().openInputStream(imageUri));
+            }
+            catch(IOException e)
+            {
+                Log.d("Exception", e.getMessage());
+            }
+        }
+        return bitmap;
+    }
 
     public static Bitmap LoadImageFromWeb(String url)
     {
@@ -78,6 +116,7 @@ public class Utils
         return false;
     }
 
+    //calculate the number of steps to send to the MC
     public static int calcValue(double startTime, double spacing)
     {
         String units = "in";
@@ -110,7 +149,8 @@ public class Utils
 
     //save the information into an xml file
     //location is the default location, set by preference manager
-    public static boolean saveInformation(ArrayList<String> info)
+    //USes the "LocalCat" tag
+    public static boolean saveInformationLocal(ArrayList<String> info)
     {
         //Comma Separated Value
         //UserId
@@ -149,7 +189,49 @@ public class Utils
         return (context != null && preferences != null) ? true : false;
     }
 
-    //used to convert the song times into seconds
+    //save the information into an xml file
+    //location is the default location, set by preference manager
+    //USes the "SearchCat" tag
+    public static boolean saveInformationSearch(ArrayList<String> info)
+    {
+        //Comma Separated Value
+        //UserId
+        //Artist, album, Image URI, RPM speed (false = 33 1/3, true = 45rpm)
+        //Song name, start time of song, end time of song
+        String emailTag = info.get(0);
+        StringBuilder strBuilder = new StringBuilder();
+        ApplicationContext contextInst = ApplicationContext.getInstance();
+        Context context = contextInst.getAppContext();
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+        SharedPreferences.Editor editor = preferences.edit();
+
+        //start at 1 because the first one is the user email
+        //the user email will be used as tag to pull up information in the future
+        for(int i = 1; i < info.size(); i++)
+        {
+            strBuilder.append(info.get(i));
+            strBuilder.append(",");
+        }
+
+        //check for exisiting local copy
+        String str = preferences.getString(emailTag + context.getResources().getString(R.string.search_catalog),
+                null);
+        if(str != null)
+        {
+            strBuilder.insert(0, str);
+        }
+
+        strBuilder.append(context.getString(R.string.stop_flag));
+        strBuilder.append(",");
+
+        editor.putString(emailTag + context.getResources().getString(R.string.search_catalog),
+                strBuilder.toString());
+        editor.commit();
+
+        return (context != null && preferences != null) ? true : false;
+    }
+
+    //used to convert the song times (min:sec or minsec format) into seconds
     public static int convertToSeconds(String time)
     {
         double minutes = 0;
@@ -191,8 +273,8 @@ public class Utils
             seconds = Character.getNumericValue(time.charAt(minPos + 1)) * 10
                         + Character.getNumericValue(time.charAt(minPos + 2));
        }
-        System.out.println("DEBUG: Minutes " + minutes);
-       System.out.println("DEBUG: Seconds " + seconds);
+       // System.out.println("DEBUG: Minutes " + minutes);
+       //System.out.println("DEBUG: Seconds " + seconds);
        return (int) minutes * 60 + (int) seconds;
     }
 }

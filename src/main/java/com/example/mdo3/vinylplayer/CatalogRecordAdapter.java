@@ -1,15 +1,21 @@
 package com.example.mdo3.vinylplayer;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.support.annotation.LayoutRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
+
+import com.example.mdo3.vinylplayer.asyncTask.DownloadImageTask;
+import com.example.mdo3.vinylplayer.asyncTask.ImageFromGalleryTask;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,6 +31,9 @@ public class CatalogRecordAdapter extends ArrayAdapter<Record>
 {
     private Context mContext;
     private List<Record> recordList;
+
+    private final int DEFAULTSIZEWIDTH = 150;
+    private final int DEFAULTSIZEHEIGHt = 150;
 
     public CatalogRecordAdapter(@NonNull Context context, ArrayList<Record> list)
     {
@@ -47,19 +56,48 @@ public class CatalogRecordAdapter extends ArrayAdapter<Record>
                     false);
 
         Record record = recordList.get(position);
+
         String imageFilePath = record.getFilePath();
-        if(!imageFilePath.equalsIgnoreCase("null"))
+        ImageView image = (ImageView) listItem.findViewById(R.id.album_pic);
+        LinearLayout.LayoutParams lParams = new LinearLayout.LayoutParams(DEFAULTSIZEWIDTH,
+                DEFAULTSIZEWIDTH);
+        image.setLayoutParams(lParams);
+        if(imageFilePath != null)
         {
-            System.out.println("DEBUG : IMage isn't NULL");
-            System.out.println("DEBUG: " + imageFilePath);
-            ImageView image = (ImageView) listItem.findViewById(R.id.album_pic);
-            //image.setImageResource(record.getFilePath());
+            System.out.println("DEBUG : FilePath isn't NULL");
+            ImageFromGalleryTask ifgt = new ImageFromGalleryTask(mContext, imageFilePath);
+            String[] params = {};
+            try
+            {
+                image.setImageBitmap((Bitmap) ifgt.execute(params).get());
+            }
+            catch(Exception e)
+            {
+                Log.d("Exception", e.getMessage());
+            }
+        }
+
+        imageFilePath = record.getUrl();
+        if(imageFilePath != null)
+        {
+            System.out.println("DEBUG : URL isn't NULL");
+           AsyncTaskFactory factory = new AsyncTaskFactory();
+           DownloadImageTask dit = (DownloadImageTask) factory.generateAsyncTask("Download");
+            String[] params = {imageFilePath};
+            try
+            {
+                image.setImageBitmap((Bitmap) dit.execute(params).get());
+            }
+            catch(Exception e)
+            {
+                Log.d("Exception", e.getMessage());
+            }
         }
         else
         {
             System.out.println("DEBUG : IMage was NULL....using default picture");
-            ImageView image = (ImageView) listItem.findViewById(R.id.album_pic);
-            image.setImageResource(R.drawable.ic_menu_camera);
+            image = (ImageView) listItem.findViewById(R.id.album_pic);
+            image.setImageResource(R.drawable.ic_menu_gallery);
         }
 
         TextView albumName = (TextView) listItem.findViewById(R.id.album_name);
