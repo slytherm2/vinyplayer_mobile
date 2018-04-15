@@ -144,8 +144,11 @@ public class RecordSearch extends AppCompatActivity {
 
             //         getResources().getString(R.string.http_url_test_search), this.userId, this.sessionId);
             
-            SearchTask task = (SearchTask) factory.generateAsyncTask("Search", query,
-                    getResources().getString(R.string.https_url_search), this.userId, this.sessionId);
+            SearchTask task = (SearchTask) factory.generateAsyncTask("Search", 
+                                                                     query,
+                                                                     getResources().getString(R.string.https_url_search), 
+                                                                     this.userId, 
+                                                                     this.sessionId);
 
             try
             {
