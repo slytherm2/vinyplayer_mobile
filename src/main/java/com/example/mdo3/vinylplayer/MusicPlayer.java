@@ -24,6 +24,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ViewSwitcher;
 
+import com.example.mdo3.vinylplayer.asyncTask.DownloadImageTask;
+
 import org.w3c.dom.Text;
 
 import java.io.File;
@@ -32,6 +34,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 public class MusicPlayer extends AppCompatActivity
 {
@@ -102,20 +105,22 @@ public class MusicPlayer extends AppCompatActivity
         albumSongTime = new ArrayList<>();
         albumSongs = new ArrayList<>();
         songTime = 0;
-        albumSongTime.add(songTime); //The start of the first songe
-        if(songTrackList.size() != 0)
-            albumSongs.add(songTrackList.get(0).getTitle().toUpperCase().toString());
-        for(int i = 1; i < songTrackList.size(); i++)
-        {
-            //account for the gap time between songs
-            //get the duration of the previous song
-            songObj = songTrackList.get(i - 1);
-            songTime += Utils.convertToSeconds(songObj.getDuration());
-            albumSongTime.add(songTime + SONGGAPTIME);
-            songObj = songTrackList.get(i);
-            albumSongs.add(songObj.getTitle().toUpperCase().toString());
-        }
 
+        if(songTrackList != null && songTrackList.size() != 0)
+        {
+            albumSongTime.add(songTime); //The start of the first songe
+            albumSongs.add(songTrackList.get(0).getTitle().toUpperCase().toString());
+            for (int i = 1; i < songTrackList.size(); i++)
+            {
+                //account for the gap time between songs
+                //get the duration of the previous song
+                songObj = songTrackList.get(i - 1);
+                songTime += Utils.convertToSeconds(songObj.getDuration());
+                albumSongTime.add(songTime + SONGGAPTIME);
+                songObj = songTrackList.get(i);
+                albumSongs.add(songObj.getTitle().toUpperCase().toString());
+            }
+        }
         if(DEBUG)
             System.out.println("DEBUG: " + albumSongTime);
 
@@ -150,14 +155,41 @@ public class MusicPlayer extends AppCompatActivity
         else
         {
             bitmap = null;
-            if(record != null && !record.getFilePath().isEmpty())
+            AsyncTaskFactory factory = null;
+            DownloadImageTask downloadTask = null;
+            if(record != null)
             {
-                bitmap = Utils.LoadImageFromGallery(this, record.getFilePath());
-                if(bitmap != null)
-                    coverAlbumView.setImageBitmap(bitmap);
+                if ( record.getFilePath() != null && !record.getFilePath().isEmpty())
+                {
+                    bitmap = Utils.LoadImageFromGallery(this, record.getFilePath());
+                }
+                else if (record.getUrl() != null && !record.getUrl().isEmpty())
+                {
+                    factory = new AsyncTaskFactory();
+                    if(factory != null)
+                        downloadTask = (DownloadImageTask) factory.generateAsyncTask("Download");
+                    if(downloadTask != null)
+                    {
+                        try
+                        {
+                            bitmap = (Bitmap) downloadTask.execute(record.getUrl().toString()).get();
+                        }
+                        catch (InterruptedException e)
+                        {
+                            Log.d("Exception", e.getMessage());
+                        }
+                        catch(ExecutionException e)
+                        {
+                            Log.d("Exception", e.getMessage());
+                        }
+                    }
+                    if (bitmap != null)
+                        coverAlbumView.setImageBitmap(bitmap);
+                }
             }
         }
 
+        //TODO: uncomment when reeady
         //start at home on start up
         //sendData(HOME);
     }

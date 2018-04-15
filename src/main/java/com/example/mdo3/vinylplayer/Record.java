@@ -48,6 +48,22 @@ public class Record implements Parcelable
         this.rpm = rpm;
     }
 
+    public Record(String artist, String album, ArrayList<Song> tracklist, String rpm, String path, int flag)
+    {
+        this.artist = artist;
+        this.album = album;
+        this.tracklist = tracklist;
+        if(flag == MainScreen.SPLITURL)
+        {
+            this.url = path;
+        }
+        else if(flag == MainScreen.SPLITPATH)
+        {
+            this.filePath = path;
+        }
+        this.filePath = filePath;
+        this.rpm = rpm;
+    }
 
     public Record(Parcel in)
     {

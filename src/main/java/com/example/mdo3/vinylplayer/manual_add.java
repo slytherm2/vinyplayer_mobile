@@ -101,6 +101,7 @@ public class manual_add extends AppCompatActivity
         artistSTR = artist.getText().toString();
         information.add(artistSTR);
 
+        System.out.println("DEBUG: "+ imageURI);
         if(imageURI == null)
             information.add(null);
         else
@@ -129,12 +130,7 @@ public class manual_add extends AppCompatActivity
             }
         }
 
-        for(String str : information)
-        {
-            System.out.println("DEBUG : " + str);
-        }
-
-        if(Utils.saveInformation(information))
+        if(Utils.saveInformationLocal(information))
         {
             Intent intent = new Intent(this, MainScreen.class);
             startActivity(intent);

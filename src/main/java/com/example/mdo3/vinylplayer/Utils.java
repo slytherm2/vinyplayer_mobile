@@ -149,7 +149,8 @@ public class Utils
 
     //save the information into an xml file
     //location is the default location, set by preference manager
-    public static boolean saveInformation(ArrayList<String> info)
+    //USes the "LocalCat" tag
+    public static boolean saveInformationLocal(ArrayList<String> info)
     {
         //Comma Separated Value
         //UserId
@@ -182,6 +183,48 @@ public class Utils
         strBuilder.append(",");
 
         editor.putString(emailTag + context.getResources().getString(R.string.local_catalog),
+                strBuilder.toString());
+        editor.commit();
+
+        return (context != null && preferences != null) ? true : false;
+    }
+
+    //save the information into an xml file
+    //location is the default location, set by preference manager
+    //USes the "SearchCat" tag
+    public static boolean saveInformationSearch(ArrayList<String> info)
+    {
+        //Comma Separated Value
+        //UserId
+        //Artist, album, Image URI, RPM speed (false = 33 1/3, true = 45rpm)
+        //Song name, start time of song, end time of song
+        String emailTag = info.get(0);
+        StringBuilder strBuilder = new StringBuilder();
+        ApplicationContext contextInst = ApplicationContext.getInstance();
+        Context context = contextInst.getAppContext();
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+        SharedPreferences.Editor editor = preferences.edit();
+
+        //start at 1 because the first one is the user email
+        //the user email will be used as tag to pull up information in the future
+        for(int i = 1; i < info.size(); i++)
+        {
+            strBuilder.append(info.get(i));
+            strBuilder.append(",");
+        }
+
+        //check for exisiting local copy
+        String str = preferences.getString(emailTag + context.getResources().getString(R.string.search_catalog),
+                null);
+        if(str != null)
+        {
+            strBuilder.insert(0, str);
+        }
+
+        strBuilder.append(context.getString(R.string.stop_flag));
+        strBuilder.append(",");
+
+        editor.putString(emailTag + context.getResources().getString(R.string.search_catalog),
                 strBuilder.toString());
         editor.commit();
 
@@ -230,8 +273,8 @@ public class Utils
             seconds = Character.getNumericValue(time.charAt(minPos + 1)) * 10
                         + Character.getNumericValue(time.charAt(minPos + 2));
        }
-        System.out.println("DEBUG: Minutes " + minutes);
-       System.out.println("DEBUG: Seconds " + seconds);
+       // System.out.println("DEBUG: Minutes " + minutes);
+       //System.out.println("DEBUG: Seconds " + seconds);
        return (int) minutes * 60 + (int) seconds;
     }
 }

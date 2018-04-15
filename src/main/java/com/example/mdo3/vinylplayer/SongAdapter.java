@@ -42,6 +42,9 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.ViewHolder>
         holder.title_TextView.setText(song.getTitle());
         holder.artist_TextView.setText(song.getPosition());
         holder.duration_TextView.setText(song.getDuration());
+
+        //removing because we want to pass more than song info, we want album, artist, and song list
+        /*
         holder.song_Layout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -50,7 +53,7 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.ViewHolder>
                 context.startActivity(intent);
             }
         });
-
+        */
     }
 
     @Override

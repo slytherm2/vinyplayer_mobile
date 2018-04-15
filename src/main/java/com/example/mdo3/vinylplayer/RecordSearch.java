@@ -34,7 +34,8 @@ public class RecordSearch extends AppCompatActivity {
     AsyncTaskFactory factory;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState)
+    {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_record_search);
 
@@ -42,6 +43,8 @@ public class RecordSearch extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
 
         preferences = PreferenceManager.getDefaultSharedPreferences(this);
         factory = new AsyncTaskFactory();
@@ -59,7 +62,8 @@ public class RecordSearch extends AppCompatActivity {
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
+    public boolean onCreateOptionsMenu(Menu menu)
+    {
         // Inflate the options menu from XML
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.search, menu);
@@ -73,11 +77,16 @@ public class RecordSearch extends AppCompatActivity {
         return true;
     }
 
-    public void addRecords(JSONArray records) {
-        for (int i = 0; i < records.length(); i++) {
-            try {
+    public void addRecords(JSONArray records)
+    {
+        for (int i = 0; i < records.length(); i++)
+        {
+            try
+            {
                 this.addRecord(records.getJSONObject(i));
-            } catch (JSONException e) {
+            }
+            catch (JSONException e)
+            {
                 return;
             }
         }

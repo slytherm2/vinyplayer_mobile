@@ -64,7 +64,11 @@ public class MainScreen extends AppCompatActivity
     private SharedPreferences preferences;
 
     private ArrayList<Record> recordList;
+    private ArrayList<Record> fullRecordList;
     private CatalogRecordAdapter catRecAdapter;
+
+    public static final int SPLITURL = 1;
+    public static  final int SPLITPATH = 2;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -187,22 +191,31 @@ public class MainScreen extends AppCompatActivity
         //TODO: connect to database and pull information relating to the specific user
        String str = preferences.getString(email + this.getResources().getString(R.string.local_catalog),
                null);
-
        if(str != null)
-           recordList = splitInformation(str);
+           fullRecordList = splitInformation(str, SPLITPATH);
+
+       str = preferences.getString(email + this.getResources().getString(R.string.search_catalog), null);
+       if(str != null)
+       {
+           recordList = splitInformation(str, SPLITURL);
+           for(int i = 0; i < recordList.size(); i++)
+           {
+               fullRecordList.add(recordList.get(i));
+           }
+       }
 
         //When an item on the list gets clicked on, do some action
         //TODO: modify click to bring to music player
         //todo: include picture, album, artist
         listview = (ListView) findViewById(R.id.main_albumList);
-        catRecAdapter = new CatalogRecordAdapter(this, recordList);
+        catRecAdapter = new CatalogRecordAdapter(this, fullRecordList);
         listview.setAdapter(catRecAdapter);
         listview.setOnItemClickListener(new AdapterView.OnItemClickListener()
         {
             @Override
             public void onItemClick(AdapterView<?> parent, View view,int position, long id)
             {
-                startMusicPlayer(recordList.get(position));
+                startMusicPlayer(fullRecordList.get(position));
             }
         });
 
@@ -456,7 +469,7 @@ public class MainScreen extends AppCompatActivity
         }
     }
 
-    private ArrayList<Record> splitInformation(String list)
+    private ArrayList<Record> splitInformation(String list, int flag)
     {
         ArrayList<Record> recordList = new ArrayList<>();
         ArrayList<Song> songList;
@@ -500,7 +513,7 @@ public class MainScreen extends AppCompatActivity
                     break;
                 }
             }
-            record = new Record(artist, album, songList, rpm, uri);
+                record = new Record(artist, album, songList, rpm, uri, flag);
             recordList.add(record);
         }
         return recordList;
