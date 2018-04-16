@@ -279,6 +279,7 @@ public class Utils
        return (int) minutes * 60 + (int) seconds;
     }
 
+    //Split the information and add the information into an array list in a specific order
     public static ArrayList<Record> splitInformation(Context mContext, String list, int flag)
     {
         ArrayList<Record> recordList = new ArrayList<>();
@@ -329,6 +330,8 @@ public class Utils
         return recordList;
     }
 
+    //Given a record object,
+    //create an arraylist to be stored into the xml in a specific format
     public static ArrayList<String> prepareRecord(Context context, Record record)
     {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);

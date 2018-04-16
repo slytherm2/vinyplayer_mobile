@@ -14,9 +14,13 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.mdo3.vinylplayer.asyncTask.AddAlbumTask;
 import com.example.mdo3.vinylplayer.asyncTask.DownloadImageTask;
 
+import org.apache.commons.lang3.concurrent.ConcurrentException;
+
 import java.util.ArrayList;
+import java.util.concurrent.ExecutionException;
 
 public class RecordInfo extends AppCompatActivity
 {
@@ -89,12 +93,12 @@ public class RecordInfo extends AppCompatActivity
 
     private void addToCatalog()
     {
+        System.out.println("DEBUG: Button pressed");
+
+        //Save record information to device
         //UserId
         //Artist, album, Image URI, RPM speed (false = 33 1/3, true = 45rpm)
         //Song name, duration
-
-        System.out.println("DEBUG: Button pressed");
-
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
         ArrayList<String> records = Utils.prepareRecord(this, record);
 
@@ -104,6 +108,37 @@ public class RecordInfo extends AppCompatActivity
             Utils.saveInformationSearch(records);
         else
             Toast.makeText(this, R.string.fail_to_add, Toast.LENGTH_SHORT).show();
+
+        //Save information to database
+        //artist name, artist id, album name, album id, thumbnail, # of songs,  tracklist
+       /* String[] params = {artist, "", album, "", "", String.valueOf(tracklist.size()),};
+        new Runnable()
+        {
+            public void run()
+            {
+                try
+                {
+                    AsyncTaskFactory factory = new AsyncTaskFactory();
+                    AddAlbumTask addAlbumTask = (AddAlbumTask) factory.generateAsyncTask("AddAlbum",
+                            RecordInfo.this);
+                    Boolean result = (Boolean) addAlbumTask.execute(params).get();
+
+                    if (!result)
+                    {
+                        Toast.makeText(RecordInfo.this, R.string.fail_to_add, Toast.LENGTH_SHORT).show();
+                    }
+                }
+                catch (InterruptedException e)
+                {
+                    Log.d("Exception", e.getMessage());
+                }
+                catch (ExecutionException e)
+                {
+                    Log.d("Exception", e.getMessage());
+                }
+            }
+        };*/
+
 
         Intent intent = new Intent(this, MusicPlayer.class);
         intent.putExtra(this.getResources().getString(R.string.record), record);

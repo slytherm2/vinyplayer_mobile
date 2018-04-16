@@ -285,7 +285,11 @@ public class MainScreen extends AppCompatActivity
                 //send data to the Heroku server for image analysis
                 String url = getResources().getString(R.string.http_url_test_analyze_image);
                 AsyncTaskFactory factory = new AsyncTaskFactory();
-                ImageAnalysisTask task = (ImageAnalysisTask) factory.generateAsyncTask("ImageAnalysis", null, url, this.userID, this.sessionID);
+                ImageAnalysisTask task = (ImageAnalysisTask) factory.generateAsyncTask("ImageAnalysis",
+                        null,
+                        url,
+                        this.userID,
+                        this.sessionID);
                 task.execute(image);
 
                 //Bitmap compression into jpg

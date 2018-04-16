@@ -33,6 +33,8 @@ public class SearchTask extends AsyncTask<Void, Void, String>
     private String sessionId;
     private String userId;
 
+    private final int CONTIMEOUT = 5000;
+
     public SearchTask(String input, String resourceUrl, String userId, String sessionId)
     {
         this.resourceUrl = resourceUrl;
@@ -53,11 +55,11 @@ public class SearchTask extends AsyncTask<Void, Void, String>
             // turn input string into query string
             String charset = "UTF-8";
             String query = String.format("artist=%s&album=%s",
-                    URLEncoder.encode(artist, charset),
-                    URLEncoder.encode(album, charset));
+                    URLEncoder.encode(artist.trim(), charset),
+                    URLEncoder.encode(album.trim(), charset));
 
             // task is only executable from authenticated users
-            HttpsURLConnection connection = createHttpRequest(query);
+            HttpURLConnection connection = createHttpRequest(query);
             if(connection == null)
             {
                 Log.d("SearchTask", "connection is null");
@@ -113,13 +115,13 @@ public class SearchTask extends AsyncTask<Void, Void, String>
         super.onPostExecute(s);
     }
 
-    private HttpsURLConnection createHttpRequest(String query)
+    private HttpURLConnection createHttpRequest(String query)
     {
         try
         {
             URL url = new URL(this.resourceUrl);
-            HttpsURLConnection connection = (HttpsURLConnection) url.openConnection(); // real server
-            //HttpURLConnection connection = (HttpURLConnection) url.openConnection(); // local connection
+            //HttpsURLConnection connection = (HttpsURLConnection) url.openConnection(); // real server
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection(); // local connection
 
             // allow for input and output request
             connection.setDoInput(true);
@@ -130,6 +132,8 @@ public class SearchTask extends AsyncTask<Void, Void, String>
             connection.setRequestProperty("User-Agent", "Mozilla/5.0 (compatible; MSIE 5.0;Windows98;DigExt)");
             connection.setRequestProperty( "Content-Length", String.valueOf(query.length()));
             connection.setRequestProperty("Cookie", sessionId+";"+userId);
+            connection.setConnectTimeout(CONTIMEOUT);
+            connection.setReadTimeout(CONTIMEOUT);
             return connection;
         }
         catch(MalformedURLException e)

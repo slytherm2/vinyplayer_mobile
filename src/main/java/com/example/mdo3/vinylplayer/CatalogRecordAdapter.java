@@ -98,7 +98,7 @@ public class CatalogRecordAdapter extends ArrayAdapter<Record>
         {
             System.out.println("DEBUG : IMage was NULL....using default picture");
             image = (ImageView) listItem.findViewById(R.id.album_pic);
-            image.setImageResource(R.drawable.ic_menu_gallery);
+            image.setImageResource(R.drawable.warp_150);
         }
 
         TextView albumName = (TextView) listItem.findViewById(R.id.album_name);

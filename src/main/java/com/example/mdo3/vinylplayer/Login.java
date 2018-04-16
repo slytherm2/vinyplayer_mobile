@@ -69,7 +69,7 @@ public class Login extends AppCompatActivity {
         mLoginFormView = findViewById(R.id.login_form);
         preferences = PreferenceManager.getDefaultSharedPreferences(this);
         factory = new AsyncTaskFactory();
-        httpURL = getResources().getString(R.string.https_url_login);
+        httpURL = getResources().getString(R.string.http_url_test_login);
         ApplicationContext appContext = ApplicationContext.getInstance();
         appContext.setAppContext(this);
 
@@ -78,9 +78,7 @@ public class Login extends AppCompatActivity {
 
 
         pb = (ProgressBar) findViewById(R.id.login_progress);
-        pb.setVisibility(View.VISIBLE);
         isLoggedIn();
-        pb.setVisibility(View.GONE);
     }
 
     /*
@@ -275,7 +273,7 @@ public class Login extends AppCompatActivity {
     private void isLoggedIn()
     {
         //Toast.makeText(this, R.string.loading_msg, Toast.LENGTH_LONG).show();
-        if(!Utils.hasCookies(this))
+        if(Utils.hasCookies(this))
         {
             sessionId = preferences.getString(getResources().getString(R.string.session_id), null);
             userId = preferences.getString(getResources().getString(R.string.user_id), null);
