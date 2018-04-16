@@ -2,10 +2,12 @@ package com.example.mdo3.vinylplayer.asyncTask;
 
 import android.graphics.Bitmap;
 import android.os.AsyncTask;
+import android.util.Base64;
 import android.util.Log;
 
 import java.io.BufferedOutputStream;
 import java.io.BufferedWriter;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -54,17 +56,37 @@ public class ImageAnalysisTask extends AsyncTask<Bitmap, Void, Void> {
                 Log.d("ImageAnalysisTask", "connection is null");
                 return null;
             }
+            connection.connect();
 
-            // write image to POST request
-            OutputStream output = connection.getOutputStream();
+            // directly let .compress write binary image data
+            // to the output-stream
+//            OutputStream os = connection.getOutputStream();
+//            this.image.compress(Bitmap.CompressFormat.PNG, 100, os);
+//            os.flush();
+//            os.close();
+
+            // encode image
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            this.image.compress(Bitmap.CompressFormat.PNG, 100, outputStream);
+            byte[] outputBytes = outputStream.toByteArray();
+            String encodedImage = Base64.encodeToString(outputBytes, Base64.DEFAULT);
+
+            // write query to POST request
+            OutputStream output = new BufferedOutputStream(connection.getOutputStream());
             BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(output));
-            writer.write(byteArray.toString());
+            writer.write(encodedImage);
             writer.flush();
             writer.close();
-            output.close();
 
-            connection.connect();
-            Thread.sleep(THREAD_TIMEOUT);
+
+            // write image to POST request
+//            OutputStream output = connection.getOutputStream();
+//            BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(output));
+//            writer.write(byteArray.toString());
+//            writer.flush();
+//            writer.close();
+//            output.close();
+
             int responseCode = connection.getResponseCode();
             switch(responseCode)
             {
@@ -98,9 +120,8 @@ public class ImageAnalysisTask extends AsyncTask<Bitmap, Void, Void> {
 
             connection.setRequestMethod("POST");
 //            connection.setRequestProperty("Content-Type", "image/png");
-//            connection.setRequestProperty("User-Agent", "Mozilla/5.0 (compatible; MSIE 5.0;Windows98;DigExt)");
+            // connection.setRequestProperty("User-Agent", "Mozilla/5.0 (compatible; MSIE 5.0;Windows98;DigExt)");
             connection.setRequestProperty("Cookie", this.sessionId+";"+this.userId);
-//            connection.setRequestProperty("Image", imageString);
 
             return connection;
         }
