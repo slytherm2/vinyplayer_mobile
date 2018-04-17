@@ -48,7 +48,7 @@ public class Record implements Parcelable
     {
         this.tracklist = tracklist;
 
-        if(params.length != 5)
+        if(params.length == 5)
         {
             this.artist = params[0];
             this.album = params[1];

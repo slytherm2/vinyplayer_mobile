@@ -34,6 +34,9 @@ public class RecordInfo extends AppCompatActivity
     private ArrayList<Song> tracklist;
     private Record record;
     private Toolbar mTopToolbar;
+    private String year;
+    private String albumId;
+    private String url;
 
 
     @Override
@@ -84,6 +87,11 @@ public class RecordInfo extends AppCompatActivity
         artist_TextView.setText(record.getArtist());
         adapter = new SongAdapter(this, record.getTracklist());
         tracklist_RecyclerView.setAdapter(adapter);
+        artist = record.getArtist();
+        album = record.getAlbum();
+        year = record.getYear();
+        albumId = record.getId();
+        url = record.getUrl();
     }
 
     public void addToCatalogBtn(View view)
@@ -109,10 +117,14 @@ public class RecordInfo extends AppCompatActivity
         else
             Toast.makeText(this, R.string.fail_to_add, Toast.LENGTH_SHORT).show();
 
+        System.out.println("DEBUG: Added to Catalog...Adding to database");
+
         //Save information to database
-        //artist name, artist id, album name, album id, thumbnail, # of songs,  tracklist
-       /* String[] params = {artist, "", album, "", "", String.valueOf(tracklist.size()),};
-        new Runnable()
+        //String[] params = {artist, album, year, url, albumId};
+        String[] params = {albumId};
+
+        //automatically enable bluetooth if available
+        Thread t1 = new Thread(new Runnable()
         {
             public void run()
             {
@@ -127,6 +139,7 @@ public class RecordInfo extends AppCompatActivity
                     {
                         Toast.makeText(RecordInfo.this, R.string.fail_to_add, Toast.LENGTH_SHORT).show();
                     }
+                    System.out.println("DEBUG: " + result);
                 }
                 catch (InterruptedException e)
                 {
@@ -137,8 +150,10 @@ public class RecordInfo extends AppCompatActivity
                     Log.d("Exception", e.getMessage());
                 }
             }
-        };*/
+        });
+        t1.start();
 
+        System.out.println("DEBUG: Complete");
 
         Intent intent = new Intent(this, MusicPlayer.class);
         intent.putExtra(this.getResources().getString(R.string.record), record);

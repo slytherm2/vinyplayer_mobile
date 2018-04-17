@@ -100,8 +100,8 @@ public class RecordSearch extends AppCompatActivity {
             String artist = record.getString("artist");
             String album = record.getString("album");
             String url = record.getString("url");
-            //String albumId = record.getString("id");
-            //String year = record.getString("year");
+            String albumId = record.getString("albumId");
+            String year = record.getString("year");
 
             ArrayList<Song> tracklist = new ArrayList<Song>();
             JSONArray tracklist_JSON = record.getJSONArray("tracklist");
@@ -122,10 +122,10 @@ public class RecordSearch extends AppCompatActivity {
             }
 
             //Order important :{artist, album, year, url, albumId}
-            //String[] params = {artist, album, year, url, albumId};
-            //Record newRecord = new Record(tracklist, params);
+            String[] params = {artist, album, year, url, albumId};
+            Record newRecord = new Record(tracklist, params);
 
-            Record newRecord = new Record(artist, album, tracklist, url);
+            //Record newRecord = new Record(artist, album, tracklist, url);
 
             this.records.add(newRecord);
             this.adapter.notifyDataSetChanged();

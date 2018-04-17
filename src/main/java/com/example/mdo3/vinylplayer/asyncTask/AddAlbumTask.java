@@ -141,6 +141,7 @@ public class AddAlbumTask extends AsyncTask<String, Void, Boolean>
                                                 String sessionId,
                                                 String[] params)
     {
+        String albumId = params[0];
         try
         {
             URL url = new URL(urlString);
@@ -164,14 +165,9 @@ public class AddAlbumTask extends AsyncTask<String, Void, Boolean>
             str.append(sessionId);
             urlConnection.setRequestProperty("Cookie", str.toString());
 
-            //artist name, artist id, album name, album id, tracklist
-            String query = String.format("artistName=%s&artistId=%s&album=%s&id=%s&tracklist=%s",
-                    URLEncoder.encode("Kanye West", "UTF-8"),
-                    URLEncoder.encode("2007", "UTF-8"),
-                    URLEncoder.encode("Graduation", "UTF-8"),
-                    URLEncoder.encode("12345", "UTF-8"),
-                    URLEncoder.encode("temp", "UTF-8"),
-                    URLEncoder.encode("Good%20Morning,Strong", "UTF-8"));
+            //Add album route only requires album ID (discogs ID)
+            String query = String.format("id=%s",
+                    URLEncoder.encode(albumId, "UTF-8"));
 
             urlConnection.setRequestProperty("Content-length", String.valueOf(query.length()));
             OutputStream outputPost = new BufferedOutputStream((urlConnection.getOutputStream()));

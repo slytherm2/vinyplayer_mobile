@@ -132,8 +132,8 @@ public class SearchTask extends AsyncTask<Void, Void, String>
             connection.setRequestProperty("User-Agent", "Mozilla/5.0 (compatible; MSIE 5.0;Windows98;DigExt)");
             connection.setRequestProperty( "Content-Length", String.valueOf(query.length()));
             connection.setRequestProperty("Cookie", sessionId+";"+userId);
-            connection.setConnectTimeout(CONTIMEOUT);
-            connection.setReadTimeout(CONTIMEOUT);
+            //connection.setConnectTimeout(CONTIMEOUT);
+            //connection.setReadTimeout(CONTIMEOUT);
             return connection;
         }
         catch(MalformedURLException e)
