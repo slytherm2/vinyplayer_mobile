@@ -1,14 +1,20 @@
 package com.example.mdo3.vinylplayer;
 
+import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.os.Build;
+import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.provider.MediaStore;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
@@ -20,10 +26,12 @@ import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.Switch;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.UUID;
 
 import static android.text.InputType.TYPE_CLASS_TEXT;
 
@@ -44,6 +52,10 @@ public class manual_add extends AppCompatActivity
     private Uri imageURI;
 
     private String userEmail;
+
+    private final int CHOOSER = 20;
+    private final int ENABLE_CAMERA = 5;
+    private final int GALLERY = 25;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -180,29 +192,110 @@ public class manual_add extends AppCompatActivity
 
     public void imageBtn(View view)
     {
+        /*
         Intent intent = new Intent(Intent.ACTION_PICK,
                 MediaStore.Images.Media.INTERNAL_CONTENT_URI);
         startActivityForResult(intent, 0);
+        */
+       Intent galleryIntent = new Intent(Intent.ACTION_PICK,
+                MediaStore.Images.Media.INTERNAL_CONTENT_URI);
+
+        Intent cameraIntent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
+
+
+        Intent chooser = new Intent(Intent.ACTION_CHOOSER);
+        chooser.putExtra(Intent.EXTRA_INTENT, galleryIntent);
+        chooser.putExtra(Intent.EXTRA_TITLE, "Choose From...");
+
+        Intent[] intentArray = { cameraIntent };
+        chooser.putExtra(Intent.EXTRA_INITIAL_INTENTS, intentArray);
+        startActivityForResult(chooser, CHOOSER);
     }
 
     @Override
+
+    //request code  = 1, result code = -1 : gallery
+    //request code = 1, result code = 0: camera
     protected void onActivityResult(int requestCode, int resultCode, Intent data)
     {
         super.onActivityResult(requestCode, resultCode, data);
+        System.out.println("DEBUG: "+requestCode);
+        System.out.println("DEBUG: "+resultCode);
 
-        if (resultCode == RESULT_OK && requestCode == 0)
+        //Intent comes from the chooser on the manual add page
+        if (requestCode == CHOOSER)
         {
-            Uri targetUri = data.getData();
-            imageURI = targetUri;
-            Bitmap bitmap;
+            //camera intent
+            if (resultCode == 0)
+            {
+                System.out.println("DEBUG: Camera Intent");
+                checkCamPerms();
+            }
+            //Gallery intent
+            else if (resultCode == -1)
+            {
+                System.out.println("DEBUG: Gallery Intent");
 
-            try {
-                bitmap = BitmapFactory.decodeStream(getContentResolver().openInputStream(targetUri));
-                if (targetImage != null)
-                    targetImage.setImageBitmap(bitmap);
-            } catch (FileNotFoundException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
+                Uri targetUri = data.getData();
+                imageURI = targetUri;
+                Bitmap bitmap = (Bitmap) data.getExtras().get("data");
+
+                try {
+                    if(targetUri != null)
+                        bitmap = BitmapFactory.decodeStream(getContentResolver().openInputStream(targetUri));
+                    if (targetImage != null && bitmap != null)
+                        targetImage.setImageBitmap(bitmap);
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    private void checkCamPerms()
+    {
+        //Manifest requires camera use, user must give permission to use camera.
+        //-1 = no camera permission
+        //0 = camera permission granted
+        if ( Build.VERSION.SDK_INT >= 23 &&
+                ContextCompat.checkSelfPermission( this, android.Manifest.permission.CAMERA ) != PackageManager.PERMISSION_GRANTED) {
+            return;
+        }
+
+        int cameraPermission = checkSelfPermission(Manifest.permission.CAMERA);
+        if (cameraPermission != PackageManager.PERMISSION_GRANTED)
+        {
+            requestPermissions(new String[]{Manifest.permission.CAMERA},
+                    ENABLE_CAMERA);
+        }
+        else
+        {
+            System.out.println("DEBUG: Calling Camera");
+            callCamera();
+        }
+    }
+
+    private void callCamera()
+    {
+        int permissionCheck = ContextCompat.checkSelfPermission(this,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        if (permissionCheck != PackageManager.PERMISSION_GRANTED)
+        {
+            ActivityCompat.requestPermissions(
+                    this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
+
+            Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+            if (cameraIntent.resolveActivity(getPackageManager()) != null)
+            {
+                startActivityForResult(cameraIntent, ENABLE_CAMERA);
+            }
+        }
+        else
+        {
+            Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+            if (cameraIntent.resolveActivity(getPackageManager()) != null)
+            {
+                startActivityForResult(cameraIntent, ENABLE_CAMERA);
             }
         }
     }
