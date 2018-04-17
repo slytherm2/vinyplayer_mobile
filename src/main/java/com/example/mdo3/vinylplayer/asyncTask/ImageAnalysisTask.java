@@ -15,6 +15,7 @@ import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.nio.ByteBuffer;
 
 import javax.net.ssl.HttpsURLConnection;
@@ -67,7 +68,7 @@ public class ImageAnalysisTask extends AsyncTask<Bitmap, Void, Void> {
 
             // encode image
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-            this.image.compress(Bitmap.CompressFormat.PNG, 100, outputStream);
+            this.image.compress(Bitmap.CompressFormat.JPEG, 100, outputStream);
             byte[] outputBytes = outputStream.toByteArray();
             String encodedImage = Base64.encodeToString(outputBytes, Base64.DEFAULT);
 
