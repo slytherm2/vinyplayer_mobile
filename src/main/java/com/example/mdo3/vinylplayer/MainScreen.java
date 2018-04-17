@@ -174,7 +174,6 @@ public class MainScreen extends AppCompatActivity
 
                 Snackbar.make(view, getResources().getString(R.string.launching_camera), Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
-
                 checkCamPerms();
             }
         });
@@ -210,7 +209,8 @@ public class MainScreen extends AppCompatActivity
         //TODO: modify click to bring to music player
         //todo: include picture, album, artist
         listview = (ListView) findViewById(R.id.main_albumList);
-        catRecAdapter = new CatalogRecordAdapter(this, fullRecordList);
+       if(fullRecordList != null)
+            catRecAdapter = new CatalogRecordAdapter(this, fullRecordList);
         listview.setAdapter(catRecAdapter);
         listview.setOnItemClickListener(new AdapterView.OnItemClickListener()
         {
@@ -291,32 +291,6 @@ public class MainScreen extends AppCompatActivity
                         this.userID,
                         this.sessionID);
                 task.execute(image);
-
-                //Bitmap compression into jpg
-                //Bitmap compression into png doesn't use quality level
-                /*
-                String root = Environment.getExternalStorageDirectory().toString();
-                File myDir = new File(root + "/vinyl_images");
-                myDir.mkdirs();
-                Random generator = new Random();
-                int n = 10000;
-                n = generator.nextInt(n);
-                String fname = "Image-" + n + ".jpg";
-                File file = new File(myDir, fname);
-
-                if (file.exists())
-                    file.delete();
-                try {
-                    FileOutputStream out = new FileOutputStream(file);
-                    image.compress(Bitmap.CompressFormat.PNG, 100, out);
-                    out.flush();
-                    out.close();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-
-               */
-               // return directory.getAbsolutePath();
 
                 System.out.println("DEBUG: image saved");
                 Intent intent = new Intent(this, MainScreen.class);

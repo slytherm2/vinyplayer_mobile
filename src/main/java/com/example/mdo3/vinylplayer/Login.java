@@ -69,15 +69,15 @@ public class Login extends AppCompatActivity {
         mLoginFormView = findViewById(R.id.login_form);
         preferences = PreferenceManager.getDefaultSharedPreferences(this);
         factory = new AsyncTaskFactory();
-        httpURL = getResources().getString(R.string.http_url_test_login);
+        httpURL = getResources().getString(R.string.https_url_login);
         ApplicationContext appContext = ApplicationContext.getInstance();
         appContext.setAppContext(this);
 
         //if user already has valid cookie
         //automatically sign user into application
         pb = (ProgressBar) findViewById(R.id.login_progress);
-        //isLoggedIn();
-        startNextActivity();
+        isLoggedIn();
+        //startNextActivity();
     }
 
     /*
@@ -147,7 +147,10 @@ public class Login extends AppCompatActivity {
                 startNextActivity();
             }
             else
+            {
+                pb.setVisibility(View.INVISIBLE);
                 return;
+            }
         }
     }
 
@@ -236,6 +239,7 @@ public class Login extends AppCompatActivity {
 
     private void startNextActivity()
     {
+        pb.setVisibility(View.INVISIBLE);
         Intent intent = new Intent(this, MainScreen.class);
         startActivity(intent);
     }

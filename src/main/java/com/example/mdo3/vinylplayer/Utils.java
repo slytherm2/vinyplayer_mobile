@@ -15,6 +15,7 @@ import android.graphics.Matrix;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Environment;
+import android.os.ParcelFileDescriptor;
 import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.support.v4.app.ActivityCompat;
@@ -22,6 +23,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 import java.io.File;
+import java.io.FileDescriptor;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -40,32 +42,32 @@ public class Utils
 {
     public static Bitmap LoadImageFromGallery(Context context, String filePath)
     {
-        Bitmap bitmap = null;
-        Uri imageUri = Uri.parse(filePath);
-        final int READPERMISSION = 1;
-        int cameraPermission = context.checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE);
+        Bitmap bitmap;
+        Bitmap resizedBitmap = null;
+        Uri imageUri = Uri.parse(filePath.trim());
 
-        if(context == null || filePath.isEmpty())
+        final int THUMBNAILWIDTH = 150;
+        final int THUMBNAILHEIGHT = 150;
+
+        if(context == null || filePath == null || filePath.isEmpty() || filePath.equalsIgnoreCase("null"))
             return null;
 
-        if (cameraPermission != PackageManager.PERMISSION_GRANTED)
+        try
         {
-            ActivityCompat.requestPermissions((Activity) context,
-                    new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
-                    READPERMISSION);
+            //bitmap = MediaStore.Images.Media.getBitmap(context.getContentResolver(),imageUri);
+            //bitmap = BitmapFactory.decodeStream(context.getContentResolver().openInputStream(imageUri));
+            bitmap = MediaStore.Images.Media.getBitmap(context.getContentResolver(), imageUri);
+            if(bitmap != null)
+                resizedBitmap = bitmap.createScaledBitmap(bitmap,
+                        THUMBNAILWIDTH,
+                        THUMBNAILHEIGHT,
+                        true);
         }
-        else
+        catch(IOException e)
         {
-            try
-            {
-                bitmap = BitmapFactory.decodeStream(context.getContentResolver().openInputStream(imageUri));
-            }
-            catch(IOException e)
-            {
-                Log.d("Exception", e.getMessage());
-            }
+            Log.d("Exception", e.getMessage());
         }
-        return bitmap;
+        return resizedBitmap;
     }
 
     public static Bitmap LoadImageFromWeb(String url)
