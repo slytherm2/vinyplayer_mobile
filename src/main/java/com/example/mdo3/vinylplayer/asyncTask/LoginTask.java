@@ -185,12 +185,12 @@ public class LoginTask extends AsyncTask<String, Void, Boolean>
         {
             //todo: change from local to remote
             //local server
-            //URL url = new URL(urlString);
-            //HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+            URL url = new URL(urlString);
+            HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
 
             //Remote server
-            URL url = new URL(urlString);
-            HttpsURLConnection urlConnection =  (HttpsURLConnection) url.openConnection();
+            //URL url = new URL(urlString);
+            //HttpsURLConnection urlConnection =  (HttpsURLConnection) url.openConnection();
 
             urlConnection.setDoOutput(true);
             urlConnection.setDoInput(true);

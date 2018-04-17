@@ -5,8 +5,11 @@ import android.bluetooth.BluetoothGattService;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
+
+import com.example.mdo3.vinylplayer.asyncTask.AddAlbumTask;
 
 import java.util.UUID;
 

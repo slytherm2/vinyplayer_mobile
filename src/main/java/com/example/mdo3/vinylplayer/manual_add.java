@@ -1,14 +1,24 @@
 package com.example.mdo3.vinylplayer;
 
+import android.Manifest;
+import android.content.ContentValues;
 import android.content.Context;
+import android.content.ContextWrapper;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
 import android.net.Uri;
+import android.os.Build;
+import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.provider.MediaStore;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
@@ -20,10 +30,18 @@ import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.Switch;
 
+import org.apache.commons.net.io.Util;
+
+import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.UUID;
 
 import static android.text.InputType.TYPE_CLASS_TEXT;
 
@@ -44,6 +62,12 @@ public class manual_add extends AppCompatActivity
     private Uri imageURI;
 
     private String userEmail;
+
+    private final int CHOOSER = 20;
+    private final int ENABLE_CAMERA = 5;
+
+    private final int THUMBNAILWIDTH = 150;
+    private final int THUMBNAILHEIGHT = 150;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -73,6 +97,7 @@ public class manual_add extends AppCompatActivity
         songList = (LinearLayout) findViewById(R.id.ma_song_list);
         targetImage = (ImageButton) findViewById(R.id.imageButton);
         information = new ArrayList<>();
+        imageURI = null;
         createSongInput(); // add first input box
     }
 
@@ -93,24 +118,24 @@ public class manual_add extends AppCompatActivity
         System.out.println("DEBUG: Manual Add Submit Buttton has been pressed");
 
         if(userEmail != null && !userEmail.isEmpty())
-            information.add(userEmail);
+            information.add(userEmail.trim());
 
         albumSTR = album.getText().toString();
-        information.add(albumSTR);
+        information.add(albumSTR.trim());
 
         artistSTR = artist.getText().toString();
-        information.add(artistSTR);
+        information.add(artistSTR.trim());
 
         System.out.println("DEBUG: "+ imageURI);
         if(imageURI == null)
             information.add(null);
         else
-            information.add(imageURI.toString());
+            information.add(imageURI.toString().trim());
 
         System.out.println("DEBUG: " + imageURI);
 
         rpmStat = rpm.isChecked(); //false = 33 1/3 rpm ; true = 45 rpm
-        information.add(rpmStat.toString());
+        information.add(rpmStat.toString().trim());
 
         //cycle through the children from the id:songlist
         for(int i = 0; i < songList.getChildCount(); i++)
@@ -124,7 +149,6 @@ public class manual_add extends AppCompatActivity
                 String temp = edt.getText().toString();
                 if(temp!= null && !temp.isEmpty())
                     information.add(temp);
-                    //songs.add(edt.getText().toString());
                 else
                     continue;
             }
@@ -180,29 +204,166 @@ public class manual_add extends AppCompatActivity
 
     public void imageBtn(View view)
     {
-        Intent intent = new Intent(Intent.ACTION_PICK,
+       Intent galleryIntent = new Intent(Intent.ACTION_PICK,
                 MediaStore.Images.Media.INTERNAL_CONTENT_URI);
-        startActivityForResult(intent, 0);
+
+        Intent cameraIntent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
+
+
+        Intent chooser = new Intent(Intent.ACTION_CHOOSER);
+        chooser.putExtra(Intent.EXTRA_INTENT, galleryIntent);
+        chooser.putExtra(Intent.EXTRA_TITLE, "Choose From...");
+
+        Intent[] intentArray = { cameraIntent };
+        chooser.putExtra(Intent.EXTRA_INITIAL_INTENTS, intentArray);
+        startActivityForResult(chooser, CHOOSER);
     }
 
     @Override
+
+    //request code  = 1, result code = -1 : gallery
+    //request code = 1, result code = 0: camera
     protected void onActivityResult(int requestCode, int resultCode, Intent data)
     {
         super.onActivityResult(requestCode, resultCode, data);
+        System.out.println("DEBUG: "+requestCode);
+        System.out.println("DEBUG: "+resultCode);
 
-        if (resultCode == RESULT_OK && requestCode == 0)
+        //Intent comes from the chooser on the manual add page
+        if (requestCode == CHOOSER)
         {
-            Uri targetUri = data.getData();
-            imageURI = targetUri;
-            Bitmap bitmap;
+            //camera intent
+            if (resultCode == 0)
+            {
+                System.out.println("DEBUG: Camera Intent");
+                checkCamPerms();
+            }
+            //Gallery intent
+            else if (resultCode == -1)
+            {
+                System.out.println("DEBUG: Gallery Intent");
 
-            try {
-                bitmap = BitmapFactory.decodeStream(getContentResolver().openInputStream(targetUri));
-                if (targetImage != null)
-                    targetImage.setImageBitmap(bitmap);
-            } catch (FileNotFoundException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
+                //Gets the image from the camera
+                //Resize the image from the camera to 150 X 150
+                //Set the image view to the thumbnail
+                Bitmap bitmap = (Bitmap) data.getExtras().get("data");
+                Bitmap resizedBitmap = null;
+                if(bitmap != null)
+                {
+                    resizedBitmap = bitmap.createScaledBitmap(bitmap,
+                            THUMBNAILWIDTH,
+                            THUMBNAILHEIGHT,
+                            true);
+                    if (targetImage != null && resizedBitmap != null)
+                        targetImage.setImageBitmap(resizedBitmap);
+
+                    //Save the bitmap image
+                    Date date = new Date();
+                    SimpleDateFormat format = new SimpleDateFormat("dd-MM-yy:HH:mm");
+
+                    if(resizedBitmap != null)
+                        imageURI = Uri.parse(MediaStore.Images.Media.insertImage(getContentResolver(),
+                                resizedBitmap,
+                                format.format(date.getTime()) + ".png" ,
+                                "WARP Vinyl Labels"));
+                }
+                //User is getting the image from the gallery - no need to save the image
+                else
+                {
+                    Uri targetUri = data.getData();
+                    imageURI = targetUri;
+                    System.out.println("DEBUG : image uri " + imageURI);
+                    try
+                    {
+                        if(imageURI != null)
+                        {
+                            bitmap = BitmapFactory.decodeStream(getContentResolver().openInputStream(imageURI));
+                            resizedBitmap = bitmap.createScaledBitmap(bitmap,
+                                    THUMBNAILWIDTH,
+                                    THUMBNAILHEIGHT,
+                                    true);
+                            if (targetImage != null && resizedBitmap != null)
+                                targetImage.setImageBitmap(resizedBitmap);
+                        }
+                    }
+                    catch (FileNotFoundException e)
+                    {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    }
+                }
+                System.out.println("DEBUG: URI : " + imageURI);
+            }
+        }
+    }
+
+    private void checkCamPerms()
+    {
+        //Manifest requires camera use, user must give permission to use camera.
+        //-1 = no camera permission
+        //0 = camera permission granted
+        final int granted = PackageManager.PERMISSION_GRANTED;
+
+        //Check if the android version is above 23 and camera permissions have been granted
+        if ( Build.VERSION.SDK_INT >= 23 &&
+                ContextCompat.checkSelfPermission( this,
+                        android.Manifest.permission.CAMERA ) != granted)
+        {
+            requestPermissions(new String[]{Manifest.permission.CAMERA},
+                    ENABLE_CAMERA);
+        }
+        else
+        {
+            System.out.println("DEBUG: Calling Camera");
+            callCamera();
+        }
+    }
+
+    private void callCamera()
+    {
+        int permissionCheck = ContextCompat.checkSelfPermission(this,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+
+        if (permissionCheck != PackageManager.PERMISSION_GRANTED)
+        {
+            ActivityCompat.requestPermissions(
+                    this,
+                    new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                    1);
+
+            if (cameraIntent.resolveActivity(getPackageManager()) != null)
+            {
+                startActivityForResult(cameraIntent, ENABLE_CAMERA);
+            }
+        }
+        else
+        {
+            if (cameraIntent.resolveActivity(getPackageManager()) != null)
+            {
+                startActivityForResult(cameraIntent, ENABLE_CAMERA);
+            }
+        }
+    }
+
+    //used to ask user for permission to use camera
+    //if granted, it will bring the user to the camera
+    //if not, the user cannot use the camera feature
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults)
+    {
+        System.out.println("DEBUG: requesting permission");
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == ENABLE_CAMERA)
+        {
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED)
+            {
+                callCamera();
+            }
+            else
+            {
+                System.out.println("DEBUG: return");
+                return;
             }
         }
     }

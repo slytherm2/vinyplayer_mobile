@@ -79,6 +79,8 @@ public class AsyncTaskFactory
                 return null;
             case "Image":
                 return new ImageFromGalleryTask(context);
+            case "AddAlbum":
+                return new AddAlbumTask(context);
             default:
                 return null;
         }

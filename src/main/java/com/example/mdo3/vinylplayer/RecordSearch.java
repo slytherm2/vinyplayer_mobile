@@ -93,11 +93,15 @@ public class RecordSearch extends AppCompatActivity {
         return;
     }
 
-    private void addRecord(JSONObject record) {
-        try {
+    private void addRecord(JSONObject record)
+    {
+        try
+        {
             String artist = record.getString("artist");
             String album = record.getString("album");
             String url = record.getString("url");
+            String albumId = record.getString("albumId");
+            String year = record.getString("year");
 
             ArrayList<Song> tracklist = new ArrayList<Song>();
             JSONArray tracklist_JSON = record.getJSONArray("tracklist");
@@ -116,7 +120,12 @@ public class RecordSearch extends AppCompatActivity {
                 Song song = new Song(title, duration);
                 tracklist.add(song);
             }
-            Record newRecord = new Record(artist, album, tracklist, url);
+
+            //Order important :{artist, album, year, url, albumId}
+            String[] params = {artist, album, year, url, albumId};
+            Record newRecord = new Record(tracklist, params);
+
+            //Record newRecord = new Record(artist, album, tracklist, url);
 
             this.records.add(newRecord);
             this.adapter.notifyDataSetChanged();
@@ -136,8 +145,8 @@ public class RecordSearch extends AppCompatActivity {
             }
             String query = intent.getStringExtra(SearchManager.QUERY);
             String queries[] = query.split("-");
-            String artist = queries[0];
-            String album = queries[1];
+            String artist = queries[0].trim();
+            String album = queries[1].trim();
             Log.d("RecordSearch", "handleIntent called");
             //Todo: change from local server to remote server
             // SearchTask task = (SearchTask) factory.generateAsyncTask("Search", query,
@@ -146,15 +155,18 @@ public class RecordSearch extends AppCompatActivity {
             
             SearchTask task = (SearchTask) factory.generateAsyncTask("Search", 
                                                                      query,
-                                                                     getResources().getString(R.string.https_url_search), 
+                                                                     getResources().getString(R.string.http_url_test_search),
                                                                      this.userId, 
                                                                      this.sessionId);
 
             try
             {
                 String result = task.execute().get();
-                JSONArray records = new JSONArray(result);
-                addRecords(records);
+                JSONArray records = null;
+                if(result != null)
+                    records = new JSONArray(result);
+                if(records != null)
+                    addRecords(records);
             }
             catch (InterruptedException e)
             {

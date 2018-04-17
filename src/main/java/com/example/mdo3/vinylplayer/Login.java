@@ -75,12 +75,9 @@ public class Login extends AppCompatActivity {
 
         //if user already has valid cookie
         //automatically sign user into application
-
-
         pb = (ProgressBar) findViewById(R.id.login_progress);
-        pb.setVisibility(View.VISIBLE);
         isLoggedIn();
-        pb.setVisibility(View.GONE);
+        //startNextActivity();
     }
 
     /*
@@ -150,7 +147,10 @@ public class Login extends AppCompatActivity {
                 startNextActivity();
             }
             else
+            {
+                pb.setVisibility(View.INVISIBLE);
                 return;
+            }
         }
     }
 
@@ -239,6 +239,7 @@ public class Login extends AppCompatActivity {
 
     private void startNextActivity()
     {
+        pb.setVisibility(View.INVISIBLE);
         Intent intent = new Intent(this, MainScreen.class);
         startActivity(intent);
     }
@@ -275,7 +276,7 @@ public class Login extends AppCompatActivity {
     private void isLoggedIn()
     {
         //Toast.makeText(this, R.string.loading_msg, Toast.LENGTH_LONG).show();
-        if(!Utils.hasCookies(this))
+        if(Utils.hasCookies(this))
         {
             sessionId = preferences.getString(getResources().getString(R.string.session_id), null);
             userId = preferences.getString(getResources().getString(R.string.user_id), null);
