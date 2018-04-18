@@ -239,6 +239,7 @@ public class manual_add extends AppCompatActivity
                 checkCamPerms();
             }
             //Gallery intent
+            //Camera intent calls this after taking a picture
             else if (resultCode == -1)
             {
                 System.out.println("DEBUG: Gallery Intent");
@@ -248,6 +249,7 @@ public class manual_add extends AppCompatActivity
                 //Set the image view to the thumbnail
                 Bitmap bitmap = (Bitmap) data.getExtras().get("data");
                 Bitmap resizedBitmap = null;
+
                 if(bitmap != null)
                 {
                     resizedBitmap = bitmap.createScaledBitmap(bitmap,
@@ -265,7 +267,7 @@ public class manual_add extends AppCompatActivity
                         imageURI = Uri.parse(MediaStore.Images.Media.insertImage(getContentResolver(),
                                 resizedBitmap,
                                 format.format(date.getTime()) + ".png" ,
-                                "WARP Vinyl Labels"));
+                                "WARP_Vinyl_Img"));
                 }
                 //User is getting the image from the gallery - no need to save the image
                 else
@@ -323,6 +325,7 @@ public class manual_add extends AppCompatActivity
     {
         int permissionCheck = ContextCompat.checkSelfPermission(this,
                 Manifest.permission.WRITE_EXTERNAL_STORAGE);
+
         Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
 
         if (permissionCheck != PackageManager.PERMISSION_GRANTED)
