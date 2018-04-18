@@ -4,11 +4,16 @@ import android.Manifest;
 import android.app.Activity;
 import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattService;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.Matrix;
+import android.media.ExifInterface;
+import android.net.Uri;
 import android.provider.MediaStore;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -23,6 +28,9 @@ import android.widget.ImageView;
 import com.example.mdo3.vinylplayer.asyncTask.AddAlbumTask;
 import com.example.mdo3.vinylplayer.asyncTask.ImageAnalysisTask;
 
+import java.io.ByteArrayOutputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.UUID;
 
 public class testing extends AppCompatActivity
@@ -128,14 +136,66 @@ public class testing extends AppCompatActivity
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data)
     {
+        Bitmap bitmap = null;
+        bitmap = (Bitmap) data.getExtras().get("data");
 
-        Bitmap bitmap = (Bitmap) data.getExtras().get("data");
+        Uri uri = null;
+        if(bitmap == null) {
+            uri = data.getData();
+            try {
+                bitmap = BitmapFactory.decodeStream(getContentResolver().openInputStream(uri));
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+        }
 
-        Bitmap resized = Bitmap.createScaledBitmap(bitmap, 500, 500, false);
+        //Bitmap resized = Bitmap.createScaledBitmap(bitmap, 500, 500, false);
         //request code 1 = Bluetooth
         if (requestCode == 1)
         {
-            imageView.setImageBitmap(bitmap);
+            try
+            {
+                Bitmap b = modifyOrientation(bitmap, data.getData().getPath());
+                imageView.setImageBitmap(b);
+            }
+            catch(Exception e)
+            {
+
+            }
         }
+    }
+
+    public static Bitmap modifyOrientation(Bitmap bitmap, String image_absolute_path) throws IOException {
+        ExifInterface ei = new ExifInterface(image_absolute_path);
+        int orientation = ei.getAttributeInt(ExifInterface.TAG_ORIENTATION,
+                ExifInterface.ORIENTATION_UNDEFINED);
+
+        Bitmap rotatedBitmap = null;
+        switch (orientation) {
+
+            case ExifInterface.ORIENTATION_ROTATE_90:
+                rotatedBitmap = rotateImage(bitmap, 90);
+                break;
+
+            case ExifInterface.ORIENTATION_ROTATE_180:
+                rotatedBitmap = rotateImage(bitmap, 180);
+                break;
+
+            case ExifInterface.ORIENTATION_ROTATE_270:
+                rotatedBitmap = rotateImage(bitmap, 270);
+                break;
+
+            case ExifInterface.ORIENTATION_NORMAL:
+            default:
+                rotatedBitmap = bitmap;
+        }
+        return rotatedBitmap;
+    }
+
+    public static Bitmap rotateImage(Bitmap source, float angle) {
+        Matrix matrix = new Matrix();
+        matrix.postRotate(angle);
+        return Bitmap.createBitmap(source, 0, 0, source.getWidth(), source.getHeight(),
+                matrix, true);
     }
 }

@@ -49,7 +49,7 @@ import static android.bluetooth.BluetoothAdapter.STATE_DISCONNECTED;
 *Activity for scanning and displaying available Bluetooth LE devices.
 *StartActivityforResult() calls on OnActivityResult() once it is finished
 */
-public class LowEnergyBlueTooth extends Activity
+public class LowEnergyBlueTooth extends MainScreen
 {
     //Constants
     private static final int REQUEST_ENABLE_BT = 1;
@@ -69,6 +69,8 @@ public class LowEnergyBlueTooth extends Activity
     private static BluetoothGattService gattService = null;
     private static final int SLEEP_TIMER = 250; //.25 seconds
 
+
+    private static MainScreen mainScreen;
 
     //Bluetooth UUID
     private final static UUID SERVICE_UUID =
@@ -106,6 +108,7 @@ public class LowEnergyBlueTooth extends Activity
         if (DEBUG) {System.out.println("DEBUG: OnCreate");}
 
         super.onCreate(savedInstanceState);
+        mainScreen = this;
         //setContentView(R.layout.please_wait);
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         mHandler = new Handler();
@@ -184,7 +187,7 @@ public class LowEnergyBlueTooth extends Activity
             public void run()
             {
                 btleScanner.stopScan(mScanCallback);
-                returnToMain(Activity.RESULT_CANCELED);
+                //returnToMain(Activity.RESULT_CANCELED);
             }
         }, SCAN_PERIOD);
         //btleScanner.startScan(createFilter(), createScanSettings(), mScanCallback);
@@ -250,7 +253,6 @@ public class LowEnergyBlueTooth extends Activity
         {
             setResult(Activity.RESULT_OK, returnIntent);
         }
-        finish();
     }
 
     private void connectToDevice(BluetoothDevice device)
@@ -273,11 +275,10 @@ public class LowEnergyBlueTooth extends Activity
             if (newState == BluetoothProfile.STATE_CONNECTED)
             {
                 if (DEBUG) {System.out.println("DEBUG: Gatt Connected");}
-
                 leSingleton.setGatt(gatt);
                 gatt.discoverServices();
-
-               /* Button btn = MainScreen.getButton();
+/*
+               Button btn = MainScreen.getButton();
                 if(btn != null)
                 {
                     btn.setBackgroundTintList(ColorStateList.valueOf(Color.GREEN));
@@ -289,12 +290,23 @@ public class LowEnergyBlueTooth extends Activity
                 {
                     return;
                 }*/
+
+                Button btn = mainScreen.getButton();
+                if(btn != null)
+                {
+                    btn.setBackgroundTintList(ColorStateList.valueOf(Color.GREEN));
+                    btn.setText(staticContext.getResources().getString(R.string.label_con));
+                    btn.setEnabled(false);
+//                    mainScreen.setButton(true);
+                    returnToMain(Activity.RESULT_OK);
+                }
+
+
             }
             else if (newState == BluetoothProfile.STATE_DISCONNECTED)
             {
                 if (DEBUG) {System.out.println("DEBUG:Gatt Disconnected");}
-/*
-                Button btn = MainScreen.getButton();
+               /* Button btn = MainScreen.getButton();
                 if(btn != null)
                 {
                     btn.setBackgroundTintList(ColorStateList.valueOf(Color.RED));
@@ -306,6 +318,16 @@ public class LowEnergyBlueTooth extends Activity
                 {
                     return;
                 }*/
+
+               Button btn = mainScreen.getButton();
+                if(btn != null)
+                {
+                    btn.setBackgroundTintList(ColorStateList.valueOf(Color.RED));
+                    btn.setText(staticContext.getResources().getString(R.string.label_not_con));
+                    btn.setEnabled(true);
+//                    mainScreen.setButton(false);
+                    returnToMain(Activity.RESULT_CANCELED);
+                }
             }
         }
 

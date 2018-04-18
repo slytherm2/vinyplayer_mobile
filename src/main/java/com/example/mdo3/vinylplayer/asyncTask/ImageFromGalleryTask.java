@@ -29,7 +29,7 @@ public class ImageFromGalleryTask extends  AsyncTask<String, Void, Bitmap>
     @Override
     protected Bitmap doInBackground(String... params)
     {
-        System.out.println("DEBUG: inside image from gallery");
+        //System.out.println("DEBUG: inside image from gallery");
         Bitmap bitmap = null;
         this.filePath = params[0];
 

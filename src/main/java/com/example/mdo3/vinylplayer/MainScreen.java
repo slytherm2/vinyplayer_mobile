@@ -71,7 +71,7 @@ public class MainScreen extends AppCompatActivity
     private String userID = null;
     private String email = null;
 
-    private static Button btn = null;
+    public static Button btn = null;
     private SharedPreferences preferences;
     private SharedPreferences.OnSharedPreferenceChangeListener listener;
 
@@ -100,7 +100,7 @@ public class MainScreen extends AppCompatActivity
 
         //update title to reflect user "welcome ...username"
         TextView title = (TextView) findViewById(R.id.main_title);
-        newTitle = preferences.getString(this.getResources().getString(R.string.label_name), null);
+        newTitle = preferences.getString(email + this.getResources().getString(R.string.label_name), null);
         if(newTitle != null)
             title.setText(newTitle);
         else
@@ -108,9 +108,9 @@ public class MainScreen extends AppCompatActivity
 
         //Bluetooth button
         btn = findViewById(R.id.main_stateBTN);
-        btn.setBackgroundTintList(ColorStateList.valueOf(Color.RED));
+        /*btn.setBackgroundTintList(ColorStateList.valueOf(Color.RED));
         btn.setText(getResources().getString(R.string.label_not_con));
-        btn.setEnabled(false);
+        btn.setEnabled(true);*/
 
        //Deals with the items inside the navigation drawer aka hamburger menu
         //best to use fragments when working with the navigation drawer
@@ -193,7 +193,7 @@ public class MainScreen extends AppCompatActivity
             }
         });
 
-        //automatically enable bluetooth if available
+        /*//automatically enable bluetooth if available
         Thread t1 = new Thread(new Runnable()
         {
             public void run()
@@ -201,7 +201,7 @@ public class MainScreen extends AppCompatActivity
                 startBT();
             }
         });
-        t1.start();
+        t1.start();*/
 
         //sets up the listview with items from the array
        String str = preferences.getString(email + this.getResources().getString(R.string.local_catalog),
@@ -270,7 +270,6 @@ public class MainScreen extends AppCompatActivity
                 Toast.makeText(this,
                         getResources().getString(R.string.bt_connected),
                         Toast.LENGTH_SHORT).show();
-                btn = findViewById(R.id.main_stateBTN);
                 btn.setBackgroundTintList(ColorStateList.valueOf(Color.GREEN));
                 btn.setText(vinylConnected);
                 btn.setEnabled(false);
@@ -278,7 +277,6 @@ public class MainScreen extends AppCompatActivity
             else if (resultCode == Activity.RESULT_CANCELED)
             {
                 Toast.makeText(this, getResources().getString(R.string.bt_conn_failed), Toast.LENGTH_SHORT).show();
-                btn = findViewById(R.id.main_stateBTN);
                 btn.setBackgroundTintList(ColorStateList.valueOf(Color.RED));
                 btn.setText(vinylNotConnected);
                 btn.setEnabled(true);
@@ -302,7 +300,6 @@ public class MainScreen extends AppCompatActivity
                         UUID.randomUUID().toString(),
                         "vinyl_Image");
 
-                System.out.println("DEBUG: image saved");
 
                 //send data to the Heroku server for image analysis
                 String url = getResources().getString(R.string.https_url_analyzeimage);
@@ -312,8 +309,16 @@ public class MainScreen extends AppCompatActivity
                         url,
                         this.userID,
                         this.sessionID);
-                task.execute(image);
-                System.out.println("DEBUG: Image sent to OCR");
+
+                try
+                {
+                    String outputStr = (String) task.execute(image).get();
+                    System.out.println("DEBUG: " + outputStr);
+                }
+                catch(Exception e)
+                {
+
+                }
 
                 Intent intent = new Intent(this, MainScreen.class);
                 startActivity(intent);
@@ -343,7 +348,7 @@ public class MainScreen extends AppCompatActivity
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults)
     {
-        System.out.println("DEBUG: requesting permission");
+        System.out.println("DEBUG: Main Screen requesting permission");
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == ENABLE_CAMERA)
         {
@@ -432,6 +437,22 @@ public class MainScreen extends AppCompatActivity
     {
         return btn;
     }
+
+/*    public static void setButton(Boolean result)
+    {
+        if(result) {
+            btn.setBackgroundTintList(ColorStateList.valueOf(Color.GREEN));
+            btn.setText(ApplicationContext.getInstance().getResources().getString(R.string.label_con));
+            btn.setEnabled(false);
+        }
+        else
+        {
+
+            btn.setBackgroundTintList(ColorStateList.valueOf(Color.RED));
+            btn.setText(ApplicationContext.getInstance().getResources().getString(R.string.label_not_con));
+            btn.setEnabled(true);
+        }
+    }*/
 
     private void checkCamPerms()
     {

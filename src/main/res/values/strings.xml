@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">VinylPlayer</string>
+    <string name="app_name">WARP</string>
 
     <!-- Strings related to login -->
     <string name="prompt_email">Email</string>
@@ -18,8 +18,8 @@
     <string name="label_confirm_pass">Confirm Password</string>
     <string name="label_city">City</string>
     <string name="label_state">State</string>
-    <string name="label_not_con">Vinyl Player Not Connected</string>
-    <string name="label_con">Vinyl Player Connected</string>
+    <string name="label_not_con">WARP Mode Disengaged</string>
+    <string name="label_con">WARP Mode Engaged</string>
     <string name="bt_status">btStatus</string>
     <string name="bt_connected">Bluetooth Connected</string>
     <string name="error_invalid_email">This email address is invalid</string>
@@ -154,10 +154,11 @@
     <string name="starting_song">Starting Song...</string>
     <string name="pause_song">Pausing Song...</string>
     <string name="stop_song">Stopping Song...</string>
-    <string name="anti_skip">Anti-Skip Engaged</string>
+    <string name="anti_skip">Anti-Skip</string>
     <string name="home_stop">ET Phone Home</string>
 
     <!-- -->
     <string name="add_to_catalog">Add To Catalog</string>
     <string name="fail_to_add">Failed To Add To Catalog</string>
+    <string name="reset_tonearm">Reset Tonearm</string>
 </resources>

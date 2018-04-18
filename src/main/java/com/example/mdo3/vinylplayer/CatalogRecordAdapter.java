@@ -68,7 +68,7 @@ public class CatalogRecordAdapter extends ArrayAdapter<Record>
         //If filepath != null
         if(imageFilePath != null && !imageFilePath.equalsIgnoreCase("null"))
         {
-            System.out.println("DEBUG : FilePath isn't NULL");
+            //System.out.println("DEBUG : FilePath isn't NULL");
             ImageFromGalleryTask ifgt = (ImageFromGalleryTask) factory.generateAsyncTask("Image", mContext);
             String[] params = {imageFilePath};
             try
@@ -85,7 +85,7 @@ public class CatalogRecordAdapter extends ArrayAdapter<Record>
         imageFilePath = record.getUrl();
         if(imageFilePath != null && !imageFilePath.equalsIgnoreCase("null") && !foundPath)
         {
-            System.out.println("DEBUG : URL isn't NULL");
+            //System.out.println("DEBUG : URL isn't NULL");
            DownloadImageTask dit = (DownloadImageTask) factory.generateAsyncTask("Download");
             String[] params = {imageFilePath};
             try
@@ -101,7 +101,7 @@ public class CatalogRecordAdapter extends ArrayAdapter<Record>
 
         if(!foundPath)
         {
-            System.out.println("DEBUG : IMage was NULL....using default picture");
+            //System.out.println("DEBUG : IMage was NULL....using default picture");
             image = (ImageView) listItem.findViewById(R.id.album_pic);
             image.setImageResource(R.drawable.warp_150);
         }
