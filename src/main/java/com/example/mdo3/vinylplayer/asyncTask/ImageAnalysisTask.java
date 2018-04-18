@@ -5,11 +5,14 @@ import android.os.AsyncTask;
 import android.util.Base64;
 import android.util.Log;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
@@ -20,7 +23,9 @@ import java.nio.ByteBuffer;
 
 import javax.net.ssl.HttpsURLConnection;
 
-public class ImageAnalysisTask extends AsyncTask<Bitmap, Void, Void> {
+import javax.net.ssl.HttpsURLConnection;
+
+public class ImageAnalysisTask extends AsyncTask<Bitmap, Void, String> {
     private static final int THREAD_TIMEOUT = 2000;
     private Bitmap image;
     private String url;
@@ -35,23 +40,17 @@ public class ImageAnalysisTask extends AsyncTask<Bitmap, Void, Void> {
     }
 
     @Override
-    protected Void doInBackground(Bitmap... params) {
+    protected String doInBackground(Bitmap... params) {
         this.image = params[0];
 
         if(this.image == null) { return null; }
 
-        // convert image to a format that can be sent to the POST
-        int size = this.image.getRowBytes() * this.image.getHeight();
-        ByteBuffer byteBuffer = ByteBuffer.allocate(size);
-        this.image.copyPixelsToBuffer(byteBuffer);
-        byte[] byteArray = byteBuffer.array();
-        String imageString = byteArray.toString();
-
         try
         {
+            System.out.println("DEBUG: Inside image analysis");
             // task is only executable from authenticated users
 //            HttpsURLConnection connection = createHttpRequest(imageString);
-            HttpURLConnection connection = createHttpRequest(imageString);
+            HttpURLConnection connection = createHttpRequest();
             if(connection == null)
             {
                 Log.d("ImageAnalysisTask", "connection is null");
@@ -59,42 +58,43 @@ public class ImageAnalysisTask extends AsyncTask<Bitmap, Void, Void> {
             }
             connection.connect();
 
-            // directly let .compress write binary image data
-            // to the output-stream
-//            OutputStream os = connection.getOutputStream();
-//            this.image.compress(Bitmap.CompressFormat.PNG, 100, os);
-//            os.flush();
-//            os.close();
 
             // encode image
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
             this.image.compress(Bitmap.CompressFormat.JPEG, 100, outputStream);
             byte[] outputBytes = outputStream.toByteArray();
-            String encodedImage = Base64.encodeToString(outputBytes, Base64.DEFAULT);
+            String encodedImage = Base64.encodeToString(outputBytes, Base64.NO_WRAP);
+
+            // turn input string into query string
+            String charset = "UTF-8";
+            String query = String.format("image=%s", URLEncoder.encode(encodedImage.trim(), charset));
+
 
             // write query to POST request
             OutputStream output = new BufferedOutputStream(connection.getOutputStream());
             BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(output));
-            writer.write(encodedImage);
+            writer.write(query);
             writer.flush();
             writer.close();
 
-
-            // write image to POST request
-//            OutputStream output = connection.getOutputStream();
-//            BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(output));
-//            writer.write(byteArray.toString());
-//            writer.flush();
-//            writer.close();
-//            output.close();
-
             int responseCode = connection.getResponseCode();
+            System.out.println("DEBUG: Response code" + responseCode);
             switch(responseCode)
             {
                 case HttpURLConnection.HTTP_OK:
-                    Log.d("ImageAnalysisTask", "Response Code Ok");
+                    System.out.println("DEBUG: We gucci");
+                    Log.d("SearchTask", "Received HTTP_OK");
+                    InputStream input = new BufferedInputStream(connection.getInputStream());
+                    BufferedReader reader = new BufferedReader(new InputStreamReader(input));
+                    String nextLine;
+                    while((nextLine = reader.readLine()) != null)
+                    {
+                        System.out.println("DEBUG: " + nextLine.toString());
+                    }
+                    reader.close();
                     break;
                 default:
+                    Log.d("SearchTask", "Did not get HTTP_OK response");
             }
 
             connection.disconnect();
@@ -107,7 +107,7 @@ public class ImageAnalysisTask extends AsyncTask<Bitmap, Void, Void> {
         }
     }
 
-    private HttpURLConnection createHttpRequest(String imageString)
+    private HttpURLConnection createHttpRequest()
     {
         try
         {
