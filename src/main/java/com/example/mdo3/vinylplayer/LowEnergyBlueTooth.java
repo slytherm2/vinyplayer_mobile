@@ -289,11 +289,6 @@ public class LowEnergyBlueTooth extends Activity
                 {
                     return;
                 }
-
-               /*SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(staticContext);
-               SharedPreferences.Editor editor = preferences.edit();
-               editor.putString(staticContext.getResources().getString(R.string.bt_status), "true");
-               editor.commit();*/
             }
             else if (newState == BluetoothProfile.STATE_DISCONNECTED)
             {
@@ -311,11 +306,6 @@ public class LowEnergyBlueTooth extends Activity
                 {
                     return;
                 }
-
-                /*SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(staticContext);
-                SharedPreferences.Editor editor = preferences.edit();
-                editor.putString(staticContext.getResources().getString(R.string.bt_status), "false");
-                editor.commit();*/
             }
         }
 
