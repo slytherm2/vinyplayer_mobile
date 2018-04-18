@@ -56,8 +56,9 @@ public class CatalogRecordAdapter extends ArrayAdapter<Record>
                     false);
 
         Record record = recordList.get(position);
-
         String imageFilePath = record.getFilePath();
+        Boolean foundPath = false;
+
         ImageView image = (ImageView) listItem.findViewById(R.id.album_pic);
         LinearLayout.LayoutParams lParams = new LinearLayout.LayoutParams(DEFAULTSIZEWIDTH,
                 DEFAULTSIZEWIDTH);
@@ -73,6 +74,7 @@ public class CatalogRecordAdapter extends ArrayAdapter<Record>
             try
             {
                 image.setImageBitmap((Bitmap) ifgt.execute(params).get());
+                foundPath = true;
             }
             catch(Exception e)
             {
@@ -80,22 +82,24 @@ public class CatalogRecordAdapter extends ArrayAdapter<Record>
             }
         }
         //if url != null
-        else if(imageFilePath != null && !imageFilePath.equalsIgnoreCase("null"))
+        imageFilePath = record.getUrl();
+        if(imageFilePath != null && !imageFilePath.equalsIgnoreCase("null") && !foundPath)
         {
-            imageFilePath = record.getUrl();
             System.out.println("DEBUG : URL isn't NULL");
            DownloadImageTask dit = (DownloadImageTask) factory.generateAsyncTask("Download");
             String[] params = {imageFilePath};
             try
             {
                 image.setImageBitmap((Bitmap) dit.execute(params).get());
+                foundPath = true;
             }
             catch(Exception e)
             {
                 Log.d("Exception", e.getMessage());
             }
         }
-        else
+
+        if(!foundPath)
         {
             System.out.println("DEBUG : IMage was NULL....using default picture");
             image = (ImageView) listItem.findViewById(R.id.album_pic);

@@ -282,6 +282,7 @@ public class LowEnergyBlueTooth extends Activity
                 {
                     btn.setBackgroundTintList(ColorStateList.valueOf(Color.GREEN));
                     btn.setText(staticContext.getResources().getString(R.string.label_con));
+                    btn.setEnabled(false);
                     returnToMain(Activity.RESULT_OK);
                 }
                 else
@@ -289,8 +290,12 @@ public class LowEnergyBlueTooth extends Activity
                     return;
                 }
 
-
-            } else if (newState == BluetoothProfile.STATE_DISCONNECTED)
+               /*SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(staticContext);
+               SharedPreferences.Editor editor = preferences.edit();
+               editor.putString(staticContext.getResources().getString(R.string.bt_status), "true");
+               editor.commit();*/
+            }
+            else if (newState == BluetoothProfile.STATE_DISCONNECTED)
             {
                 if (DEBUG) {System.out.println("DEBUG:Gatt Disconnected");}
 
@@ -299,12 +304,18 @@ public class LowEnergyBlueTooth extends Activity
                 {
                     btn.setBackgroundTintList(ColorStateList.valueOf(Color.RED));
                     btn.setText(staticContext.getResources().getString(R.string.label_not_con));
+                    btn.setEnabled(true);
                     returnToMain(Activity.RESULT_CANCELED);
                 }
                 else
                 {
                     return;
                 }
+
+                /*SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(staticContext);
+                SharedPreferences.Editor editor = preferences.edit();
+                editor.putString(staticContext.getResources().getString(R.string.bt_status), "false");
+                editor.commit();*/
             }
         }
 

@@ -128,7 +128,6 @@ public class Utils
         double stepAngle = .005859375; //degrees
 
         double rpm = 33.3;
-        //startTime = 0.0;
 
         double angle = 0.0;
         int steps = 0;
@@ -137,16 +136,9 @@ public class Utils
         double y = 2 * Math.pow(armLength,2);
 
         double z = (x-y) / -y;
-        angle = (180/Math.PI) * Math.acos(Math.toRadians(z)) + offset;
+        angle = (180/Math.PI) * Math.acos(z) + offset;
         steps =(int) Math.ceil(angle/stepAngle);
 
-        /*
-        System.out.println("DEBUG: x " + x);
-        System.out.println("DEBUG: y " + y);
-        System.out.println("DEBUG: z " + z);
-        System.out.println("DEBUG: angle " + angle);
-        System.out.println("DEBUG: steps " + steps);
-        */
         return steps + 20000;
     }
 

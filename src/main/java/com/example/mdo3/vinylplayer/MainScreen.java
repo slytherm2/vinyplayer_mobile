@@ -64,6 +64,7 @@ public class MainScreen extends AppCompatActivity
 
     private static Button btn = null;
     private SharedPreferences preferences;
+    private SharedPreferences.OnSharedPreferenceChangeListener listener;
 
     private ArrayList<Record> recordList;
     private ArrayList<Record> fullRecordList;
@@ -94,8 +95,42 @@ public class MainScreen extends AppCompatActivity
             title.setText(newTitle);
         else
             title.setText("User " + getString(R.string.label_Welcome) );  //or use generic title
+
+        //Bluetooth button
+
         btn = findViewById(R.id.main_stateBTN);
+        /*listener = new SharedPreferences.OnSharedPreferenceChangeListener()
+        {
+            public void onSharedPreferenceChanged(
+                    SharedPreferences preferences, String key)
+            {
+                System.out.println("DEBUG: inside listener");
+                System.out.println("DEBUG: key " + key);
+                if(key.equals("btStatus"))
+                {
+                    String status = preferences.getString(key, null);
+
+                    if(status != null && status.equalsIgnoreCase("false"))
+                    {
+                        btn.setBackgroundTintList(ColorStateList.valueOf(Color.RED));
+                        btn.setText(getResources().getString(R.string.label_not_con));
+                    }
+                    else
+                    {
+                        btn.setBackgroundTintList(ColorStateList.valueOf(Color.GREEN));
+                        btn.setText(getResources().getString(R.string.label_con));
+                    }
+                }
+            }
+        };*/
+
+       /* preferences.registerOnSharedPreferenceChangeListener(listener);
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.putString("btStatus", "false");
+        editor.commit();*/
+
         btn.setBackgroundTintList(ColorStateList.valueOf(Color.RED));
+        btn.setText(getResources().getString(R.string.label_not_con));
 
        //Deals with the items inside the navigation drawer aka hamburger menu
         //best to use fragments when working with the navigation drawer
@@ -179,6 +214,7 @@ public class MainScreen extends AppCompatActivity
         });
 
         //automatically enable bluetooth if available
+        btn.setEnabled(false);
         Thread t1 = new Thread(new Runnable()
         {
             public void run()
@@ -256,12 +292,14 @@ public class MainScreen extends AppCompatActivity
                 btn = findViewById(R.id.main_stateBTN);
                 btn.setBackgroundTintList(ColorStateList.valueOf(Color.GREEN));
                 btn.setText(vinylConnected);
+                btn.setEnabled(false);
 
             } else if (resultCode == Activity.RESULT_CANCELED)
             {
                 btn = findViewById(R.id.main_stateBTN);
                 btn.setBackgroundTintList(ColorStateList.valueOf(Color.RED));
                 btn.setText(vinylNotConnected);
+                btn.setEnabled(true);
             }
         }
 
