@@ -20,6 +20,7 @@ public class BluetoothLESingleton
         private static BluetoothGattService mGattService = null;
         private static UUID SERVICE_UUID = null;
         private static BluetoothGatt mGatt = null;
+        private static boolean connStatus = false;
 
         private BluetoothLESingleton()
         {
@@ -55,6 +56,10 @@ public class BluetoothLESingleton
         {
             this.SERVICE_UUID = uuid;
         }
+        public void setConnStatus(Boolean result)
+        {
+            this.connStatus = result;
+        }
 
         public UUID getSERVICE_UUID()
         {
@@ -70,4 +75,7 @@ public class BluetoothLESingleton
         {
             return this.mGatt;
         }
+
+        public Boolean getConnStatus() { return this.connStatus; }
+
 }

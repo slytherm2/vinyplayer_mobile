@@ -276,6 +276,7 @@ public class LowEnergyBlueTooth extends MainScreen
             {
                 if (DEBUG) {System.out.println("DEBUG: Gatt Connected");}
                 leSingleton.setGatt(gatt);
+                leSingleton.setConnStatus(true);
                 gatt.discoverServices();
 /*
                Button btn = MainScreen.getButton();
@@ -306,6 +307,7 @@ public class LowEnergyBlueTooth extends MainScreen
             else if (newState == BluetoothProfile.STATE_DISCONNECTED)
             {
                 if (DEBUG) {System.out.println("DEBUG:Gatt Disconnected");}
+                leSingleton.setConnStatus(false);
                /* Button btn = MainScreen.getButton();
                 if(btn != null)
                 {
@@ -405,6 +407,7 @@ public class LowEnergyBlueTooth extends MainScreen
                         send(leSingleton.getGattService(), SERVICE_UUID, mBluetoothGatt,
                                 stringArray[stringArrayCount].getBytes());
                     }
+                    setButtonStatus();
                 }
                 else
                 {
@@ -483,5 +486,14 @@ public class LowEnergyBlueTooth extends MainScreen
     {
         super.onDestroy();
         cancelAdapterDiscovery(mBluetoothAdapter);
+    }
+
+    private void setButtonStatus()
+    {
+        btn.setBackgroundTintList(ColorStateList.valueOf(Color.GREEN));
+        btn.setText(staticContext.getResources().getString(R.string.label_con));
+        btn.setEnabled(false);
+//                    mainScreen.setButton(true);
+        returnToMain(Activity.RESULT_OK);
     }
 }

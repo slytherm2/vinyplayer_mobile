@@ -52,7 +52,6 @@ public class MainScreen extends AppCompatActivity
     //TODO: loading animations
     //TODO: get catalog information from DB
     //TODO: create update on menu slide
-    //TODO: update bluetooth
     //TODO: connect to database and pull information relating to the specific user
 
     private String vinylConnected = null;
@@ -82,6 +81,12 @@ public class MainScreen extends AppCompatActivity
     public static final int SPLITURL = 1;
     public static  final int SPLITPATH = 2;
 
+    private int HOME = 3;
+    private int ANTISKIP = 4;
+
+    private BluetoothLESingleton leSingleton;
+    private LowEnergyBlueTooth btle;
+
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
@@ -90,7 +95,7 @@ public class MainScreen extends AppCompatActivity
         intent = getIntent();   //get the intent of the previous activity
         vinylConnected = getResources().getString(R.string.label_con);
         vinylNotConnected =  getResources().getString(R.string.label_not_con);
-        BluetoothLESingleton leSingleton = BluetoothLESingleton.getInstance();
+        leSingleton = BluetoothLESingleton.getInstance();
         preferences = PreferenceManager.getDefaultSharedPreferences(this);
         Resources rsrc = this.getResources();
         email = preferences.getString(rsrc.getString(R.string.label_email), null);
@@ -108,9 +113,18 @@ public class MainScreen extends AppCompatActivity
 
         //Bluetooth button
         btn = findViewById(R.id.main_stateBTN);
-        /*btn.setBackgroundTintList(ColorStateList.valueOf(Color.RED));
-        btn.setText(getResources().getString(R.string.label_not_con));
-        btn.setEnabled(true);*/
+        if(leSingleton.getConnStatus())
+        {
+            btn.setBackgroundTintList(ColorStateList.valueOf(Color.GREEN));
+            btn.setText(this.getResources().getString(R.string.label_con));
+            btn.setEnabled(false);
+        }
+        else
+        {
+            btn.setBackgroundTintList(ColorStateList.valueOf(Color.RED));
+            btn.setText(this.getResources().getString(R.string.label_not_con));
+            btn.setEnabled(true);
+        }
 
        //Deals with the items inside the navigation drawer aka hamburger menu
         //best to use fragments when working with the navigation drawer
@@ -399,6 +413,14 @@ public class MainScreen extends AppCompatActivity
             intent = new Intent(this, LowEnergyBlueTooth.class);
             startActivityForResult(intent, REQUEST_ENABLE_BT);
         }
+        else if(id == R.id.anti_skip)
+        {
+            sendData(ANTISKIP);
+        }
+        else if(id == R.id.reset_tonearm)
+        {
+            sendData(HOME);
+        }
         else if(id == R.id.nav_log_out)
         {
             System.out.println("DEBUG: Logging user out now...");
@@ -522,5 +544,16 @@ public class MainScreen extends AppCompatActivity
 
         //add the horizontal linear layout to the vertical linear layout
         return hLL;
+    }
+
+    private void sendData(int command)
+    {
+        byte[] data = String.valueOf(command).getBytes();
+
+        //Sending command to embedded hardware
+        btle.send(leSingleton.getGattService(),
+                leSingleton.getSERVICE_UUID(),
+                leSingleton.getGatt(),
+                data);
     }
 }

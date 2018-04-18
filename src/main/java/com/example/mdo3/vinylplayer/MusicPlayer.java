@@ -217,7 +217,7 @@ public class MusicPlayer extends AppCompatActivity
 
         //TODO: uncomment when reeady
         //start at home on start up
-        //sendData(HOME);
+        sendData(HOME);
     }
 
         /*
