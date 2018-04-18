@@ -53,7 +53,7 @@ public class LowEnergyBlueTooth extends Activity
 {
     //Constants
     private static final int REQUEST_ENABLE_BT = 1;
-    private static final long SCAN_PERIOD = 5000; //5secs
+    private static final long SCAN_PERIOD = 3000; //3 secs
     private static final int MY_PERMISSIONS_REQUEST_ACCESS_COARSE_LOCATION = 1;
     private int mConnectionState = 0;
     HashMap<String,BluetoothDevice> devicesList = new HashMap<>();
@@ -277,7 +277,7 @@ public class LowEnergyBlueTooth extends Activity
                 leSingleton.setGatt(gatt);
                 gatt.discoverServices();
 
-                Button btn = MainScreen.getButton();
+               /* Button btn = MainScreen.getButton();
                 if(btn != null)
                 {
                     btn.setBackgroundTintList(ColorStateList.valueOf(Color.GREEN));
@@ -288,12 +288,12 @@ public class LowEnergyBlueTooth extends Activity
                 else
                 {
                     return;
-                }
+                }*/
             }
             else if (newState == BluetoothProfile.STATE_DISCONNECTED)
             {
                 if (DEBUG) {System.out.println("DEBUG:Gatt Disconnected");}
-
+/*
                 Button btn = MainScreen.getButton();
                 if(btn != null)
                 {
@@ -305,7 +305,7 @@ public class LowEnergyBlueTooth extends Activity
                 else
                 {
                     return;
-                }
+                }*/
             }
         }
 

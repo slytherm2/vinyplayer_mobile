@@ -26,6 +26,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import javax.net.ssl.HttpsURLConnection;
+
 /**
  * Created by mdo3 on 4/5/2018.
  */
@@ -152,18 +154,17 @@ public class SignUpTask extends AsyncTask<String, Void, Boolean >
 
     //Flag = 1 : create http request with cookie information
     //flag = 2 : create hhtp request with user name and password
-    private HttpURLConnection createHttpRequest(String urlString, String mEmail, String mPassword, String flag)
+    private HttpsURLConnection createHttpRequest(String urlString, String mEmail, String mPassword, String flag)
     {
         try
         {
-            //todo: change from local to remote
             //local server
             URL url = new URL(urlString);
-            HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+            //HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
 
             //Remote server
             //URL url = new URL(urlString);
-            //HttpsURLConnection urlConnection =  (HttpsURLConnection) url.openConnection();
+            HttpsURLConnection urlConnection =  (HttpsURLConnection) url.openConnection();
 
             urlConnection.setDoOutput(true);
             urlConnection.setDoInput(true);

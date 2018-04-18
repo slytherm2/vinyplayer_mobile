@@ -104,18 +104,26 @@ public class profile extends AppCompatActivity
     {
         ViewSwitcher tempSwitcher = (ViewSwitcher) findViewById(R.id.name_switcher);
         EditText v = (EditText) tempSwitcher.getNextView();
-        v.setText(mName);
-        v.setHint(this.getResources().getString(R.string.label_email));
+        if(mName != null)
+            v.setText(mName);
+        else
+            v.setHint(this.getResources().getString(R.string.label_name));
         tempSwitcher.showNext(); //or switcher.showPrevious();
 
         tempSwitcher = (ViewSwitcher) findViewById(R.id.phone_switcher);
         v = (EditText) tempSwitcher.getNextView();
-        v.setText(mPhone);
+        if(mPhone != null)
+            v.setText(mPhone);
+        else
+            v.setHint(this.getResources().getString(R.string.label_phone));
         tempSwitcher.showNext();
 
         tempSwitcher = (ViewSwitcher) findViewById(R.id.address_switcher);
         v = (EditText) tempSwitcher.getNextView();
-        v.setText(mAddress);
+        if(mAddress != null)
+            v.setText(mAddress);
+        else
+            v.setHint(this.getResources().getString(R.string.label_address));
         tempSwitcher.showNext();
 
         tempSwitcher = (ViewSwitcher) findViewById(R.id.button_switcher);
@@ -123,12 +131,18 @@ public class profile extends AppCompatActivity
 
         tempSwitcher = (ViewSwitcher) findViewById(R.id.city_switcher);
         v = (EditText) tempSwitcher.getNextView();
-        v.setText(mCity);
+        if(mCity != null)
+            v.setText(mCity);
+        else
+            v.setHint(this.getResources().getString(R.string.label_city));
         tempSwitcher.showNext();
 
         tempSwitcher = (ViewSwitcher) findViewById(R.id.state_switcher);
         v = (EditText) tempSwitcher.getNextView();
-        v.setText(mState);
+        if(mState != null)
+            v.setText(mState);
+        else
+            v.setHint(this.getResources().getString(R.string.label_state));
         tempSwitcher.showNext();
     }
 

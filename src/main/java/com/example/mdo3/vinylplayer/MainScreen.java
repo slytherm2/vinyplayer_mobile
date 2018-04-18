@@ -46,6 +46,15 @@ import java.util.concurrent.ExecutionException;
 public class MainScreen extends AppCompatActivity
 {
 
+    //TODO: take camera, add picture, in one go
+    //ToDO: rotate images
+    //Todo: high res pictures
+    //TODO: loading animations
+    //TODO: get catalog information from DB
+    //TODO: create update on menu slide
+    //TODO: update bluetooth
+    //TODO: connect to database and pull information relating to the specific user
+
     private String vinylConnected = null;
     private String vinylNotConnected = null;
 
@@ -91,6 +100,7 @@ public class MainScreen extends AppCompatActivity
 
         //update title to reflect user "welcome ...username"
         TextView title = (TextView) findViewById(R.id.main_title);
+        newTitle = preferences.getString(this.getResources().getString(R.string.label_name), null);
         if(newTitle != null)
             title.setText(newTitle);
         else
@@ -194,7 +204,6 @@ public class MainScreen extends AppCompatActivity
         t1.start();
 
         //sets up the listview with items from the array
-        //TODO: connect to database and pull information relating to the specific user
        String str = preferences.getString(email + this.getResources().getString(R.string.local_catalog),
                null);
        if(str != null)
@@ -204,6 +213,8 @@ public class MainScreen extends AppCompatActivity
        if(str != null)
        {
            recordList = Utils.splitInformation(this, str, SPLITURL);
+           if(fullRecordList == null)
+               fullRecordList = new ArrayList<>();
            for(int i = 0; i < recordList.size(); i++)
            {
                fullRecordList.add(recordList.get(i));
@@ -256,13 +267,17 @@ public class MainScreen extends AppCompatActivity
         {
             if (resultCode == Activity.RESULT_OK)
             {
+                Toast.makeText(this,
+                        getResources().getString(R.string.bt_connected),
+                        Toast.LENGTH_SHORT).show();
                 btn = findViewById(R.id.main_stateBTN);
                 btn.setBackgroundTintList(ColorStateList.valueOf(Color.GREEN));
                 btn.setText(vinylConnected);
                 btn.setEnabled(false);
-
-            } else if (resultCode == Activity.RESULT_CANCELED)
+            }
+            else if (resultCode == Activity.RESULT_CANCELED)
             {
+                Toast.makeText(this, getResources().getString(R.string.bt_conn_failed), Toast.LENGTH_SHORT).show();
                 btn = findViewById(R.id.main_stateBTN);
                 btn.setBackgroundTintList(ColorStateList.valueOf(Color.RED));
                 btn.setText(vinylNotConnected);
@@ -287,8 +302,10 @@ public class MainScreen extends AppCompatActivity
                         UUID.randomUUID().toString(),
                         "vinyl_Image");
 
+                System.out.println("DEBUG: image saved");
+
                 //send data to the Heroku server for image analysis
-                String url = getResources().getString(R.string.http_url_test_analyze_image);
+                String url = getResources().getString(R.string.https_url_analyzeimage);
                 AsyncTaskFactory factory = new AsyncTaskFactory();
                 ImageAnalysisTask task = (ImageAnalysisTask) factory.generateAsyncTask("ImageAnalysis",
                         null,
@@ -296,8 +313,8 @@ public class MainScreen extends AppCompatActivity
                         this.userID,
                         this.sessionID);
                 task.execute(image);
+                System.out.println("DEBUG: Image sent to OCR");
 
-                System.out.println("DEBUG: image saved");
                 Intent intent = new Intent(this, MainScreen.class);
                 startActivity(intent);
             }

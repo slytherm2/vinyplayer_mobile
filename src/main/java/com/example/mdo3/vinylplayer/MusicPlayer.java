@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.media.Image;
 import android.net.Uri;
 import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
@@ -25,6 +26,7 @@ import android.widget.Toast;
 import android.widget.ViewSwitcher;
 
 import com.example.mdo3.vinylplayer.asyncTask.DownloadImageTask;
+import com.example.mdo3.vinylplayer.asyncTask.ImageFromGalleryTask;
 
 import org.w3c.dom.Text;
 
@@ -105,20 +107,33 @@ public class MusicPlayer extends AppCompatActivity
         albumSongTime = new ArrayList<>();
         albumSongs = new ArrayList<>();
         songTime = 0;
-
+        StringBuilder tempstr;
         if(songTrackList != null && songTrackList.size() != 0)
         {
+            tempstr = new StringBuilder();
             albumSongTime.add(songTime); //The start of the first songe
-            albumSongs.add(songTrackList.get(0).getTitle().toUpperCase().toString());
+            tempstr.append(songTrackList.get(0).getPosition().toString());
+            tempstr.append(": ");
+            tempstr.append(songTrackList.get(0).getTitle().toUpperCase().toString());
+            tempstr.append("\t");
+            tempstr.append(songTrackList.get(0).getDuration().toString());
+            albumSongs.add(tempstr.toString());
+
             for (int i = 1; i < songTrackList.size(); i++)
             {
                 //account for the gap time between songs
                 //get the duration of the previous song
+                tempstr = new StringBuilder();
                 songObj = songTrackList.get(i - 1);
                 songTime += Utils.convertToSeconds(songObj.getDuration());
                 albumSongTime.add(songTime + SONGGAPTIME);
                 songObj = songTrackList.get(i);
-                albumSongs.add(songObj.getTitle().toUpperCase().toString());
+                tempstr.append(songObj.getPosition().toString());
+                tempstr.append(": ");
+                tempstr.append(songObj.getTitle().toUpperCase().toString());
+                tempstr.append("\t");
+                tempstr.append(songObj.getDuration().toString());
+                albumSongs.add(tempstr.toString());
             }
         }
         if(DEBUG)
@@ -155,17 +170,28 @@ public class MusicPlayer extends AppCompatActivity
         else
         {
             bitmap = null;
-            AsyncTaskFactory factory = null;
+            AsyncTaskFactory factory = new AsyncTaskFactory();
             DownloadImageTask downloadTask = null;
+            ImageFromGalleryTask imageTask = null;
             if(record != null)
             {
-                if ( record.getFilePath() != null && !record.getFilePath().isEmpty())
+                if(record.getFilePath() != null && !record.getFilePath().isEmpty())
                 {
-                    bitmap = Utils.LoadImageFromGallery(this, record.getFilePath());
+                    imageTask = (ImageFromGalleryTask) factory.generateAsyncTask("Image", this);
+                    String[] params = {record.getFilePath()};
+                    try
+                    {
+                        bitmap = (Bitmap) imageTask.execute(params).get();
+                    }
+                    catch(Exception e)
+                    {
+                        Log.d("Exception", e.getMessage());
+                    }
                 }
+
                 else if (record.getUrl() != null && !record.getUrl().isEmpty())
                 {
-                    factory = new AsyncTaskFactory();
+
                     if(factory != null)
                         downloadTask = (DownloadImageTask) factory.generateAsyncTask("Download");
                     if(downloadTask != null)
@@ -183,9 +209,9 @@ public class MusicPlayer extends AppCompatActivity
                             Log.d("Exception", e.getMessage());
                         }
                     }
-                    if (bitmap != null)
-                        coverAlbumView.setImageBitmap(bitmap);
                 }
+                if (bitmap != null)
+                    coverAlbumView.setImageBitmap(bitmap);
             }
         }
 

@@ -84,13 +84,13 @@ public class ImageAnalysisTask extends AsyncTask<Bitmap, Void, Void> {
         }
     }
 
-    private HttpURLConnection createHttpRequest(String imageString)
+    private HttpsURLConnection createHttpRequest(String imageString)
     {
         try
         {
             URL url = new URL(this.url);
-//            HttpsURLConnection connection = (HttpsURLConnection) url.openConnection(); // real server
-            HttpURLConnection connection = (HttpURLConnection) url.openConnection(); // local connection
+            HttpsURLConnection connection = (HttpsURLConnection) url.openConnection(); // real server
+//            HttpURLConnection connection = (HttpURLConnection) url.openConnection(); // local connection
 
             // allow for input and output request
             connection.setDoInput(true);

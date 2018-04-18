@@ -155,11 +155,10 @@ public class LogoutTask extends AsyncTask<String, Void, Boolean>
 
     //Flag = 1 : create http request with cookie information
     //flag = 2 : create hhtp request with user name and password
-    private HttpURLConnection createHttpRequest(String urlString, String mEmail, String mPassword, String flag)
+    private HttpsURLConnection createHttpRequest(String urlString, String mEmail, String mPassword, String flag)
     {
         try
         {
-            //todo: change from local to remote
             //local server
             //URL url = new URL(urlString);
             //HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();

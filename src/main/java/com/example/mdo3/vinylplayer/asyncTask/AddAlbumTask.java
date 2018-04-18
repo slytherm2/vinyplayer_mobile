@@ -21,6 +21,8 @@ import java.net.URLConnection;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 
+import javax.net.ssl.HttpsURLConnection;
+
 /**
  * Created by mdo3 on 4/15/2018.
  * Create a post request to the /AddAlbum route on the Node.js server
@@ -59,7 +61,7 @@ public class AddAlbumTask extends AsyncTask<String, Void, Boolean>
     @Override
     protected void onPreExecute()
     {
-        this.strURL = rsrc.getString(R.string.http_url_test_addalbum);
+        this.strURL = rsrc.getString(R.string.https_url_addalbum);
         this.sessionId = preferences.getString(rsrc.getString(R.string.session_id), null);
         this.userId = preferences.getString(rsrc.getString(R.string.user_id), null);
         trackList = new ArrayList<>();
@@ -136,7 +138,7 @@ public class AddAlbumTask extends AsyncTask<String, Void, Boolean>
     {
     }
 
-    private HttpURLConnection createHttpRequest(String urlString,
+    private HttpsURLConnection createHttpRequest(String urlString,
                                                 String userId,
                                                 String sessionId,
                                                 String[] params)
@@ -145,11 +147,11 @@ public class AddAlbumTask extends AsyncTask<String, Void, Boolean>
         try
         {
             URL url = new URL(urlString);
-            HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+            //HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
 
             //Remote server
             //URL url = new URL(urlString);
-            //HttpsURLConnection urlConnection =  (HttpsURLConnection) url.openConnection();
+            HttpsURLConnection urlConnection =  (HttpsURLConnection) url.openConnection();
 
             urlConnection.setDoOutput(true);
             urlConnection.setDoInput(true);

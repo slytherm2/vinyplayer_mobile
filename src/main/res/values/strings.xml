@@ -21,6 +21,7 @@
     <string name="label_not_con">Vinyl Player Not Connected</string>
     <string name="label_con">Vinyl Player Connected</string>
     <string name="bt_status">btStatus</string>
+    <string name="bt_connected">Bluetooth Connected</string>
     <string name="error_invalid_email">This email address is invalid</string>
     <string name="error_invalid_password">This password is too short</string>
     <string name="error_incorrect_password">This password is incorrect</string>

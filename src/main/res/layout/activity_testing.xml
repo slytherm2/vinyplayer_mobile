@@ -51,8 +51,7 @@
             android:layout_height="wrap_content"
             android:ems="10"
             android:hint="spacing"
-            android:inputType="text"
-            android:onClick="buttonTwo" />
+            android:inputType="text" />
 
         <Button
             android:id="@+id/testing_button"
@@ -60,6 +59,18 @@
             android:layout_height="wrap_content"
             android:onClick="button"
             android:text="Start Time" />
+
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:onClick="cameraBtn"
+            android:text="Camera" />
+
+        <ImageView
+            android:id="@+id/test_img"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:srcCompat="@mipmap/ic_launcher" />
 
     </LinearLayout>
 </android.support.constraint.ConstraintLayout>

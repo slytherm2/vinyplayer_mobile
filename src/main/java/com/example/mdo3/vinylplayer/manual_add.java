@@ -290,7 +290,6 @@ public class manual_add extends AppCompatActivity
                     }
                     catch (FileNotFoundException e)
                     {
-                        // TODO Auto-generated catch block
                         e.printStackTrace();
                     }
                 }

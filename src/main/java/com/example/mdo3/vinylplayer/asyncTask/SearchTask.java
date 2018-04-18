@@ -115,13 +115,13 @@ public class SearchTask extends AsyncTask<Void, Void, String>
         super.onPostExecute(s);
     }
 
-    private HttpURLConnection createHttpRequest(String query)
+    private HttpsURLConnection createHttpRequest(String query)
     {
         try
         {
             URL url = new URL(this.resourceUrl);
             //HttpsURLConnection connection = (HttpsURLConnection) url.openConnection(); // real server
-            HttpURLConnection connection = (HttpURLConnection) url.openConnection(); // local connection
+            HttpsURLConnection connection = (HttpsURLConnection) url.openConnection(); // local connection
 
             // allow for input and output request
             connection.setDoInput(true);

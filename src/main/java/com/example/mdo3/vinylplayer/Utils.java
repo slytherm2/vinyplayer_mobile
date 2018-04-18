@@ -54,9 +54,8 @@ public class Utils
 
         try
         {
-            //bitmap = MediaStore.Images.Media.getBitmap(context.getContentResolver(),imageUri);
-            //bitmap = BitmapFactory.decodeStream(context.getContentResolver().openInputStream(imageUri));
-            bitmap = MediaStore.Images.Media.getBitmap(context.getContentResolver(), imageUri);
+            bitmap = BitmapFactory.decodeStream(context.getContentResolver().openInputStream(imageUri));
+            //bitmap = MediaStore.Images.Media.getBitmap(context.getContentResolver(), imageUri);
             if(bitmap != null)
                 resizedBitmap = bitmap.createScaledBitmap(bitmap,
                         THUMBNAILWIDTH,
@@ -302,6 +301,7 @@ public class Utils
         for(int i = counter; i < temp.length - 4; i=counter)
         {
             songList = new ArrayList<>();
+            songPos = 1;
             album = temp[counter];
             artist = temp[++counter];
             uri = temp[++counter];
