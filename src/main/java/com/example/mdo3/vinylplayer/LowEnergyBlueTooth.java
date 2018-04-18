@@ -278,6 +278,7 @@ public class LowEnergyBlueTooth extends MainScreen
                 leSingleton.setGatt(gatt);
                 leSingleton.setConnStatus(true);
                 gatt.discoverServices();
+
 /*
                Button btn = MainScreen.getButton();
                 if(btn != null)
