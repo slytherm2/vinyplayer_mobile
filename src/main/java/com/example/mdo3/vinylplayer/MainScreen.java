@@ -38,6 +38,10 @@ import android.widget.Toast;
 
 import com.example.mdo3.vinylplayer.asyncTask.ImageAnalysisTask;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
@@ -86,6 +90,7 @@ public class MainScreen extends AppCompatActivity
 
     private BluetoothLESingleton leSingleton;
     private LowEnergyBlueTooth btle;
+    public static int picture = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -316,25 +321,34 @@ public class MainScreen extends AppCompatActivity
 
 
                 //send data to the Heroku server for image analysis
-                String url = getResources().getString(R.string.https_url_analyzeimage);
+                String url = getResources().getString(R.string.http_test_url_analyzeimage);
                 AsyncTaskFactory factory = new AsyncTaskFactory();
                 ImageAnalysisTask task = (ImageAnalysisTask) factory.generateAsyncTask("ImageAnalysis",
-                        null,
+                        String.valueOf(picture),
                         url,
                         this.userID,
                         this.sessionID);
+
 
                 try
                 {
                     String outputStr = (String) task.execute(image).get();
                     System.out.println("DEBUG: " + outputStr);
+
+                    JSONArray records = null;
+                    if(outputStr != null)
+                        records = new JSONArray(outputStr);
+                    if(records != null)
+                        //Toast.makeText(this, records.getString("artist")), 1000);
+                        addRecords(records);
+                    picture = (picture + 1)%2;
                 }
                 catch(Exception e)
                 {
 
                 }
 
-                Intent intent = new Intent(this, MainScreen.class);
+                Intent intent = new Intent(this, RecordInfo.class);
                 startActivity(intent);
             }
             else if (resultCode == Activity.RESULT_CANCELED)
@@ -555,5 +569,67 @@ public class MainScreen extends AppCompatActivity
                 leSingleton.getSERVICE_UUID(),
                 leSingleton.getGatt(),
                 data);
+    }
+
+    public void addRecords(JSONArray records)
+    {
+        for (int i = 0; i < records.length(); i++)
+        {
+            try
+            {
+                this.addRecord(records.getJSONObject(i));
+            }
+            catch (JSONException e)
+            {
+                return;
+            }
+        }
+        return;
+    }
+
+    private void addRecord(JSONObject record)
+    {
+        try
+        {
+            String artist = record.getString("artist");
+            String album = record.getString("album");
+            String url = record.getString("url");
+            String albumId = record.getString("albumId");
+            String year = record.getString("year");
+
+            ArrayList<Song> tracklist = new ArrayList<Song>();
+            JSONArray tracklist_JSON = record.getJSONArray("tracklist");
+            for(int i = 0; i < tracklist_JSON.length(); i++)
+            {
+                // Duration duration = null;
+                String title = tracklist_JSON.getJSONObject(i).getString("title");
+                String duration = tracklist_JSON.getJSONObject(i).getString("duration");
+//                String duration_parsed[] = duration_String.split(":"); // song duration is in format minutes:seconds
+//
+//                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+//                    duration = Duration.ofMinutes(Integer.parseInt(duration_parsed[0]));
+//                    duration = duration.plusSeconds(Integer.parseInt(duration_parsed[1]));
+//                }
+
+                Song song = new Song(title, duration);
+                tracklist.add(song);
+            }
+
+            Toast.makeText(this, artist, Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, album, Toast.LENGTH_SHORT).show();
+
+            //Order important :{artist, album, year, url, albumId}
+            /*String[] params = {artist, album, year, url, albumId};
+            Record newRecord = new Record(tracklist, params);
+
+            //Record newRecord = new Record(artist, album, tracklist, url);
+
+            Intent intent = new Intent(this, RecordInfo.class);
+            intent.putExtra("record", newRecord);
+            startActivity(intent);*/
+
+        } catch (JSONException e) {
+            return;
+        }
     }
 }
