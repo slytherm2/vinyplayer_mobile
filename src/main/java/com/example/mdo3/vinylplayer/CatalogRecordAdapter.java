@@ -66,7 +66,7 @@ public class CatalogRecordAdapter extends ArrayAdapter<Record>
         AsyncTaskFactory factory = new AsyncTaskFactory();
 
         //If filepath != null
-        if(imageFilePath != null && !imageFilePath.equalsIgnoreCase("null"))
+        if(imageFilePath != null && !imageFilePath.equalsIgnoreCase("null") && !imageFilePath.isEmpty())
         {
             //System.out.println("DEBUG : FilePath isn't NULL");
             ImageFromGalleryTask ifgt = (ImageFromGalleryTask) factory.generateAsyncTask("Image", mContext);
@@ -83,7 +83,7 @@ public class CatalogRecordAdapter extends ArrayAdapter<Record>
         }
         //if url != null
         imageFilePath = record.getUrl();
-        if(imageFilePath != null && !imageFilePath.equalsIgnoreCase("null") && !foundPath)
+        if(imageFilePath != null && !imageFilePath.equalsIgnoreCase("null") && !foundPath && !imageFilePath.isEmpty())
         {
             //System.out.println("DEBUG : URL isn't NULL");
            DownloadImageTask dit = (DownloadImageTask) factory.generateAsyncTask("Download");

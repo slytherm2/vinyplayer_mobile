@@ -51,6 +51,9 @@ public class MainScreen extends AppCompatActivity
 {
 
     //TODO: take camera, add picture, in one go
+    //TODO: remove duplicates from song catalog
+    //TODO: camera sends user to the record info screen
+    //TODO: improve UI
     //ToDO: rotate images
     //Todo: high res pictures
     //TODO: loading animations
@@ -321,17 +324,27 @@ public class MainScreen extends AppCompatActivity
 
 
                 //send data to the Heroku server for image analysis
-                String url = getResources().getString(R.string.http_test_url_analyzeimage);
+                /*String url = getResources().getString(R.string.http_test_url_analyzeimage);
                 AsyncTaskFactory factory = new AsyncTaskFactory();
                 ImageAnalysisTask task = (ImageAnalysisTask) factory.generateAsyncTask("ImageAnalysis",
                         String.valueOf(picture),
                         url,
                         this.userID,
-                        this.sessionID);
+                        this.sessionID);*/
 
 
                 try
                 {
+                   /* String artist = record.getString("artist");
+                    String album = record.getString("album");
+                    String url = record.getString("url");
+                    String albumId = record.getString("albumId");
+                    String year = record.getString("year");
+
+                    ArrayList<Song> tracklist = new ArrayList<Song>();
+                    JSONArray tracklist_JSON = record.getJSONArray("tracklist");
+                    String title = null;
+                    String duration = null;
                     String outputStr = (String) task.execute(image).get();
                     System.out.println("DEBUG: " + outputStr);
 
@@ -341,15 +354,31 @@ public class MainScreen extends AppCompatActivity
                     if(records != null)
                         //Toast.makeText(this, records.getString("artist")), 1000);
                         addRecords(records);
-                    picture = (picture + 1)%2;
+                    //picture = (picture + 1)%2;*/
+
+                    JSONObject json = new JSONObject();
+                    json.put("artist", "Martin");
+                    json.put("album", "martin's album");
+                    json.put("url", "");
+                    json.put("albumId", "12345");
+                    json.put("year", "2020");
+                    JSONArray jsonA = new JSONArray();
+                    JSONObject song = new JSONObject();
+                    song.put("title", "Song Title 1");
+                    song.put("duration", "1:11");
+                    jsonA.put(song);
+                    JSONObject newSong = new JSONObject();
+                    newSong.put("title", "song Title 2 ");
+                    newSong.put("duration", "2:22");
+                    jsonA.put(newSong);
+                    json.put("tracklist",jsonA);
+
+                    this.addRecord(json);
                 }
                 catch(Exception e)
                 {
 
                 }
-
-                Intent intent = new Intent(this, RecordInfo.class);
-                startActivity(intent);
             }
             else if (resultCode == Activity.RESULT_CANCELED)
             {
@@ -599,11 +628,13 @@ public class MainScreen extends AppCompatActivity
 
             ArrayList<Song> tracklist = new ArrayList<Song>();
             JSONArray tracklist_JSON = record.getJSONArray("tracklist");
+            String title = null;
+            String duration = null;
             for(int i = 0; i < tracklist_JSON.length(); i++)
             {
                 // Duration duration = null;
-                String title = tracklist_JSON.getJSONObject(i).getString("title");
-                String duration = tracklist_JSON.getJSONObject(i).getString("duration");
+                title = tracklist_JSON.getJSONObject(i).getString("title");
+                duration = tracklist_JSON.getJSONObject(i).getString("duration");
 //                String duration_parsed[] = duration_String.split(":"); // song duration is in format minutes:seconds
 //
 //                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
@@ -611,22 +642,22 @@ public class MainScreen extends AppCompatActivity
 //                    duration = duration.plusSeconds(Integer.parseInt(duration_parsed[1]));
 //                }
 
-                Song song = new Song(title, duration);
+                Song song = new Song(title, String.valueOf(i+1), duration);
                 tracklist.add(song);
             }
 
-            Toast.makeText(this, artist, Toast.LENGTH_SHORT).show();
-            Toast.makeText(this, album, Toast.LENGTH_SHORT).show();
+            //Toast.makeText(this, artist, Toast.LENGTH_SHORT).show();
+            //Toast.makeText(this, album, Toast.LENGTH_SHORT).show();
 
             //Order important :{artist, album, year, url, albumId}
-            /*String[] params = {artist, album, year, url, albumId};
+            String[] params = {artist, album, year, url, albumId};
             Record newRecord = new Record(tracklist, params);
 
             //Record newRecord = new Record(artist, album, tracklist, url);
 
             Intent intent = new Intent(this, RecordInfo.class);
             intent.putExtra("record", newRecord);
-            startActivity(intent);*/
+            startActivity(intent);
 
         } catch (JSONException e) {
             return;

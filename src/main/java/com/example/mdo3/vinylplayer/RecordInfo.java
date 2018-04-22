@@ -2,6 +2,8 @@ package com.example.mdo3.vinylplayer;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -74,8 +76,17 @@ public class RecordInfo extends AppCompatActivity
        DownloadImageTask downloadTask = (DownloadImageTask) factory.generateAsyncTask("Download");
         try
         {
+            if(record == null)
+                return;
+
             String[] params = {record.getUrl()};
-            cover_ImageView.setImageBitmap(downloadTask.execute(params).get());
+            Bitmap bitmap = downloadTask.execute(params).get();
+
+            if(bitmap != null)
+                cover_ImageView.setImageBitmap(bitmap);
+            else
+                cover_ImageView.setImageBitmap(BitmapFactory.decodeResource(getResources(),
+                        R.drawable.warp_150));
         }
         catch (Exception e)
         {

@@ -117,7 +117,7 @@ public class RecordSearch extends AppCompatActivity {
 //                    duration = duration.plusSeconds(Integer.parseInt(duration_parsed[1]));
 //                }
 
-                Song song = new Song(title, duration);
+                Song song = new Song(title, String.valueOf(i+1), duration);
                 tracklist.add(song);
             }
 
