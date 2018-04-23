@@ -52,7 +52,6 @@ public class MainScreen extends AppCompatActivity
 
     //TODO: take camera, add picture, in one go
     //TODO: remove duplicates from song catalog
-    //TODO: camera sends user to the record info screen
     //TODO: improve UI
     //ToDO: rotate images
     //Todo: high res pictures

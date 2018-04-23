@@ -162,4 +162,7 @@
     <string name="add_to_catalog">Add To Catalog</string>
     <string name="fail_to_add">Failed To Add To Catalog</string>
     <string name="reset_tonearm">Reset Tonearm</string>
+    <string name="unknown_artist">Unknown Artist</string>
+    <string name="unknown_album">Unknown Album</string>
+    <string name="duplicate_record">Duplicate Record, Please Try Again</string>
 </resources>
