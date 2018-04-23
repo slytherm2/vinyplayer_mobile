@@ -90,12 +90,14 @@
             android:id="@+id/ma_song_list_scroll"
             android:layout_width="378dp"
             android:layout_height="264dp"
+            android:layout_alignParentBottom="true"
             android:isScrollContainer="true"
             android:overScrollMode="always"
             android:scrollbarAlwaysDrawVerticalTrack="true"
-            android:scrollbarStyle="outsideInset"
+            android:scrollbarStyle="insideOverlay"
             android:scrollbars="vertical"
-            android:layout_alignParentBottom="true">
+            android:transcriptMode="alwaysScroll"
+            android:stackFromBottom="true">
 
             <LinearLayout
                 android:id="@+id/ma_song_list"

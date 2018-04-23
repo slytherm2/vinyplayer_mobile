@@ -146,11 +146,22 @@ public class Utils
     //USes the "LocalCat" tag
     public static boolean saveInformationLocal(ArrayList<String> info)
     {
+        String artistName = null;
+        String albumName = null;
+        String emailTag = null;
         //Comma Separated Value
         //UserId
         //Artist, album, Image URI, RPM speed (false = 33 1/3, true = 45rpm)
         //Song name, start time of song, end time of song
-        String emailTag = info.get(0);
+        if(info.size() > 2)
+        {
+            emailTag = info.get(0);
+            artistName = info.get(1);
+            albumName = info.get(2);
+        }
+        else
+            return false;
+
         StringBuilder strBuilder = new StringBuilder();
         ApplicationContext contextInst = ApplicationContext.getInstance();
         Context context = contextInst.getAppContext();
@@ -166,10 +177,24 @@ public class Utils
         }
 
         //check for exisiting local copy
+        //chech for duplicates
         String str = preferences.getString(emailTag + context.getResources().getString(R.string.local_catalog),
                 null);
         if(str != null)
         {
+            String[] splitString = str.split(",");
+            int size = splitString.length;
+            for(int i = 0; i < size - 1; i++)
+            {
+                if(artistName.equals(splitString[i]))
+                {
+                    if(albumName.equals(splitString[i+1]))
+                    {
+                        System.out.println("DEBUG: Adding duplicate failed...");
+                        return false;
+                    }
+                }
+            }
             strBuilder.insert(0, str);
         }
 
@@ -192,7 +217,19 @@ public class Utils
         //UserId
         //Artist, album, Image URI, RPM speed (false = 33 1/3, true = 45rpm)
         //Song name, start time of song, end time of song
-        String emailTag = info.get(0);
+        String emailTag = null;
+        String artistName = null;
+        String albumName = null;
+
+        if(info.size() > 2)
+        {
+            emailTag = info.get(0);
+            artistName = info.get(1);
+            albumName = info.get(2);
+        }
+        else
+            return false;
+
         StringBuilder strBuilder = new StringBuilder();
         ApplicationContext contextInst = ApplicationContext.getInstance();
         Context context = contextInst.getAppContext();
@@ -212,6 +249,19 @@ public class Utils
                 null);
         if(str != null)
         {
+            String[] splitString = str.split(",");
+            int size = splitString.length;
+            for(int i = 0; i < size - 1; i++)
+            {
+                if(artistName.equals(splitString[i]))
+                {
+                    if(albumName.equals(splitString[i+1]))
+                    {
+                        System.out.println("DEBUG: Adding duplicate failed...");
+                        return false;
+                    }
+                }
+            }
             strBuilder.insert(0, str);
         }
 
