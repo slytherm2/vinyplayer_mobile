@@ -27,8 +27,8 @@ public class SearchTask extends AsyncTask<Void, Void, String>
 {
     private static final int THREAD_TIMEOUT = 2000;
     private String input;
-    private String artist;
-    private String album;
+//    private String artist;
+//    private String album;
     private String resourceUrl;
     private String sessionId;
     private String userId;
@@ -42,9 +42,10 @@ public class SearchTask extends AsyncTask<Void, Void, String>
         this.userId = userId;
         this.sessionId = sessionId;
 
-        String parsedInput[] = input.split("-");
+        //TODO: no longer need according to jose
+        /*String parsedInput[] = input.split("-");
         this.artist = parsedInput[0];
-        this.album = parsedInput[1];
+        this.album = parsedInput[1];*/
     }
 
 
@@ -54,9 +55,8 @@ public class SearchTask extends AsyncTask<Void, Void, String>
         {
             // turn input string into query string
             String charset = "UTF-8";
-            String query = String.format("artist=%s&album=%s",
-                    URLEncoder.encode(artist.trim(), charset),
-                    URLEncoder.encode(album.trim(), charset));
+            String query = String.format("input=%s",
+                    URLEncoder.encode(input, charset));
 
             // task is only executable from authenticated users
             HttpURLConnection connection = createHttpRequest(query);
