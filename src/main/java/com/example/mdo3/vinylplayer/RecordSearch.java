@@ -143,10 +143,14 @@ public class RecordSearch extends AppCompatActivity {
                 Log.d("RecordSearch", "User not logged in");
                 return;
             }
+
+            //User input from the search.xml search bar
             String query = intent.getStringExtra(SearchManager.QUERY);
-            String queries[] = query.split("-");
+
+            //TODO: remove the next three lines, no longer needed according to jose
+            /*String queries[] = query.split("-");
             String artist = queries[0].trim();
-            String album = queries[1].trim();
+            String album = queries[1].trim();*/
             Log.d("RecordSearch", "handleIntent called");
 
             // SearchTask task = (SearchTask) factory.generateAsyncTask("Search", query,
