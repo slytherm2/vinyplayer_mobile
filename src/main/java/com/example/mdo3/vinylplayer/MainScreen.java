@@ -49,8 +49,6 @@ import java.util.concurrent.ExecutionException;
 
 public class MainScreen extends AppCompatActivity
 {
-
-    //TODO: take camera, add picture, in one go
     //TODO: improve UI
     //ToDO: rotate images
     //Todo: high res pictures
