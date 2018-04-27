@@ -13,51 +13,35 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
+import java.net.HttpsURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
 
-import javax.net.ssl.HttpsURLConnection;
-
 /**
- * Created by jose.medina on 3/24/2018.
+ * Created by jose.medina on 4/25/2018.
  */
 
-public class SearchTask extends AsyncTask<Void, Void, String>
-{
-    private static final int THREAD_TIMEOUT = 2000;
-    private String input;
-//    private String artist;
-//    private String album;
-    private String resourceUrl;
-    private String sessionId;
-    private String userId;
-
-    private final int CONTIMEOUT = 5000;
-
-    public SearchTask(String input, String resourceUrl, String userId, String sessionId)
-    {
-        this.resourceUrl = resourceUrl;
-        this.input = input;
-        this.userId = userId;
-        this.sessionId = sessionId;
-    }
-
+public class GetTrackListTask extends AsyncTask<String, Void, String> {
+    private String id;
+    private String url;
 
     @Override
-    protected String doInBackground(Void... voids) {
+    protected String doInBackground(String... params) {
         try
         {
-            // turn input string into query string
-            String charset = "UTF-8";
-            String query = String.format("query=%s", URLEncoder.encode(this.input.trim(), charset));
+            this.id = params[0];
+            this.url = params[1];
 
+            String charset = "UTF-8";
+            String query = String.format("id=%s", URLEncoder.encode(id.trim(), charset));
 
             // task is only executable from authenticated users
-            HttpsURLConnection connection = createHttpRequest(query);
+            // HttpURLConnection connection = createHttpRequest(query);
+            HttpsURLConnection connection = createHttpsRequest(query);
             if(connection == null)
             {
-                Log.d("SearchTask", "connection is null");
+                Log.d("GetTrackListTask", "connection is null");
                 return null;
             }
 
@@ -69,38 +53,33 @@ public class SearchTask extends AsyncTask<Void, Void, String>
             writer.close();
 
             connection.connect();
-            Thread.sleep(THREAD_TIMEOUT);
 
             // read list of records returned from POST request
-            StringBuilder records = new StringBuilder();
+            StringBuilder tracklist = new StringBuilder();
             int responseCode = connection.getResponseCode();
-            Log.d("SearchTask", "Response Code: " + String.valueOf(responseCode));
+            Log.d("GetTrackListTask", "Response Code: " + String.valueOf(responseCode));
             switch(responseCode)
             {
                 case HttpURLConnection.HTTP_OK:
-                    Log.d("SearchTask", "Received HTTP_OK");
+                    Log.d("GetTrackListTask", "Received HTTP_OK");
                     InputStream input = new BufferedInputStream(connection.getInputStream());
                     BufferedReader reader = new BufferedReader(new InputStreamReader(input));
                     String nextLine;
                     while((nextLine = reader.readLine()) != null)
                     {
-                        records.append(nextLine);
+                        tracklist.append(nextLine);
                     }
                     reader.close();
                     break;
                 default:
-                    Log.d("SearchTask", "Did not get HTTP_OK response");
+                    Log.d("GetTrackListTask", "Did not get HTTP_OK response");
             }
             connection.disconnect();
-            return records.toString();
+            return tracklist.toString();
         }
-        catch(IOException e)
+        catch(Exception e)
         {
-            Log.d("SearchTask", "IOException: " + e);
-        }
-        catch(InterruptedException e)
-        {
-            Log.d("SearchTask", "InterruptedException: " + e);
+            Log.d("GetTrackListTask", "Exception: " + e);
         }
         return null;
     }
@@ -110,13 +89,12 @@ public class SearchTask extends AsyncTask<Void, Void, String>
         super.onPostExecute(s);
     }
 
-    private HttpsURLConnection createHttpRequest(String query)
+    private HttpURLConnection createHttpRequest(String query)
     {
         try
         {
-            URL url = new URL(this.resourceUrl);
-            HttpsURLConnection connection = (HttpsURLConnection) url.openConnection(); // real server
-            // HttpURLConnection connection = (HttpURLConnection) url.openConnection(); // local connection
+            URL url = new URL(this.url);
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection(); // local connection
 
             // allow for input and output request
             connection.setDoInput(true);
@@ -126,18 +104,45 @@ public class SearchTask extends AsyncTask<Void, Void, String>
             connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
             connection.setRequestProperty("User-Agent", "Mozilla/5.0 (compatible; MSIE 5.0;Windows98;DigExt)");
             connection.setRequestProperty( "Content-Length", String.valueOf(query.length()));
-            connection.setRequestProperty("Cookie", sessionId+";"+userId);
-            //connection.setConnectTimeout(CONTIMEOUT);
-            //connection.setReadTimeout(CONTIMEOUT);
+
             return connection;
         }
         catch(MalformedURLException e)
         {
-            Log.d("SearchTask", "MalformedURLException: " + e);
+            Log.d("GetTrackListTask", "MalformedURLException: " + e);
             return null;
         }
         catch(IOException e) {
-            Log.d("SearchTask", "IOException: " + e);
+            Log.d("GetTrackListTask", "IOException: " + e);
+            return null;
+        }
+    }
+
+    private HttpsURLConnection createHttpsRequest(String query)
+    {
+        try
+        {
+            URL url = new URL(this.url);
+            HttpsURLConnection connection = (HttpsURLConnection) url.openConnection(); // local connection
+
+            // allow for input and output request
+            connection.setDoInput(true);
+            connection.setDoOutput(true);
+
+            connection.setRequestMethod("POST");
+            connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+            connection.setRequestProperty("User-Agent", "Mozilla/5.0 (compatible; MSIE 5.0;Windows98;DigExt)");
+            connection.setRequestProperty( "Content-Length", String.valueOf(query.length()));
+
+            return connection;
+        }
+        catch(MalformedURLException e)
+        {
+            Log.d("GetTrackListTask", "MalformedURLException: " + e);
+            return null;
+        }
+        catch(IOException e) {
+            Log.d("GetTrackListTask", "IOException: " + e);
             return null;
         }
     }
