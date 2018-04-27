@@ -248,9 +248,15 @@ public class manual_add extends AppCompatActivity
         System.out.println("DEBUG: "+requestCode);
         System.out.println("DEBUG: "+resultCode);
 
+        Bitmap bitmap = null;
+        Bitmap resizedBitmap = null;
+
         //Intent comes from the chooser on the manual add page
         if (requestCode == CHOOSER)
         {
+            if(data != null)
+                bitmap = (Bitmap) data.getExtras().get("data");
+
             //camera intent
             if (resultCode == 0)
             {
@@ -264,56 +270,45 @@ public class manual_add extends AppCompatActivity
                 System.out.println("DEBUG: Gallery Intent");
 
                 //Gets the image from the camera
-                //Resize the image from the camera to 150 X 150
-                //Set the image view to the thumbnail
-                Bitmap bitmap = (Bitmap) data.getExtras().get("data");
-                Bitmap resizedBitmap = null;
-
+                //No need to execute past this if image comes from camera
                 if(bitmap != null)
                 {
-                    resizedBitmap = bitmap.createScaledBitmap(bitmap,
-                            THUMBNAILWIDTH,
-                            THUMBNAILHEIGHT,
-                            true);
-                    if (targetImage != null && resizedBitmap != null)
-                        targetImage.setImageBitmap(resizedBitmap);
-
-                    //Save the bitmap image
-                    Date date = new Date();
-                    SimpleDateFormat format = new SimpleDateFormat("dd-MM-yy:HH:mm");
-
-                    if(resizedBitmap != null)
-                        imageURI = Uri.parse(MediaStore.Images.Media.insertImage(getContentResolver(),
-                                resizedBitmap,
-                                format.format(date.getTime()) + ".png" ,
-                                "WARP_Vinyl_Img"));
+                    setBitmap(bitmap);
+                    return;
                 }
+
                 //User is getting the image from the gallery - no need to save the image
-                else
+                Uri targetUri = data.getData();
+                imageURI = targetUri;
+                System.out.println("DEBUG : image uri " + imageURI);
+                try
                 {
-                    Uri targetUri = data.getData();
-                    imageURI = targetUri;
-                    System.out.println("DEBUG : image uri " + imageURI);
-                    try
+                    if(imageURI != null)
                     {
-                        if(imageURI != null)
-                        {
-                            bitmap = BitmapFactory.decodeStream(getContentResolver().openInputStream(imageURI));
-                            resizedBitmap = bitmap.createScaledBitmap(bitmap,
-                                    THUMBNAILWIDTH,
-                                    THUMBNAILHEIGHT,
-                                    true);
-                            if (targetImage != null && resizedBitmap != null)
-                                targetImage.setImageBitmap(resizedBitmap);
-                        }
-                    }
-                    catch (FileNotFoundException e)
-                    {
-                        e.printStackTrace();
+                        bitmap = BitmapFactory.decodeStream(getContentResolver().openInputStream(imageURI));
+                        resizedBitmap = bitmap.createScaledBitmap(bitmap,
+                                THUMBNAILWIDTH,
+                                THUMBNAILHEIGHT,
+                                true);
+                        if (targetImage != null && resizedBitmap != null)
+                            targetImage.setImageBitmap(resizedBitmap);
                     }
                 }
-                System.out.println("DEBUG: URI : " + imageURI);
+                catch (FileNotFoundException e)
+                {
+                    e.printStackTrace();
+                }
             }
+        }
+        //User calls camera for the first time - permissions are granted
+        //brings user to this if statement
+        else if(requestCode == ENABLE_CAMERA)
+        {
+            if(data != null)
+                bitmap = (Bitmap) data.getExtras().get("data");
+
+            if(bitmap != null)
+                setBitmap(bitmap);
         }
     }
 
@@ -348,15 +343,11 @@ public class manual_add extends AppCompatActivity
 
         if (permissionCheck != PackageManager.PERMISSION_GRANTED)
         {
+            System.out.println("DEBUG: Checking for write permission");
             ActivityCompat.requestPermissions(
                     this,
                     new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                    1);
-
-            if (cameraIntent.resolveActivity(getPackageManager()) != null)
-            {
-                startActivityForResult(cameraIntent, ENABLE_CAMERA);
-            }
+                    ENABLE_CAMERA);
         }
         else
         {
@@ -379,6 +370,7 @@ public class manual_add extends AppCompatActivity
         {
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED)
             {
+                System.out.println("DEBUG: Permission Granted");
                 callCamera();
             }
             else
@@ -386,6 +378,32 @@ public class manual_add extends AppCompatActivity
                 System.out.println("DEBUG: return");
                 return;
             }
+        }
+    }
+
+    //Resize the image from the camera to 150 X 150
+    //Set the image view to the thumbnail
+    private void setBitmap(Bitmap bitmap)
+    {
+        Bitmap resizedBitmap = null;
+        if(bitmap != null)
+        {
+            resizedBitmap = bitmap.createScaledBitmap(bitmap,
+                    THUMBNAILWIDTH,
+                    THUMBNAILHEIGHT,
+                    true);
+            if (targetImage != null && resizedBitmap != null)
+                targetImage.setImageBitmap(resizedBitmap);
+
+            //Save the bitmap image
+            Date date = new Date();
+            SimpleDateFormat format = new SimpleDateFormat("dd-MM-yy:HH:mm");
+
+            if (resizedBitmap != null)
+                imageURI = Uri.parse(MediaStore.Images.Media.insertImage(getContentResolver(),
+                        resizedBitmap,
+                        format.format(date.getTime()) + ".png",
+                        "WARP_Vinyl_Img"));
         }
     }
 }
