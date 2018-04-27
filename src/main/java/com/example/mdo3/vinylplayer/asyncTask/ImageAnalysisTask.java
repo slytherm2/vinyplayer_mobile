@@ -25,6 +25,8 @@ import java.nio.ByteBuffer;
 
 import javax.net.ssl.HttpsURLConnection;
 
+import javax.net.ssl.HttpsURLConnection;
+
 public class ImageAnalysisTask extends AsyncTask<Bitmap, Void, String> {
     private static final int THREAD_TIMEOUT = 2000;
     private Bitmap image;
@@ -45,7 +47,7 @@ public class ImageAnalysisTask extends AsyncTask<Bitmap, Void, String> {
     protected String doInBackground(Bitmap... params) {
         this.image = params[0];
 
-        //if(this.image == null) { return null; }
+        if(this.image == null) { return null; }
 
         try
         {
@@ -68,14 +70,14 @@ public class ImageAnalysisTask extends AsyncTask<Bitmap, Void, String> {
 //            os.close();
 
             // encode image
-          /*  ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
             this.image.compress(Bitmap.CompressFormat.JPEG, 100, outputStream);
             byte[] outputBytes = outputStream.toByteArray();
-            String encodedImage = Base64.encodeToString(outputBytes, Base64.NO_WRAP);*/
+            String encodedImage = Base64.encodeToString(outputBytes, Base64.NO_WRAP);
 
+            // turn input string into query string
             String charset = "UTF-8";
-            String query = String.format("picturePosition=%s",
-                    URLEncoder.encode(input, charset));
+            String query = String.format("image=%s", URLEncoder.encode(encodedImage.trim(), charset));
 
             // write query to POST request
             OutputStream output = new BufferedOutputStream(connection.getOutputStream());
@@ -99,6 +101,7 @@ public class ImageAnalysisTask extends AsyncTask<Bitmap, Void, String> {
                     while((nextLine = reader.readLine()) != null)
                     {
                         records.append(nextLine);
+                        System.out.println("DEBUG: " + nextLine.toString());
                     }
                     reader.close();
                     break;

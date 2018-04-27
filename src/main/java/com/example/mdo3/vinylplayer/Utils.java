@@ -13,6 +13,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.graphics.drawable.Drawable;
+import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Environment;
 import android.os.ParcelFileDescriptor;
@@ -146,11 +147,22 @@ public class Utils
     //USes the "LocalCat" tag
     public static boolean saveInformationLocal(ArrayList<String> info)
     {
+        String artistName = null;
+        String albumName = null;
+        String emailTag = null;
         //Comma Separated Value
         //UserId
         //Artist, album, Image URI, RPM speed (false = 33 1/3, true = 45rpm)
         //Song name, start time of song, end time of song
-        String emailTag = info.get(0);
+        if(info.size() > 2)
+        {
+            emailTag = info.get(0);
+            artistName = info.get(1);
+            albumName = info.get(2);
+        }
+        else
+            return false;
+
         StringBuilder strBuilder = new StringBuilder();
         ApplicationContext contextInst = ApplicationContext.getInstance();
         Context context = contextInst.getAppContext();
@@ -166,10 +178,24 @@ public class Utils
         }
 
         //check for exisiting local copy
+        //chech for duplicates
         String str = preferences.getString(emailTag + context.getResources().getString(R.string.local_catalog),
                 null);
         if(str != null)
         {
+            String[] splitString = str.split(",");
+            int size = splitString.length;
+            for(int i = 0; i < size - 1; i++)
+            {
+                if(artistName.equals(splitString[i]))
+                {
+                    if(albumName.equals(splitString[i+1]))
+                    {
+                        System.out.println("DEBUG: Adding duplicate failed...");
+                        return false;
+                    }
+                }
+            }
             strBuilder.insert(0, str);
         }
 
@@ -192,7 +218,19 @@ public class Utils
         //UserId
         //Artist, album, Image URI, RPM speed (false = 33 1/3, true = 45rpm)
         //Song name, start time of song, end time of song
-        String emailTag = info.get(0);
+        String emailTag = null;
+        String artistName = null;
+        String albumName = null;
+
+        if(info.size() > 2)
+        {
+            emailTag = info.get(0);
+            artistName = info.get(1);
+            albumName = info.get(2);
+        }
+        else
+            return false;
+
         StringBuilder strBuilder = new StringBuilder();
         ApplicationContext contextInst = ApplicationContext.getInstance();
         Context context = contextInst.getAppContext();
@@ -212,6 +250,19 @@ public class Utils
                 null);
         if(str != null)
         {
+            String[] splitString = str.split(",");
+            int size = splitString.length;
+            for(int i = 0; i < size - 1; i++)
+            {
+                if(artistName.equals(splitString[i]))
+                {
+                    if(albumName.equals(splitString[i+1]))
+                    {
+                        System.out.println("DEBUG: Adding duplicate failed...");
+                        return false;
+                    }
+                }
+            }
             strBuilder.insert(0, str);
         }
 
@@ -355,5 +406,53 @@ public class Utils
         }
 
         return recordInfo;
+    }
+
+    //oritentate the bitmap image
+    public static Bitmap rotateBitmapImage(Bitmap bitmap, String photoPath)
+    {
+        ExifInterface ei = null;
+        Bitmap rotatedBitmap = null;
+        System.out.println("DEBUG: " + photoPath);
+        try
+        {
+            ei = new ExifInterface(photoPath);
+            int orientation = ei.getAttributeInt(ExifInterface.TAG_ORIENTATION,
+                    ExifInterface.ORIENTATION_NORMAL);
+
+            switch (orientation)
+            {
+
+                case ExifInterface.ORIENTATION_ROTATE_90:
+                    rotatedBitmap = rotateImage(bitmap, 90);
+                    break;
+
+                case ExifInterface.ORIENTATION_ROTATE_180:
+                    rotatedBitmap = rotateImage(bitmap, 180);
+                    break;
+
+                case ExifInterface.ORIENTATION_ROTATE_270:
+                    rotatedBitmap = rotateImage(bitmap, 270);
+                    break;
+
+                case ExifInterface.ORIENTATION_NORMAL:
+                default:
+                    rotatedBitmap = bitmap;
+            }
+        }
+        catch(IOException e)
+        {
+            Log.d("Exception", e.getMessage());
+        }
+
+        return rotatedBitmap;
+    }
+
+    public static Bitmap rotateImage(Bitmap source, float angle)
+    {
+        Matrix matrix = new Matrix();
+        matrix.postRotate(angle);
+        return Bitmap.createBitmap(source, 0, 0, source.getWidth(), source.getHeight(),
+                matrix, true);
     }
 }

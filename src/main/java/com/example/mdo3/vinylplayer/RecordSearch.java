@@ -105,22 +105,6 @@ public class RecordSearch extends AppCompatActivity {
             String url = record.getString("thumb");
             String year = record.getString("year");
             String id = record.getString("id");
-//            String artist = record.getString("artist");
-//            String album = record.getString("album");
-//            String url = record.getString("url");
-//            String albumId = record.getString("albumId");
-//            String year = record.getString("year");
-
-//            ArrayList<Song> tracklist = new ArrayList<Song>();
-//            JSONArray tracklist_JSON = record.getJSONArray("tracklist");
-//            for(int i = 0; i < tracklist_JSON.length(); i++)
-//            {
-//                // Duration duration = null;
-//                String title = tracklist_JSON.getJSONObject(i).getString("title");
-//                String duration = tracklist_JSON.getJSONObject(i).getString("duration");
-//                Song song = new Song(title, duration);
-//                tracklist.add(song);
-//            }
 
             //Order important :{artist, album, year, url, albumId}
 //            String[] params = {artist, album, year, url, id};
@@ -145,17 +129,12 @@ public class RecordSearch extends AppCompatActivity {
                 return;
             }
 
-            isExecutingTask = true;
             String query = intent.getStringExtra(SearchManager.QUERY);
-            Log.d("RecordSearch", "handleIntent called");
 
-            // SearchTask task = (SearchTask) factory.generateAsyncTask("Search", query,
-
-            //         getResources().getString(R.string.http_url_test_search), this.userId, this.sessionId);
-            
+            Log.d("RecordSearch", "handleIntent called");         
             SearchTask task = (SearchTask) factory.generateAsyncTask("Search", 
                                                                      query,
-                                                                     getResources().getString(R.string.http_url_test_search_jose),
+                                                                     getResources().getString(R.string.https_url_search),
                                                                      this.userId, 
                                                                      this.sessionId);
 
@@ -167,7 +146,6 @@ public class RecordSearch extends AppCompatActivity {
                     records = new JSONArray(result);
                 if(records != null)
                     addRecords(records);
-                isExecutingTask = false;
             }
             catch (InterruptedException e)
             {

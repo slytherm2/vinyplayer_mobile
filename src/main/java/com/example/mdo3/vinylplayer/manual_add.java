@@ -29,6 +29,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.Switch;
+import android.widget.Toast;
 
 import org.apache.commons.net.io.Util;
 
@@ -69,6 +70,8 @@ public class manual_add extends AppCompatActivity
     private final int THUMBNAILWIDTH = 150;
     private final int THUMBNAILHEIGHT = 150;
 
+    private SharedPreferences preferences;
+
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
@@ -83,7 +86,7 @@ public class manual_add extends AppCompatActivity
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
 
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+        preferences = PreferenceManager.getDefaultSharedPreferences(this);
         userEmail = preferences.getString(this.getResources().getString(R.string.label_email), null);
 
         songListScroll = (ScrollView) findViewById(R.id.ma_song_list_scroll);
@@ -118,13 +121,25 @@ public class manual_add extends AppCompatActivity
         System.out.println("DEBUG: Manual Add Submit Buttton has been pressed");
 
         if(userEmail != null && !userEmail.isEmpty())
+        {
             information.add(userEmail.trim());
+        }
+        else
+        {
+            return;
+        }
 
         albumSTR = album.getText().toString();
-        information.add(albumSTR.trim());
+        if(albumSTR.isEmpty())
+            information.add(this.getResources().getString(R.string.unknown_album));
+        else
+            information.add(albumSTR.trim());
 
         artistSTR = artist.getText().toString();
-        information.add(artistSTR.trim());
+        if(artistSTR.isEmpty())
+            information.add(this.getResources().getString(R.string.unknown_artist));
+        else
+            information.add(artistSTR.trim());
 
         System.out.println("DEBUG: "+ imageURI);
         if(imageURI == null)
@@ -154,10 +169,16 @@ public class manual_add extends AppCompatActivity
             }
         }
 
-        if(Utils.saveInformationLocal(information))
-        {
+        if(Utils.saveInformationLocal(information)) {
             Intent intent = new Intent(this, MainScreen.class);
             startActivity(intent);
+        }
+        else
+        {
+            Toast.makeText(this,
+                    this.getResources().getString(R.string.duplicate_record),
+                    Toast.LENGTH_SHORT).show();
+            information = new ArrayList<>();
         }
     }
 
@@ -188,18 +209,16 @@ public class manual_add extends AppCompatActivity
         //add the horizontal linear layout to the vertical linear layout
         songList.addView(songInput, songList.getChildCount());
         songList.addView(startSong, songList.getChildCount());
-        scrollBottom(songListScroll);
-    }
 
-    private void scrollBottom(ScrollView scroll)
-    {
-        View lastChild = scroll.getChildAt(scroll.getChildCount() - 1);
-        int bottom = lastChild.getBottom() + scroll.getPaddingBottom();
-        int sy = scroll.getScrollY();
-        int sh = scroll.getHeight();
-        int delta = bottom - (sy + sh);
-
-        scroll.smoothScrollBy(0, delta);
+        //This forces the scroll view to go to new child when adding new song
+        songListScroll.post(new Runnable()
+        {
+            @Override
+            public void run()
+            {
+                songListScroll.fullScroll(View.FOCUS_DOWN);
+            }
+        });
     }
 
     public void imageBtn(View view)
@@ -229,9 +248,15 @@ public class manual_add extends AppCompatActivity
         System.out.println("DEBUG: "+requestCode);
         System.out.println("DEBUG: "+resultCode);
 
+        Bitmap bitmap = null;
+        Bitmap resizedBitmap = null;
+
         //Intent comes from the chooser on the manual add page
         if (requestCode == CHOOSER)
         {
+            if(data != null)
+                bitmap = (Bitmap) data.getExtras().get("data");
+
             //camera intent
             if (resultCode == 0)
             {
@@ -245,56 +270,47 @@ public class manual_add extends AppCompatActivity
                 System.out.println("DEBUG: Gallery Intent");
 
                 //Gets the image from the camera
-                //Resize the image from the camera to 150 X 150
-                //Set the image view to the thumbnail
-                Bitmap bitmap = (Bitmap) data.getExtras().get("data");
-                Bitmap resizedBitmap = null;
-
+                //No need to execute past this if image comes from camera
                 if(bitmap != null)
                 {
-                    resizedBitmap = bitmap.createScaledBitmap(bitmap,
-                            THUMBNAILWIDTH,
-                            THUMBNAILHEIGHT,
-                            true);
-                    if (targetImage != null && resizedBitmap != null)
-                        targetImage.setImageBitmap(resizedBitmap);
-
-                    //Save the bitmap image
-                    Date date = new Date();
-                    SimpleDateFormat format = new SimpleDateFormat("dd-MM-yy:HH:mm");
-
-                    if(resizedBitmap != null)
-                        imageURI = Uri.parse(MediaStore.Images.Media.insertImage(getContentResolver(),
-                                resizedBitmap,
-                                format.format(date.getTime()) + ".png" ,
-                                "WARP_Vinyl_Img"));
+                    setBitmap(bitmap);
+                    return;
                 }
+
                 //User is getting the image from the gallery - no need to save the image
-                else
+                Uri targetUri = data.getData();
+                imageURI = targetUri;
+                System.out.println("DEBUG : image uri " + imageURI);
+                try
                 {
-                    Uri targetUri = data.getData();
-                    imageURI = targetUri;
-                    System.out.println("DEBUG : image uri " + imageURI);
-                    try
+                    if(imageURI != null)
                     {
-                        if(imageURI != null)
+                        bitmap = BitmapFactory.decodeStream(getContentResolver().openInputStream(imageURI));
+                        resizedBitmap = bitmap.createScaledBitmap(bitmap,
+                                THUMBNAILWIDTH,
+                                THUMBNAILHEIGHT,
+                                true);
+                        if (targetImage != null && resizedBitmap != null)
                         {
-                            bitmap = BitmapFactory.decodeStream(getContentResolver().openInputStream(imageURI));
-                            resizedBitmap = bitmap.createScaledBitmap(bitmap,
-                                    THUMBNAILWIDTH,
-                                    THUMBNAILHEIGHT,
-                                    true);
-                            if (targetImage != null && resizedBitmap != null)
-                                targetImage.setImageBitmap(resizedBitmap);
+                            targetImage.setImageBitmap(resizedBitmap);
                         }
                     }
-                    catch (FileNotFoundException e)
-                    {
-                        e.printStackTrace();
-                    }
                 }
-                System.out.println("DEBUG: URI : " + imageURI);
+                catch (FileNotFoundException e)
+                {
+                    e.printStackTrace();
+                }
             }
+        }
+        //User calls camera for the first time - permissions are granted
+        //brings user to this if statement
+        else if(requestCode == ENABLE_CAMERA)
+        {
+            if(data != null)
+                bitmap = (Bitmap) data.getExtras().get("data");
+
+            if(bitmap != null)
+                setBitmap(bitmap);
         }
     }
 
@@ -329,15 +345,11 @@ public class manual_add extends AppCompatActivity
 
         if (permissionCheck != PackageManager.PERMISSION_GRANTED)
         {
+            System.out.println("DEBUG: Checking for write permission");
             ActivityCompat.requestPermissions(
                     this,
                     new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                    1);
-
-            if (cameraIntent.resolveActivity(getPackageManager()) != null)
-            {
-                startActivityForResult(cameraIntent, ENABLE_CAMERA);
-            }
+                    ENABLE_CAMERA);
         }
         else
         {
@@ -360,6 +372,7 @@ public class manual_add extends AppCompatActivity
         {
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED)
             {
+                System.out.println("DEBUG: Permission Granted");
                 callCamera();
             }
             else
@@ -367,6 +380,32 @@ public class manual_add extends AppCompatActivity
                 System.out.println("DEBUG: return");
                 return;
             }
+        }
+    }
+
+    //Resize the image from the camera to 150 X 150
+    //Set the image view to the thumbnail
+    private void setBitmap(Bitmap bitmap)
+    {
+        Bitmap resizedBitmap = null;
+        if(bitmap != null)
+        {
+            resizedBitmap = bitmap.createScaledBitmap(bitmap,
+                    THUMBNAILWIDTH,
+                    THUMBNAILHEIGHT,
+                    true);
+            if (targetImage != null && resizedBitmap != null)
+                targetImage.setImageBitmap(resizedBitmap);
+
+            //Save the bitmap image
+            Date date = new Date();
+            SimpleDateFormat format = new SimpleDateFormat("dd-MM-yy:HH:mm");
+
+            if (resizedBitmap != null)
+                imageURI = Uri.parse(MediaStore.Images.Media.insertImage(getContentResolver(),
+                        resizedBitmap,
+                        format.format(date.getTime()) + ".png",
+                        "WARP_Vinyl_Img"));
         }
     }
 }

@@ -2,6 +2,8 @@ package com.example.mdo3.vinylplayer;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -74,8 +76,17 @@ public class RecordInfo extends AppCompatActivity
        DownloadImageTask downloadTask = (DownloadImageTask) factory.generateAsyncTask("Download");
         try
         {
+            if(record == null)
+                return;
+
             String[] params = {record.getUrl()};
-            cover_ImageView.setImageBitmap(downloadTask.execute(params).get());
+            Bitmap bitmap = downloadTask.execute(params).get();
+
+            if(bitmap != null)
+                cover_ImageView.setImageBitmap(bitmap);
+            else
+                cover_ImageView.setImageBitmap(BitmapFactory.decodeResource(getResources(),
+                        R.drawable.warp_150));
         }
         catch (Exception e)
         {
@@ -102,7 +113,7 @@ public class RecordInfo extends AppCompatActivity
     private void addToCatalog()
     {
         System.out.println("DEBUG: Button pressed");
-
+        Boolean result = false;
         //Save record information to device
         //UserId
         //Artist, album, Image URI, RPM speed (false = 33 1/3, true = 45rpm)
@@ -113,7 +124,7 @@ public class RecordInfo extends AppCompatActivity
         //Save the information to default xml location
         //under the tag "useremail" "SearchCat"
         if(records != null)
-            Utils.saveInformationSearch(records);
+            result = Utils.saveInformationSearch(records);
         else
             Toast.makeText(this, R.string.fail_to_add, Toast.LENGTH_SHORT).show();
 
@@ -124,39 +135,39 @@ public class RecordInfo extends AppCompatActivity
         String[] params = {albumId};
 
         //automatically enable bluetooth if available
-        Thread t1 = new Thread(new Runnable()
+        //TODO: change if statement to "result"
+        if(false)
         {
-            public void run()
-            {
-                try
-                {
-                    AsyncTaskFactory factory = new AsyncTaskFactory();
-                    AddAlbumTask addAlbumTask = (AddAlbumTask) factory.generateAsyncTask("AddAlbum",
-                            RecordInfo.this);
-                    Boolean result = (Boolean) addAlbumTask.execute(params).get();
+            Thread t1 = new Thread(new Runnable() {
+                public void run() {
+                    try {
+                        AsyncTaskFactory factory = new AsyncTaskFactory();
+                        AddAlbumTask addAlbumTask = (AddAlbumTask) factory.generateAsyncTask("AddAlbum",
+                                RecordInfo.this);
+                        Boolean result = (Boolean) addAlbumTask.execute(params).get();
 
-                    if (!result)
-                    {
-                        Toast.makeText(RecordInfo.this, R.string.fail_to_add, Toast.LENGTH_SHORT).show();
+                        if (!result) {
+                            Toast.makeText(RecordInfo.this, R.string.fail_to_add, Toast.LENGTH_SHORT).show();
+                        }
+                        System.out.println("DEBUG: " + result);
+                    } catch (InterruptedException e) {
+                        Log.d("Exception", e.getMessage());
+                    } catch (ExecutionException e) {
+                        Log.d("Exception", e.getMessage());
                     }
-                    System.out.println("DEBUG: " + result);
                 }
-                catch (InterruptedException e)
-                {
-                    Log.d("Exception", e.getMessage());
-                }
-                catch (ExecutionException e)
-                {
-                    Log.d("Exception", e.getMessage());
-                }
-            }
-        });
-        t1.start();
+            });
+            t1.start();
 
-        System.out.println("DEBUG: Complete");
+            System.out.println("DEBUG: Complete");
 
-        Intent intent = new Intent(this, MusicPlayer.class);
-        intent.putExtra(this.getResources().getString(R.string.record), record);
-        this.startActivity(intent);
+            Intent intent = new Intent(this, MusicPlayer.class);
+            intent.putExtra(this.getResources().getString(R.string.record), record);
+            this.startActivity(intent);
+        }
+        else
+        {
+            Toast.makeText(this, R.string.duplicate_record, Toast.LENGTH_SHORT).show();
+        }
     }
 }

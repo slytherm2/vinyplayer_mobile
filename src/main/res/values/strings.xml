@@ -94,17 +94,17 @@
 
     <!-- jose testing work -->
 
-    <string name="http_url_test_login_jose">http://10.32.214.72:3001/login</string>
-    <string name="http_url_test_catalog_jose">http://10.32.214.72:3001/catalog</string>
-    <string name="http_url_test_getalbuminfo_jose">http://10.32.214.72:3001/getAlbumInfo</string>
-    <string name="http_url_test_addalbum_jose">http://10.32.214.72:3001/addAlbum</string>
-    <string name="http_url_test_search_jose">http://10.32.214.72:3001/search</string>
-    <string name="http_url_test_search_id_jose">http://10.32.214.72:3001/search/:id</string>
-    <string name="http_url_test_records_id_jose">http://10.32.214.72:3001/records/:id</string>
-    <string name="http_url_test_create_user_jose">http://10.32.214.72:3001/createUser</string>
-    <string name="http_url_test_analyze_image">http://10.32.214.72:3001/searchImage</string>
-    <string name="https_url__test_logout_jose">http://10.32.214.72:3001/logout</string>
-    <string name="http_url_test_get_tracklist">http://10.32.214.72:3001/getTracklist</string>
+    <string name="http_url_test_login_jose">http://10.32.227.19:3001/login</string>
+    <string name="http_url_test_catalog_jose">http://10.32.227.19:3001/catalog</string>
+    <string name="http_url_test_getalbuminfo_jose">http://10.32.227.19:3001/getAlbumInfo</string>
+    <string name="http_url_test_addalbum_jose">http://10.32.227.19:3001/addAlbum</string>
+    <string name="http_url_test_search_jose">http://10.32.227.19:3001/search</string>
+    <string name="http_url_test_search_id_jose">http://10.32.227.19:3001/search/:id</string>
+    <string name="http_url_test_records_id_jose">http://10.32.227.19:3001/records/:id</string>
+    <string name="http_url_test_create_user_jose">http://10.32.227.19:3001/createUser</string>
+    <string name="http_url_test_analyze_image">http://10.32.227.19:3001/searchImage</string>
+    <string name="https_url__test_logout_jose">http://10.32.227.19:3001/logout</string>
+
 
     <!-- jose testing home -->
     <string name="http_url_test_login_jose_home">http://192.168.1.68:3001/login</string>
@@ -166,4 +166,7 @@
     <string name="add_to_catalog">Add To Catalog</string>
     <string name="fail_to_add">Failed To Add To Catalog</string>
     <string name="reset_tonearm">Reset Tonearm</string>
+    <string name="unknown_artist">Unknown Artist</string>
+    <string name="unknown_album">Unknown Album</string>
+    <string name="duplicate_record">Duplicate Record, Please Try Again</string>
 </resources>

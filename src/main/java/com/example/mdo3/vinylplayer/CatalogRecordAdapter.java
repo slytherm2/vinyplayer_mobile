@@ -33,7 +33,7 @@ public class CatalogRecordAdapter extends ArrayAdapter<Record>
     private List<Record> recordList;
 
     private final int DEFAULTSIZEWIDTH = 150;
-    private final int DEFAULTSIZEHEIGHt = 150;
+    private final int DEFAULTSIZEHEIGHT = 150;
 
     public CatalogRecordAdapter(@NonNull Context context, ArrayList<Record> list)
     {
@@ -61,12 +61,12 @@ public class CatalogRecordAdapter extends ArrayAdapter<Record>
 
         ImageView image = (ImageView) listItem.findViewById(R.id.album_pic);
         LinearLayout.LayoutParams lParams = new LinearLayout.LayoutParams(DEFAULTSIZEWIDTH,
-                DEFAULTSIZEWIDTH);
+                DEFAULTSIZEHEIGHT);
         image.setLayoutParams(lParams);
         AsyncTaskFactory factory = new AsyncTaskFactory();
 
         //If filepath != null
-        if(imageFilePath != null && !imageFilePath.equalsIgnoreCase("null"))
+        if(imageFilePath != null && !imageFilePath.equalsIgnoreCase("null") && !imageFilePath.isEmpty())
         {
             //System.out.println("DEBUG : FilePath isn't NULL");
             ImageFromGalleryTask ifgt = (ImageFromGalleryTask) factory.generateAsyncTask("Image", mContext);
@@ -83,7 +83,7 @@ public class CatalogRecordAdapter extends ArrayAdapter<Record>
         }
         //if url != null
         imageFilePath = record.getUrl();
-        if(imageFilePath != null && !imageFilePath.equalsIgnoreCase("null") && !foundPath)
+        if(imageFilePath != null && !imageFilePath.equalsIgnoreCase("null") && !foundPath && !imageFilePath.isEmpty())
         {
             //System.out.println("DEBUG : URL isn't NULL");
            DownloadImageTask dit = (DownloadImageTask) factory.generateAsyncTask("Download");

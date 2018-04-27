@@ -75,7 +75,7 @@ public class Login extends AppCompatActivity {
 
         //if user already has valid cookie
         //automatically sign user into application
-        pb = (ProgressBar) findViewById(R.id.login_progress);
+//        pb = (ProgressBar) findViewById(R.id.login_progress);
         isLoggedIn();
         //startNextActivity();
     }
@@ -148,7 +148,7 @@ public class Login extends AppCompatActivity {
             }
             else
             {
-                pb.setVisibility(View.INVISIBLE);
+//                pb.setVisibility(View.INVISIBLE);
                 return;
             }
         }
@@ -190,7 +190,7 @@ public class Login extends AppCompatActivity {
     /** sign in button on the log in page */
     public void signIn(View view) throws InterruptedException
     {
-        pb.setVisibility(View.VISIBLE);
+        //pb.setVisibility(View.VISIBLE);
         attemptLogin();
     }
 
@@ -239,7 +239,7 @@ public class Login extends AppCompatActivity {
 
     private void startNextActivity()
     {
-        pb.setVisibility(View.INVISIBLE);
+       // pb.setVisibility(View.INVISIBLE);
         Intent intent = new Intent(this, MainScreen.class);
         startActivity(intent);
     }

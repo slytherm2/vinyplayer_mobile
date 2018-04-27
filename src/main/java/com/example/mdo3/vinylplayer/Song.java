@@ -12,7 +12,7 @@ import java.time.Duration;
 public class Song implements Parcelable{
     private String title = null;
     private String duration = null;
-    private String position;
+    private String position = null;
 
     public Song(String title, String duration)
     {

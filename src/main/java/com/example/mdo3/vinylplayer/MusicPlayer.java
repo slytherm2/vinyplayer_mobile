@@ -74,6 +74,8 @@ public class MusicPlayer extends AppCompatActivity
     private double spacing = 0.0125; //TODO: more callibration is required
     private Song songObj;
 
+    private int songPos = 0;
+
     public boolean DEBUG = false;
 
     @Override
@@ -108,15 +110,35 @@ public class MusicPlayer extends AppCompatActivity
         albumSongs = new ArrayList<>();
         songTime = 0;
         StringBuilder tempstr;
-        if(songTrackList != null && songTrackList.size() != 0)
+        if(songTrackList != null && songTrackList.size() > 0)
         {
             tempstr = new StringBuilder();
             albumSongTime.add(songTime); //The start of the first songe
-//            tempstr.append(songTrackList.get(0).getPosition().toString());
-//            tempstr.append(": ");
-            tempstr.append(songTrackList.get(0).getTitle().toUpperCase().toString());
+
+            songObj = songTrackList.get(0);
+            String tempValue = songObj.getPosition();
+            if(tempValue != null)
+            {
+                tempstr.append(tempValue.toString());
+                ++songPos;
+            }
+            else
+            {
+                tempstr.append(String.valueOf(++songPos));
+                songObj.setPosition(String.valueOf(songPos));
+            }
+
+            tempstr.append(": ");
+
+            tempValue = songObj.getTitle();
+            if(tempValue != null)
+                tempstr.append(tempValue.toUpperCase().toString());
             tempstr.append("\t");
-            tempstr.append(songTrackList.get(0).getDuration().toString());
+
+            tempValue = songObj.getDuration();
+            if(tempValue != null)
+                tempstr.append(tempValue.toString());
+
             albumSongs.add(tempstr.toString());
 
             for (int i = 1; i < songTrackList.size(); i++)
@@ -128,11 +150,31 @@ public class MusicPlayer extends AppCompatActivity
                 songTime += Utils.convertToSeconds(songObj.getDuration());
                 albumSongTime.add(songTime + SONGGAPTIME);
                 songObj = songTrackList.get(i);
-//                tempstr.append(songObj.getPosition().toString());
-//                tempstr.append(": ");
-                tempstr.append(songObj.getTitle().toUpperCase().toString());
+
+                tempValue = songObj.getPosition();
+                if(tempValue != null)
+                {
+                    tempstr.append(tempValue.toString());
+                    ++songPos;
+                }
+                else
+                {
+                    tempstr.append(String.valueOf(++songPos));
+                    songObj.setPosition(String.valueOf(songPos));
+                }
+
+                tempstr.append(": ");
+
+                tempValue = songObj.getTitle();
+                if(tempValue != null)
+                    tempstr.append(tempValue.toUpperCase().toString());
+
                 tempstr.append("\t");
-                tempstr.append(songObj.getDuration().toString());
+
+                tempValue = songObj.getDuration();
+                if(tempValue != null)
+                    tempstr.append(tempValue.toString());
+
                 albumSongs.add(tempstr.toString());
             }
         }
@@ -217,7 +259,7 @@ public class MusicPlayer extends AppCompatActivity
 
         //TODO: uncomment when reeady
         //start at home on start up
-        sendData(HOME);
+        //sendData(HOME);
     }
 
         /*
