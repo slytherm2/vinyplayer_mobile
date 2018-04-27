@@ -76,6 +76,7 @@
     <string name="https_url_logout">https://vinyl-player-server.herokuapp.com/logout</string>
     <string name="https_url_createuser">https://vinyl-player-server.herokuapp.com/createUser</string>
     <string name="https_url_analyzeimage">https://vinyl-player-server.herokuapp.com/searchImage</string>
+    <string name="https_url_getTracklist">https://vinyl-player-server.herokuapp.com/getTracklist</string>
     <string name="cooke_header">Set-Cookie</string>
     <string name="session_id">vinylPlayer_sessionId</string>
     <string name="user_id">vinylPlayer_userId</string>

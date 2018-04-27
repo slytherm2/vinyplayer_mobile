@@ -13,6 +13,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
+import java.net.HttpsURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
@@ -36,7 +37,8 @@ public class GetTrackListTask extends AsyncTask<String, Void, String> {
             String query = String.format("id=%s", URLEncoder.encode(id.trim(), charset));
 
             // task is only executable from authenticated users
-            HttpURLConnection connection = createHttpRequest(query);
+            // HttpURLConnection connection = createHttpRequest(query);
+            HttpsURLConnection connection = createHttpsRequest(query);
             if(connection == null)
             {
                 Log.d("GetTrackListTask", "connection is null");
@@ -93,6 +95,35 @@ public class GetTrackListTask extends AsyncTask<String, Void, String> {
         {
             URL url = new URL(this.url);
             HttpURLConnection connection = (HttpURLConnection) url.openConnection(); // local connection
+
+            // allow for input and output request
+            connection.setDoInput(true);
+            connection.setDoOutput(true);
+
+            connection.setRequestMethod("POST");
+            connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+            connection.setRequestProperty("User-Agent", "Mozilla/5.0 (compatible; MSIE 5.0;Windows98;DigExt)");
+            connection.setRequestProperty( "Content-Length", String.valueOf(query.length()));
+
+            return connection;
+        }
+        catch(MalformedURLException e)
+        {
+            Log.d("GetTrackListTask", "MalformedURLException: " + e);
+            return null;
+        }
+        catch(IOException e) {
+            Log.d("GetTrackListTask", "IOException: " + e);
+            return null;
+        }
+    }
+
+    private HttpsURLConnection createHttpsRequest(String query)
+    {
+        try
+        {
+            URL url = new URL(this.url);
+            HttpsURLConnection connection = (HttpsURLConnection) url.openConnection(); // local connection
 
             // allow for input and output request
             connection.setDoInput(true);
