@@ -112,8 +112,8 @@ public class MusicPlayer extends AppCompatActivity
         {
             tempstr = new StringBuilder();
             albumSongTime.add(songTime); //The start of the first songe
-            tempstr.append(songTrackList.get(0).getPosition().toString());
-            tempstr.append(": ");
+//            tempstr.append(songTrackList.get(0).getPosition().toString());
+//            tempstr.append(": ");
             tempstr.append(songTrackList.get(0).getTitle().toUpperCase().toString());
             tempstr.append("\t");
             tempstr.append(songTrackList.get(0).getDuration().toString());
@@ -128,8 +128,8 @@ public class MusicPlayer extends AppCompatActivity
                 songTime += Utils.convertToSeconds(songObj.getDuration());
                 albumSongTime.add(songTime + SONGGAPTIME);
                 songObj = songTrackList.get(i);
-                tempstr.append(songObj.getPosition().toString());
-                tempstr.append(": ");
+//                tempstr.append(songObj.getPosition().toString());
+//                tempstr.append(": ");
                 tempstr.append(songObj.getTitle().toUpperCase().toString());
                 tempstr.append("\t");
                 tempstr.append(songObj.getDuration().toString());

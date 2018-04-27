@@ -27,6 +27,7 @@ import org.json.*;
 public class RecordSearch extends AppCompatActivity {
     private String sessionId = null;
     private String userId = null;
+    private boolean isExecutingTask = false;
     private static SharedPreferences preferences;
 
     ArrayList<Record> records;
@@ -87,7 +88,8 @@ public class RecordSearch extends AppCompatActivity {
             }
             catch (JSONException e)
             {
-                return;
+
+                continue;
             }
         }
         return;
@@ -97,35 +99,34 @@ public class RecordSearch extends AppCompatActivity {
     {
         try
         {
-            String artist = record.getString("artist");
-            String album = record.getString("album");
-            String url = record.getString("url");
-            String albumId = record.getString("albumId");
+            String title[] = record.getString("title").split("-");
+            String artist = title[0].trim();
+            String album = title[1].trim();
+            String url = record.getString("thumb");
             String year = record.getString("year");
+            String id = record.getString("id");
+//            String artist = record.getString("artist");
+//            String album = record.getString("album");
+//            String url = record.getString("url");
+//            String albumId = record.getString("albumId");
+//            String year = record.getString("year");
 
-            ArrayList<Song> tracklist = new ArrayList<Song>();
-            JSONArray tracklist_JSON = record.getJSONArray("tracklist");
-            for(int i = 0; i < tracklist_JSON.length(); i++)
-            {
-                // Duration duration = null;
-                String title = tracklist_JSON.getJSONObject(i).getString("title");
-                String duration = tracklist_JSON.getJSONObject(i).getString("duration");
-//                String duration_parsed[] = duration_String.split(":"); // song duration is in format minutes:seconds
-//
-//                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-//                    duration = Duration.ofMinutes(Integer.parseInt(duration_parsed[0]));
-//                    duration = duration.plusSeconds(Integer.parseInt(duration_parsed[1]));
-//                }
-
-                Song song = new Song(title, duration);
-                tracklist.add(song);
-            }
+//            ArrayList<Song> tracklist = new ArrayList<Song>();
+//            JSONArray tracklist_JSON = record.getJSONArray("tracklist");
+//            for(int i = 0; i < tracklist_JSON.length(); i++)
+//            {
+//                // Duration duration = null;
+//                String title = tracklist_JSON.getJSONObject(i).getString("title");
+//                String duration = tracklist_JSON.getJSONObject(i).getString("duration");
+//                Song song = new Song(title, duration);
+//                tracklist.add(song);
+//            }
 
             //Order important :{artist, album, year, url, albumId}
-            String[] params = {artist, album, year, url, albumId};
-            Record newRecord = new Record(tracklist, params);
+//            String[] params = {artist, album, year, url, id};
+//            Record newRecord = new Record(tracklist, params);
 
-            //Record newRecord = new Record(artist, album, tracklist, url);
+            Record newRecord = new Record(artist, album, url, year, id);
 
             this.records.add(newRecord);
             this.adapter.notifyDataSetChanged();
@@ -138,15 +139,14 @@ public class RecordSearch extends AppCompatActivity {
     // Get the intent, verify the action and get the query
     private void handleIntent(Intent intent) {
         if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
-            if(this.userId == null || this.sessionId == null )
+            if(this.userId == null || this.sessionId == null  || isExecutingTask)
             {
-                Log.d("RecordSearch", "User not logged in");
+                Log.d("RecordSearch", "User not logged in or task is already being executed");
                 return;
             }
+
+            isExecutingTask = true;
             String query = intent.getStringExtra(SearchManager.QUERY);
-            String queries[] = query.split("-");
-            String artist = queries[0].trim();
-            String album = queries[1].trim();
             Log.d("RecordSearch", "handleIntent called");
 
             // SearchTask task = (SearchTask) factory.generateAsyncTask("Search", query,
@@ -155,7 +155,7 @@ public class RecordSearch extends AppCompatActivity {
             
             SearchTask task = (SearchTask) factory.generateAsyncTask("Search", 
                                                                      query,
-                                                                     getResources().getString(R.string.https_url_search),
+                                                                     getResources().getString(R.string.http_url_test_search_jose),
                                                                      this.userId, 
                                                                      this.sessionId);
 
@@ -167,6 +167,7 @@ public class RecordSearch extends AppCompatActivity {
                     records = new JSONArray(result);
                 if(records != null)
                     addRecords(records);
+                isExecutingTask = false;
             }
             catch (InterruptedException e)
             {

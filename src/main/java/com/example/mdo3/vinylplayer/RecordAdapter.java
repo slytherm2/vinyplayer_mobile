@@ -12,7 +12,10 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.example.mdo3.vinylplayer.asyncTask.DownloadImageTask;
+import com.example.mdo3.vinylplayer.asyncTask.GetTrackListTask;
 import com.example.mdo3.vinylplayer.asyncTask.SearchTask;
+
+import org.json.JSONArray;
 
 import java.util.ArrayList;
 
@@ -54,10 +57,29 @@ public class RecordAdapter extends RecyclerView.Adapter<RecordAdapter.ViewHolder
             @Override
             public void onClick(View v)
             {
+                AsyncTaskFactory factory = new AsyncTaskFactory();
+                GetTrackListTask task = (GetTrackListTask) factory.generateAsyncTask("GetTracklist");
+                try
+                {
+                    String[] params = {record.getId(), context.getResources().getString(R.string.http_url_test_get_tracklist)};
+                    String tracklist_String = task.execute(params).get();
+                    ArrayList<Song> tracklist = new ArrayList<Song>();
+                    JSONArray tracklist_JSON = new JSONArray(tracklist_String);
+                    for(int i = 0; i < tracklist_JSON.length(); i++)
+                    {
+                        // Duration duration = null;
+                        String title = tracklist_JSON.getJSONObject(i).getString("title");
+                        String duration = tracklist_JSON.getJSONObject(i).getString("duration");
+                        Song song = new Song(title, duration);
+                        tracklist.add(song);
+                    }
+                    record.setTrackList(tracklist);
+                }
+                catch (Exception e)
+                {
+                    Log.d("Exception", e.getMessage());
+                }
                 Intent intent = new Intent(context, RecordInfo.class);
-//                intent.putExtra("artist", record.getArtist());
-//                intent.putExtra("album", record.getAlbum());
-//                intent.putExtra("tracklist", record.getTracklist());
                 intent.putExtra("record", record);
                 context.startActivity(intent);
             }

@@ -43,8 +43,16 @@ public class SearchTask extends AsyncTask<Void, Void, String>
         this.sessionId = sessionId;
 
         String parsedInput[] = input.split("-");
-        this.artist = parsedInput[0];
-        this.album = parsedInput[1];
+        if(parsedInput.length <= 1)
+        {
+            this.artist = null;
+            this.album = null;
+        }
+        else
+        {
+            this.artist = parsedInput[0];
+            this.album = parsedInput[1];
+        }
     }
 
 
@@ -54,9 +62,10 @@ public class SearchTask extends AsyncTask<Void, Void, String>
         {
             // turn input string into query string
             String charset = "UTF-8";
-            String query = String.format("artist=%s&album=%s",
-                    URLEncoder.encode(artist.trim(), charset),
-                    URLEncoder.encode(album.trim(), charset));
+            String query = String.format("query=%s", URLEncoder.encode(this.input.trim(), charset));
+//            String query = String.format("artist=%s&album=%s",
+//                    URLEncoder.encode(artist.trim(), charset),
+//                    URLEncoder.encode(album.trim(), charset));
 
             // task is only executable from authenticated users
             HttpURLConnection connection = createHttpRequest(query);
@@ -115,13 +124,13 @@ public class SearchTask extends AsyncTask<Void, Void, String>
         super.onPostExecute(s);
     }
 
-    private HttpsURLConnection createHttpRequest(String query)
+    private HttpURLConnection createHttpRequest(String query)
     {
         try
         {
             URL url = new URL(this.resourceUrl);
             //HttpsURLConnection connection = (HttpsURLConnection) url.openConnection(); // real server
-            HttpsURLConnection connection = (HttpsURLConnection) url.openConnection(); // local connection
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection(); // local connection
 
             // allow for input and output request
             connection.setDoInput(true);

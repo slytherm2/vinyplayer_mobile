@@ -253,7 +253,6 @@ public class MainScreen extends AppCompatActivity
                 startMusicPlayer(fullRecordList.get(position));
             }
         });
-
     }
 
     public void startBT(View view)
