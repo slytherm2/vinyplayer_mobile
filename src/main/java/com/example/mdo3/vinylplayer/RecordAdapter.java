@@ -61,7 +61,7 @@ public class RecordAdapter extends RecyclerView.Adapter<RecordAdapter.ViewHolder
                 GetTrackListTask task = (GetTrackListTask) factory.generateAsyncTask("GetTracklist");
                 try
                 {
-                    String[] params = {record.getId(), context.getResources().getString(R.string.https_url_getTracklist)};
+                    String[] params = {record.getId(), context.getResources().getString(R.string.http_url_test_get_tracklist)};
                     String tracklist_String = task.execute(params).get();
                     ArrayList<Song> tracklist = new ArrayList<Song>();
                     JSONArray tracklist_JSON = new JSONArray(tracklist_String);

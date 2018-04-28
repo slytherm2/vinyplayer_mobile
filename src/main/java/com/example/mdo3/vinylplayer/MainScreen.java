@@ -319,17 +319,19 @@ public class MainScreen extends AppCompatActivity
 
 
                 //send data to the Heroku server for image analysis
-                /*String url = getResources().getString(R.string.http_test_url_analyzeimage);
+                String url = getResources().getString(R.string.http_url_test_analyze_image);
                 AsyncTaskFactory factory = new AsyncTaskFactory();
                 ImageAnalysisTask task = (ImageAnalysisTask) factory.generateAsyncTask("ImageAnalysis",
                         String.valueOf(picture),
                         url,
                         this.userID,
-                        this.sessionID);*/
+                        this.sessionID);
 
 
                 try
                 {
+                    String records = task.execute(image).get();
+                    System.out.println(records);
                    /* String artist = record.getString("artist");
                     String album = record.getString("album");
                     String url = record.getString("url");

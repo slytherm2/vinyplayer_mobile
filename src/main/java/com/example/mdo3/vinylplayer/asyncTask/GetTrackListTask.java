@@ -13,10 +13,11 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
-import java.net.HttpsURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
+
+import javax.net.ssl.HttpsURLConnection;
 
 /**
  * Created by jose.medina on 4/25/2018.
@@ -37,8 +38,8 @@ public class GetTrackListTask extends AsyncTask<String, Void, String> {
             String query = String.format("id=%s", URLEncoder.encode(id.trim(), charset));
 
             // task is only executable from authenticated users
-            // HttpURLConnection connection = createHttpRequest(query);
-            HttpsURLConnection connection = createHttpsRequest(query);
+            HttpURLConnection connection = createHttpRequest(query);
+            //HttpsURLConnection connection = createHttpsRequest(query);
             if(connection == null)
             {
                 Log.d("GetTrackListTask", "connection is null");

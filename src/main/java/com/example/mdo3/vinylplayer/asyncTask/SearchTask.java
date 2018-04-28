@@ -54,7 +54,7 @@ public class SearchTask extends AsyncTask<Void, Void, String>
 
 
             // task is only executable from authenticated users
-            HttpsURLConnection connection = createHttpRequest(query);
+            HttpURLConnection connection = createHttpRequest(query);
             if(connection == null)
             {
                 Log.d("SearchTask", "connection is null");
@@ -68,7 +68,7 @@ public class SearchTask extends AsyncTask<Void, Void, String>
             writer.flush();
             writer.close();
 
-            connection.connect();
+            // connection.connect();
             Thread.sleep(THREAD_TIMEOUT);
 
             // read list of records returned from POST request
@@ -110,13 +110,13 @@ public class SearchTask extends AsyncTask<Void, Void, String>
         super.onPostExecute(s);
     }
 
-    private HttpsURLConnection createHttpRequest(String query)
+    private HttpURLConnection createHttpRequest(String query)
     {
         try
         {
             URL url = new URL(this.resourceUrl);
-            HttpsURLConnection connection = (HttpsURLConnection) url.openConnection(); // real server
-            // HttpURLConnection connection = (HttpURLConnection) url.openConnection(); // local connection
+            // HttpsURLConnection connection = (HttpsURLConnection) url.openConnection(); // real server
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection(); // local connection
 
             // allow for input and output request
             connection.setDoInput(true);
