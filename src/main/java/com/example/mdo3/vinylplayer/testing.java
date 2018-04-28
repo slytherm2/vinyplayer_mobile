@@ -6,6 +6,7 @@ import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattService;
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.ContextWrapper;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
@@ -35,6 +36,7 @@ import com.example.mdo3.vinylplayer.asyncTask.ImageAnalysisTask;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URI;
 import java.text.SimpleDateFormat;
@@ -55,6 +57,7 @@ public class testing extends AppCompatActivity
     private Toolbar mTopToolbar;
     private ImageView imageView;
     private Uri mImageUri;
+    private String path;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -139,15 +142,12 @@ public class testing extends AppCompatActivity
                     this,
                     this.getApplicationContext()
                             .getPackageName() + ".provider", getOutputMediaFile());
-            cameraIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            //cameraIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
             cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, apkURI);
 
             if (cameraIntent.resolveActivity(getPackageManager()) != null)
             {
-
                 startActivityForResult(cameraIntent, 1);
-                System.out.println("DEBUG: URI: " + apkURI);
-                imageView.setImageURI(apkURI);
             }
         }
     }
@@ -156,7 +156,7 @@ public class testing extends AppCompatActivity
     protected void onActivityResult(int requestCode, int resultCode, Intent data)
     {
         Bitmap bitmap = null;
-        if(data != null)
+        /*if(data != null)
             bitmap = (Bitmap) data.getExtras().get("data");
 
         Uri uri = null;
@@ -167,7 +167,7 @@ public class testing extends AppCompatActivity
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
             }
-        }
+        }*/
 
         //Bitmap resized = Bitmap.createScaledBitmap(bitmap, 500, 500, false);
         //request code 1 = Bluetooth
@@ -176,15 +176,16 @@ public class testing extends AppCompatActivity
             try
             {
                 System.out.println("DEBUG : Setting image in testing");
-                //Bitmap b = modifyOrientation(bitmap, data.getData().getPath());
-                System.out.println("DEBUG: " + bitmap.getByteCount());
-                System.out.println("DEBUG: " + data.getData().toString());
-                imageView.setImageBitmap(bitmap);
+                File root = Environment.getExternalStorageDirectory();
+                System.out.println("DEBUG: root: "  +root);
+                Bitmap bMap = BitmapFactory.decodeFile(path);
+                imageView.setImageBitmap(rotateImage(bMap, 0));
+                //saveToInternalStorage(bitmap);
 
             }
             catch(Exception e)
             {
-
+                System.out.println("DEBUG: Exception!");
             }
         }
     }
@@ -224,7 +225,7 @@ public class testing extends AppCompatActivity
     }
 
     /** Create a File for saving an image or video */
-    private static File getOutputMediaFile(){
+    private File getOutputMediaFile(){
         // To be safe, you should check that the SDCard is mounted
         // using Environment.getExternalStorageState() before doing this.
 
@@ -246,6 +247,34 @@ public class testing extends AppCompatActivity
         File mediaFile = new File(mediaStorageDir.getPath() + File.separator +
                 "IMG_"+ timeStamp + ".jpg");
 
+        path = mediaFile.getAbsolutePath();
+        System.out.println("DEBUG: " + path);
+
         return mediaFile;
+    }
+
+    private String saveToInternalStorage(Bitmap bitmapImage)
+    {
+        ContextWrapper cw = new ContextWrapper(getApplicationContext());
+        // path to /data/data/yourapp/app_data/imageDir
+        File directory = cw.getDir("warp", Context.MODE_PRIVATE);
+        // Create imageDir
+        File mypath=new File(directory,"profile.jpg");
+
+        FileOutputStream fos = null;
+        try {
+            fos = new FileOutputStream(mypath);
+            // Use the compress method on the BitMap object to write image to the OutputStream
+            bitmapImage.compress(Bitmap.CompressFormat.PNG, 100, fos);
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                fos.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return directory.getAbsolutePath();
     }
 }
