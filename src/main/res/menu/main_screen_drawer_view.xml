@@ -33,9 +33,13 @@
 
 
         <item
-            android:id="@+id/change_speed"
+            android:id="@+id/change_speed_45"
             android:icon="@drawable/ic_menu_slideshow"
-            android:title="@string/change_speed" />
+            android:title="45RPM" />
+        <item
+            android:id="@+id/change_speed_33"
+            android:icon="@drawable/ic_menu_slideshow"
+            android:title="33RPM" />
 
         <item
             android:id="@+id/nav_log_out"

@@ -6,6 +6,7 @@ import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattService;
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.ContextWrapper;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
@@ -35,6 +36,7 @@ import com.example.mdo3.vinylplayer.asyncTask.ImageAnalysisTask;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URI;
 import java.text.SimpleDateFormat;
@@ -55,6 +57,7 @@ public class testing extends AppCompatActivity
     private Toolbar mTopToolbar;
     private ImageView imageView;
     private Uri mImageUri;
+    private String path;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -139,15 +142,12 @@ public class testing extends AppCompatActivity
                     this,
                     this.getApplicationContext()
                             .getPackageName() + ".provider", getOutputMediaFile());
-            cameraIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            //cameraIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
             cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, apkURI);
 
             if (cameraIntent.resolveActivity(getPackageManager()) != null)
             {
-
                 startActivityForResult(cameraIntent, 1);
-                System.out.println("DEBUG: URI: " + apkURI);
-                imageView.setImageURI(apkURI);
             }
         }
     }
@@ -156,7 +156,7 @@ public class testing extends AppCompatActivity
     protected void onActivityResult(int requestCode, int resultCode, Intent data)
     {
         Bitmap bitmap = null;
-        if(data != null)
+        /*if(data != null)
             bitmap = (Bitmap) data.getExtras().get("data");
 
         Uri uri = null;
@@ -167,7 +167,7 @@ public class testing extends AppCompatActivity
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
             }
-        }
+        }*/
 
         //Bitmap resized = Bitmap.createScaledBitmap(bitmap, 500, 500, false);
         //request code 1 = Bluetooth
@@ -175,56 +175,25 @@ public class testing extends AppCompatActivity
         {
             try
             {
+
                 System.out.println("DEBUG : Setting image in testing");
-                //Bitmap b = modifyOrientation(bitmap, data.getData().getPath());
-                System.out.println("DEBUG: " + bitmap.getByteCount());
-                System.out.println("DEBUG: " + data.getData().toString());
-                imageView.setImageBitmap(bitmap);
+                Bitmap bMap = BitmapFactory.decodeFile(path);
+                Uri uri = Uri.parse(MediaStore.Images.Media.insertImage(getContentResolver(), bMap, "Warp" , "warp"));
+                imageView.setImageBitmap(bMap);
+
 
             }
             catch(Exception e)
             {
-
+                System.out.println("DEBUG: Exception!");
+                System.out.println("DEBUG: Exception!" + e.getMessage());
             }
         }
     }
 
-    public static Bitmap modifyOrientation(Bitmap bitmap, String image_absolute_path) throws IOException {
-        ExifInterface ei = new ExifInterface(image_absolute_path);
-        int orientation = ei.getAttributeInt(ExifInterface.TAG_ORIENTATION,
-                ExifInterface.ORIENTATION_UNDEFINED);
-
-        Bitmap rotatedBitmap = null;
-        switch (orientation) {
-
-            case ExifInterface.ORIENTATION_ROTATE_90:
-                rotatedBitmap = rotateImage(bitmap, 90);
-                break;
-
-            case ExifInterface.ORIENTATION_ROTATE_180:
-                rotatedBitmap = rotateImage(bitmap, 180);
-                break;
-
-            case ExifInterface.ORIENTATION_ROTATE_270:
-                rotatedBitmap = rotateImage(bitmap, 270);
-                break;
-
-            case ExifInterface.ORIENTATION_NORMAL:
-            default:
-                rotatedBitmap = bitmap;
-        }
-        return rotatedBitmap;
-    }
-
-    public static Bitmap rotateImage(Bitmap source, float angle) {
-        Matrix matrix = new Matrix();
-        matrix.postRotate(angle);
-        return Bitmap.createBitmap(source, 0, 0, source.getWidth(), source.getHeight(),
-                matrix, true);
-    }
-
     /** Create a File for saving an image or video */
-    private static File getOutputMediaFile(){
+    private File getOutputMediaFile()
+    {
         // To be safe, you should check that the SDCard is mounted
         // using Environment.getExternalStorageState() before doing this.
 
@@ -246,6 +215,7 @@ public class testing extends AppCompatActivity
         File mediaFile = new File(mediaStorageDir.getPath() + File.separator +
                 "IMG_"+ timeStamp + ".jpg");
 
+        path = mediaFile.getAbsolutePath();
         return mediaFile;
     }
 }

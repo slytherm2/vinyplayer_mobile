@@ -293,6 +293,7 @@ public class LowEnergyBlueTooth extends MainScreen
                     return;
                 }*/
 
+/*
                 Button btn = mainScreen.getButton();
                 if(btn != null)
                 {
@@ -300,8 +301,9 @@ public class LowEnergyBlueTooth extends MainScreen
                     btn.setText(staticContext.getResources().getString(R.string.label_con));
                     btn.setEnabled(false);
 //                    mainScreen.setButton(true);
-                    returnToMain(Activity.RESULT_OK);
                 }
+*/
+                returnToMain(Activity.RESULT_OK);
 
 
             }
@@ -322,15 +324,16 @@ public class LowEnergyBlueTooth extends MainScreen
                     return;
                 }*/
 
-               Button btn = mainScreen.getButton();
+/*               Button btn = mainScreen.getButton();
                 if(btn != null)
                 {
                     btn.setBackgroundTintList(ColorStateList.valueOf(Color.RED));
                     btn.setText(staticContext.getResources().getString(R.string.label_not_con));
                     btn.setEnabled(true);
 //                    mainScreen.setButton(false);
-                    returnToMain(Activity.RESULT_CANCELED);
-                }
+
+                }*/
+                returnToMain(Activity.RESULT_CANCELED);
             }
         }
 

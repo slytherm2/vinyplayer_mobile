@@ -8,9 +8,11 @@ import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
@@ -19,6 +21,7 @@ import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.FileProvider;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
@@ -38,11 +41,17 @@ import android.widget.Toast;
 
 import com.example.mdo3.vinylplayer.asyncTask.ImageAnalysisTask;
 
+import org.apache.commons.lang3.concurrent.ConcurrentException;
+import org.apache.commons.net.io.Util;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 
@@ -50,7 +59,6 @@ import java.util.concurrent.ExecutionException;
 public class MainScreen extends AppCompatActivity
 {
     //TODO: improve UI
-    //ToDO: rotate images
     //Todo: high res pictures
     //TODO: loading animations
     //TODO: get catalog information from DB
@@ -84,13 +92,14 @@ public class MainScreen extends AppCompatActivity
     public static final int SPLITURL = 1;
     public static  final int SPLITPATH = 2;
 
-    private int CHANGESPEED = 1;
+    private int CHANGE33 = 10;
+    private int CHANGE45 = 11;
     private int HOME = 3;
     private int ANTISKIP = 4;
 
     private BluetoothLESingleton leSingleton;
-    private LowEnergyBlueTooth btle;
-    public static int picture = 0;
+
+    private String path;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -312,26 +321,60 @@ public class MainScreen extends AppCompatActivity
                 //TODO: send image to image analysis application for discovery
                 System.out.println("DEBUG : Camera Result good ");
 
-                Bitmap image = (Bitmap) data.getExtras().get("data");
+                Bitmap image = null;
+                if(data != null)
+                {
+                    System.out.println("DEBUG: Getting picture from intent");
+                    image = (Bitmap) data.getExtras().get("data");
+                    MediaStore.Images.Media.insertImage(getContentResolver(),
+                            image,
+                            UUID.randomUUID().toString(),
+                            "vinyl_Image");
+                }
+
+                image = BitmapFactory.decodeFile(path);
                 MediaStore.Images.Media.insertImage(getContentResolver(),
                         image,
-                        UUID.randomUUID().toString(),
-                        "vinyl_Image");
-
-
+                        Utils.getTimeNow(),
+                        "warp");
                 //send data to the Heroku server for image analysis
                 /*String url = getResources().getString(R.string.http_test_url_analyzeimage);
                 AsyncTaskFactory factory = new AsyncTaskFactory();
                 ImageAnalysisTask task = (ImageAnalysisTask) factory.generateAsyncTask("ImageAnalysis",
-                        String.valueOf(picture),
+                        null,
                         url,
                         this.userID,
-                        this.sessionID);*/
-
-
+                        this.sessionID);
                 try
                 {
-                   /* String artist = record.getString("artist");
+                    String output = task.execute(image).get();
+
+                    if(output != null)
+                    {
+                        JSONArray records = null;
+                        if(output != null)
+                            records = new JSONArray(output);
+                        if(records != null)
+                            addRecords(records);
+                    }
+                }
+                catch(ExecutionException e)
+                {
+                    Log.d("Exception", e.getMessage());
+                }
+                catch(InterruptedException e)
+                {
+                    Log.d("Exception", e.getMessage());
+                }
+                catch(JSONException e)
+                {
+                    Log.d("Exception", e.getMessage());
+                }*/
+
+
+                /*try
+                {
+                   *//* String artist = record.getString("artist");
                     String album = record.getString("album");
                     String url = record.getString("url");
                     String albumId = record.getString("albumId");
@@ -350,7 +393,7 @@ public class MainScreen extends AppCompatActivity
                     if(records != null)
                         //Toast.makeText(this, records.getString("artist")), 1000);
                         addRecords(records);
-                    //picture = (picture + 1)%2;*/
+                    //picture = (picture + 1)%2;*//*
 
                     JSONObject json = new JSONObject();
                     json.put("artist", "Martin");
@@ -374,7 +417,7 @@ public class MainScreen extends AppCompatActivity
                 catch(Exception e)
                 {
 
-                }
+                }*/
             }
             else if (resultCode == Activity.RESULT_CANCELED)
             {
@@ -452,9 +495,13 @@ public class MainScreen extends AppCompatActivity
             intent = new Intent(this, LowEnergyBlueTooth.class);
             startActivityForResult(intent, REQUEST_ENABLE_BT);
         }
-        else if(id == R.id.change_speed)
+        else if(id == R.id.change_speed_45)
         {
-            sendData(CHANGESPEED);
+            sendData(CHANGE45);
+        }
+        else if(id == R.id.change_speed_33)
+        {
+            sendData(CHANGE33);
         }
         else if(id == R.id.reset_tonearm)
         {
@@ -542,15 +589,22 @@ public class MainScreen extends AppCompatActivity
             ActivityCompat.requestPermissions(
                     this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
 
-            Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+           /* Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
             if (cameraIntent.resolveActivity(getPackageManager()) != null)
             {
                 startActivityForResult(cameraIntent, ENABLE_CAMERA);
-            }
+            }*/
         }
         else
         {
             Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+
+            Uri apkURI = FileProvider.getUriForFile(
+                    this,
+                    this.getApplicationContext()
+                            .getPackageName() + ".provider", getOutputMediaFile());
+            cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, apkURI);
+
             if (cameraIntent.resolveActivity(getPackageManager()) != null)
             {
                 startActivityForResult(cameraIntent, ENABLE_CAMERA);
@@ -590,7 +644,7 @@ public class MainScreen extends AppCompatActivity
         byte[] data = String.valueOf(command).getBytes();
 
         //Sending command to embedded hardware
-        btle.send(leSingleton.getGattService(),
+        LowEnergyBlueTooth.send(leSingleton.getGattService(),
                 leSingleton.getSERVICE_UUID(),
                 leSingleton.getGatt(),
                 data);
@@ -658,5 +712,33 @@ public class MainScreen extends AppCompatActivity
         } catch (JSONException e) {
             return;
         }
+    }
+
+    /** Create a File for saving an image or video */
+    private File getOutputMediaFile()
+    {
+        // To be safe, you should check that the SDCard is mounted
+        // using Environment.getExternalStorageState() before doing this.
+
+        File mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(
+                Environment.DIRECTORY_PICTURES), "WARP");
+        // This location works best if you want the created images to be shared
+        // between applications and persist after your app has been uninstalled.
+
+        // Create the storage directory if it does not exist
+        if (! mediaStorageDir.exists()){
+            if (! mediaStorageDir.mkdirs()){
+                Log.d("WARP", "failed to create directory");
+                return null;
+            }
+        }
+
+        // Create a media file name
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        File mediaFile = new File(mediaStorageDir.getPath() + File.separator +
+                "IMG_"+ timeStamp + ".jpg");
+
+        path = mediaFile.getAbsolutePath();
+        return mediaFile;
     }
 }
