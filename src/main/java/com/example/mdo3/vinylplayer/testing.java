@@ -175,57 +175,25 @@ public class testing extends AppCompatActivity
         {
             try
             {
+
                 System.out.println("DEBUG : Setting image in testing");
-                File root = Environment.getExternalStorageDirectory();
-                System.out.println("DEBUG: root: "  +root);
                 Bitmap bMap = BitmapFactory.decodeFile(path);
-                imageView.setImageBitmap(rotateImage(bMap, 0));
-                //saveToInternalStorage(bitmap);
+                Uri uri = Uri.parse(MediaStore.Images.Media.insertImage(getContentResolver(), bMap, "Warp" , "warp"));
+                imageView.setImageBitmap(bMap);
+
 
             }
             catch(Exception e)
             {
                 System.out.println("DEBUG: Exception!");
+                System.out.println("DEBUG: Exception!" + e.getMessage());
             }
         }
     }
 
-    public static Bitmap modifyOrientation(Bitmap bitmap, String image_absolute_path) throws IOException {
-        ExifInterface ei = new ExifInterface(image_absolute_path);
-        int orientation = ei.getAttributeInt(ExifInterface.TAG_ORIENTATION,
-                ExifInterface.ORIENTATION_UNDEFINED);
-
-        Bitmap rotatedBitmap = null;
-        switch (orientation) {
-
-            case ExifInterface.ORIENTATION_ROTATE_90:
-                rotatedBitmap = rotateImage(bitmap, 90);
-                break;
-
-            case ExifInterface.ORIENTATION_ROTATE_180:
-                rotatedBitmap = rotateImage(bitmap, 180);
-                break;
-
-            case ExifInterface.ORIENTATION_ROTATE_270:
-                rotatedBitmap = rotateImage(bitmap, 270);
-                break;
-
-            case ExifInterface.ORIENTATION_NORMAL:
-            default:
-                rotatedBitmap = bitmap;
-        }
-        return rotatedBitmap;
-    }
-
-    public static Bitmap rotateImage(Bitmap source, float angle) {
-        Matrix matrix = new Matrix();
-        matrix.postRotate(angle);
-        return Bitmap.createBitmap(source, 0, 0, source.getWidth(), source.getHeight(),
-                matrix, true);
-    }
-
     /** Create a File for saving an image or video */
-    private File getOutputMediaFile(){
+    private File getOutputMediaFile()
+    {
         // To be safe, you should check that the SDCard is mounted
         // using Environment.getExternalStorageState() before doing this.
 
@@ -248,33 +216,6 @@ public class testing extends AppCompatActivity
                 "IMG_"+ timeStamp + ".jpg");
 
         path = mediaFile.getAbsolutePath();
-        System.out.println("DEBUG: " + path);
-
         return mediaFile;
-    }
-
-    private String saveToInternalStorage(Bitmap bitmapImage)
-    {
-        ContextWrapper cw = new ContextWrapper(getApplicationContext());
-        // path to /data/data/yourapp/app_data/imageDir
-        File directory = cw.getDir("warp", Context.MODE_PRIVATE);
-        // Create imageDir
-        File mypath=new File(directory,"profile.jpg");
-
-        FileOutputStream fos = null;
-        try {
-            fos = new FileOutputStream(mypath);
-            // Use the compress method on the BitMap object to write image to the OutputStream
-            bitmapImage.compress(Bitmap.CompressFormat.PNG, 100, fos);
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                fos.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        return directory.getAbsolutePath();
     }
 }
