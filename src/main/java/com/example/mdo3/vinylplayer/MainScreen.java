@@ -338,7 +338,7 @@ public class MainScreen extends AppCompatActivity
                         Utils.getTimeNow(),
                         "warp");
                 //send data to the Heroku server for image analysis
-                /*String url = getResources().getString(R.string.http_test_url_analyzeimage);
+                String url = getResources().getString(R.string.http_test_url_analyzeimage);
                 AsyncTaskFactory factory = new AsyncTaskFactory();
                 ImageAnalysisTask task = (ImageAnalysisTask) factory.generateAsyncTask("ImageAnalysis",
                         null,
@@ -369,7 +369,7 @@ public class MainScreen extends AppCompatActivity
                 catch(JSONException e)
                 {
                     Log.d("Exception", e.getMessage());
-                }*/
+                }
 
 
                 /*try
