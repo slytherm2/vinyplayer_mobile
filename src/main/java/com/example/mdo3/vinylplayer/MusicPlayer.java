@@ -163,7 +163,7 @@ public class MusicPlayer extends AppCompatActivity
                     songObj.setPosition(String.valueOf(songPos));
                 }
 
-                tempstr.append(": ");
+                tempstr.append(". ");
 
                 tempValue = songObj.getTitle();
                 if(tempValue != null)

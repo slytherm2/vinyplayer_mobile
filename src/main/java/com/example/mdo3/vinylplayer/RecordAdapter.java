@@ -70,7 +70,8 @@ public class RecordAdapter extends RecyclerView.Adapter<RecordAdapter.ViewHolder
                         // Duration duration = null;
                         String title = tracklist_JSON.getJSONObject(i).getString("title");
                         String duration = tracklist_JSON.getJSONObject(i).getString("duration");
-                        Song song = new Song(title, duration);
+                        String position = tracklist_JSON.getJSONObject(i).getString("position");
+                        Song song = new Song(title, position, duration);
                         tracklist.add(song);
                     }
                     record.setTrackList(tracklist);
