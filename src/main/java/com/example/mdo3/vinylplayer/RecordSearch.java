@@ -21,6 +21,7 @@ import android.view.View;
 
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.concurrent.ExecutionException;
 import org.json.*;
 
@@ -58,8 +59,13 @@ public class RecordSearch extends AppCompatActivity {
         recordResults.setLayoutManager(new LinearLayoutManager(this));
 
         // specify adapter
+        ArrayList<Record> recordArray = getIntent().getParcelableArrayListExtra("records");
+
+        if(recordArray != null)
+            this.records = recordArray;
         adapter = new RecordAdapter(this, records);
         recordResults.setAdapter(adapter);
+        this.adapter.notifyDataSetChanged();
     }
 
     @Override

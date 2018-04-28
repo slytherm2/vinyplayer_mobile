@@ -273,6 +273,7 @@ public class MainScreen extends AppCompatActivity
     private void startBT()
     {
         Intent bt_intent = new Intent(this, LowEnergyBlueTooth.class);
+
         startActivityForResult(bt_intent, REQUEST_ENABLE_BT);
     }
 
@@ -348,15 +349,19 @@ public class MainScreen extends AppCompatActivity
                 try
                 {
                     String output = task.execute(image).get();
-
+                    ArrayList<Record> recordList = null;
                     if(output != null)
                     {
                         JSONArray records = null;
                         if(output != null)
                             records = new JSONArray(output);
                         if(records != null)
-                            addRecords(records);
+                            recordList = addRecords(records);
                     }
+
+                    Intent intent = new Intent(this, RecordSearch.class);
+                    intent.putParcelableArrayListExtra("records", recordList);
+                    startActivity(intent);
                 }
                 catch(ExecutionException e)
                 {
@@ -650,67 +655,44 @@ public class MainScreen extends AppCompatActivity
                 data);
     }
 
-    public void addRecords(JSONArray records)
+    public ArrayList<Record> addRecords(JSONArray records)
     {
+        ArrayList<Record> recordList = new ArrayList<Record>();
         for (int i = 0; i < records.length(); i++)
         {
             try
             {
-                this.addRecord(records.getJSONObject(i));
+                recordList.add(this.addRecord(records.getJSONObject(i)));
             }
             catch (JSONException e)
             {
-                return;
+                return recordList;
             }
         }
-        return;
+        return recordList;
     }
 
-    private void addRecord(JSONObject record)
+    private Record addRecord(JSONObject record)
     {
         try
         {
-            String artist = record.getString("artist");
-            String album = record.getString("album");
-            String url = record.getString("url");
-            String albumId = record.getString("albumId");
+            String title[] = record.getString("title").split("-");
+            String artist = title[0].trim();
+            String album = title[1].trim();
+            String url = record.getString("thumb");
             String year = record.getString("year");
-
-            ArrayList<Song> tracklist = new ArrayList<Song>();
-            JSONArray tracklist_JSON = record.getJSONArray("tracklist");
-            String title = null;
-            String duration = null;
-            for(int i = 0; i < tracklist_JSON.length(); i++)
-            {
-                // Duration duration = null;
-                title = tracklist_JSON.getJSONObject(i).getString("title");
-                duration = tracklist_JSON.getJSONObject(i).getString("duration");
-//                String duration_parsed[] = duration_String.split(":"); // song duration is in format minutes:seconds
-//
-//                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-//                    duration = Duration.ofMinutes(Integer.parseInt(duration_parsed[0]));
-//                    duration = duration.plusSeconds(Integer.parseInt(duration_parsed[1]));
-//                }
-
-                Song song = new Song(title, String.valueOf(i+1), duration);
-                tracklist.add(song);
-            }
-
-            //Toast.makeText(this, artist, Toast.LENGTH_SHORT).show();
-            //Toast.makeText(this, album, Toast.LENGTH_SHORT).show();
+            String id = record.getString("id");
 
             //Order important :{artist, album, year, url, albumId}
-            String[] params = {artist, album, year, url, albumId};
-            Record newRecord = new Record(tracklist, params);
+//            String[] params = {artist, album, year, url, id};
+//            Record newRecord = new Record(tracklist, params);
 
-            //Record newRecord = new Record(artist, album, tracklist, url);
-
-            Intent intent = new Intent(this, RecordInfo.class);
-            intent.putExtra("record", newRecord);
-            startActivity(intent);
-
-        } catch (JSONException e) {
-            return;
+            Record newRecord = new Record(artist, album, url, year, id);
+            return newRecord;
+        }
+        catch (JSONException e)
+        {
+            return null;
         }
     }
 
