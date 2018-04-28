@@ -84,6 +84,7 @@ public class MainScreen extends AppCompatActivity
     public static final int SPLITURL = 1;
     public static  final int SPLITPATH = 2;
 
+    private int CHANGESPEED = 1;
     private int HOME = 3;
     private int ANTISKIP = 4;
 
@@ -451,9 +452,9 @@ public class MainScreen extends AppCompatActivity
             intent = new Intent(this, LowEnergyBlueTooth.class);
             startActivityForResult(intent, REQUEST_ENABLE_BT);
         }
-        else if(id == R.id.anti_skip)
+        else if(id == R.id.change_speed)
         {
-            sendData(ANTISKIP);
+            sendData(CHANGESPEED);
         }
         else if(id == R.id.reset_tonearm)
         {

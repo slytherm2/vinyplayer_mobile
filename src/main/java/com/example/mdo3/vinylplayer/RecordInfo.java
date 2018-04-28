@@ -124,7 +124,7 @@ public class RecordInfo extends AppCompatActivity
         //Save the information to default xml location
         //under the tag "useremail" "SearchCat"
         if(records != null)
-            result = Utils.saveInformationSearch(records);
+            result = Utils.saveInformationSearch(this, records);
         else
             Toast.makeText(this, R.string.fail_to_add, Toast.LENGTH_SHORT).show();
 

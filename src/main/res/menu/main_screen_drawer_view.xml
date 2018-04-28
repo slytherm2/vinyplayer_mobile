@@ -33,9 +33,9 @@
 
 
         <item
-            android:id="@+id/anti_skip"
+            android:id="@+id/change_speed"
             android:icon="@drawable/ic_menu_slideshow"
-            android:title="@string/anti_skip" />
+            android:title="@string/change_speed" />
 
         <item
             android:id="@+id/nav_log_out"

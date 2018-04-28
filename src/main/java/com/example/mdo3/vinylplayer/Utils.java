@@ -212,7 +212,7 @@ public class Utils
     //save the information into an xml file
     //location is the default location, set by preference manager
     //USes the "SearchCat" tag
-    public static boolean saveInformationSearch(ArrayList<String> info)
+    public static boolean saveInformationSearch(Context context, ArrayList<String> info)
     {
         //Comma Separated Value
         //UserId
@@ -232,8 +232,8 @@ public class Utils
             return false;
 
         StringBuilder strBuilder = new StringBuilder();
-        ApplicationContext contextInst = ApplicationContext.getInstance();
-        Context context = contextInst.getAppContext();
+        /*ApplicationContext contextInst = ApplicationContext.getInstance();
+        Context context = contextInst.getAppContext();*/
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
         SharedPreferences.Editor editor = preferences.edit();
 
@@ -259,7 +259,8 @@ public class Utils
                     if(albumName.equals(splitString[i+1]))
                     {
                         System.out.println("DEBUG: Adding duplicate failed...");
-                        return false;
+                        //TODO: UNcomment
+                        //return false;
                     }
                 }
             }
@@ -343,7 +344,6 @@ public class Utils
         String uri;
         String rpm;
         String status;
-        int songPos = 1;
         int counter = 0;
 
         //List : album name, artist name, uri, rotation speed, song, duration
@@ -352,16 +352,14 @@ public class Utils
         for(int i = counter; i < temp.length - 4; i=counter)
         {
             songList = new ArrayList<>();
-            songPos = 1;
             album = temp[counter];
             artist = temp[++counter];
             uri = temp[++counter];
             rpm = temp[++counter];
             while(counter < temp.length - 3)
             {
-                song = new Song(temp[++counter], String.valueOf(songPos), temp[++counter]);
+                song = new Song(temp[++counter], temp[++counter], temp[++counter]);
                 songList.add(song);
-                songPos++;
                 if (temp[counter+1].equals(mContext.getResources().getString(R.string.stop_flag)))
                 {
                     counter++;
@@ -402,13 +400,14 @@ public class Utils
         {
             Song songObj = record.getTracklist().get(i);
             recordInfo.add(songObj.getTitle());
+            recordInfo.add(songObj.getPosition());
             recordInfo.add(songObj.getDuration());
         }
 
         return recordInfo;
     }
 
-    //oritentate the bitmap image
+    //Orientation of the bitmap image
     public static Bitmap rotateBitmapImage(Bitmap bitmap, String photoPath)
     {
         ExifInterface ei = null;
