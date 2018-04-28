@@ -58,6 +58,8 @@ public class AsyncTaskFactory
                 return new DownloadImageTask();
             //case "Image":
                 //return new ImageFromGalleryTask();
+            case "GetTracklist":
+                return new GetTrackListTask();
             default:
                 return null;
         }

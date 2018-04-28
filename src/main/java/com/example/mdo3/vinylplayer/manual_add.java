@@ -291,7 +291,9 @@ public class manual_add extends AppCompatActivity
                                 THUMBNAILHEIGHT,
                                 true);
                         if (targetImage != null && resizedBitmap != null)
+                        {
                             targetImage.setImageBitmap(resizedBitmap);
+                        }
                     }
                 }
                 catch (FileNotFoundException e)

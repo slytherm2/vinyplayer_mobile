@@ -13,6 +13,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.graphics.drawable.Drawable;
+import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Environment;
 import android.os.ParcelFileDescriptor;
@@ -30,7 +31,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Random;
 
 /**
@@ -211,7 +214,7 @@ public class Utils
     //save the information into an xml file
     //location is the default location, set by preference manager
     //USes the "SearchCat" tag
-    public static boolean saveInformationSearch(ArrayList<String> info)
+    public static boolean saveInformationSearch(Context context, ArrayList<String> info)
     {
         //Comma Separated Value
         //UserId
@@ -231,8 +234,8 @@ public class Utils
             return false;
 
         StringBuilder strBuilder = new StringBuilder();
-        ApplicationContext contextInst = ApplicationContext.getInstance();
-        Context context = contextInst.getAppContext();
+        /*ApplicationContext contextInst = ApplicationContext.getInstance();
+        Context context = contextInst.getAppContext();*/
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
         SharedPreferences.Editor editor = preferences.edit();
 
@@ -258,7 +261,8 @@ public class Utils
                     if(albumName.equals(splitString[i+1]))
                     {
                         System.out.println("DEBUG: Adding duplicate failed...");
-                        return false;
+                        //TODO: UNcomment
+                        //return false;
                     }
                 }
             }
@@ -342,7 +346,6 @@ public class Utils
         String uri;
         String rpm;
         String status;
-        int songPos = 1;
         int counter = 0;
 
         //List : album name, artist name, uri, rotation speed, song, duration
@@ -351,16 +354,14 @@ public class Utils
         for(int i = counter; i < temp.length - 4; i=counter)
         {
             songList = new ArrayList<>();
-            songPos = 1;
             album = temp[counter];
             artist = temp[++counter];
             uri = temp[++counter];
             rpm = temp[++counter];
             while(counter < temp.length - 3)
             {
-                song = new Song(temp[++counter], String.valueOf(songPos), temp[++counter]);
+                song = new Song(temp[++counter], temp[++counter], temp[++counter]);
                 songList.add(song);
-                songPos++;
                 if (temp[counter+1].equals(mContext.getResources().getString(R.string.stop_flag)))
                 {
                     counter++;
@@ -401,9 +402,25 @@ public class Utils
         {
             Song songObj = record.getTracklist().get(i);
             recordInfo.add(songObj.getTitle());
+            recordInfo.add(songObj.getPosition());
             recordInfo.add(songObj.getDuration());
         }
 
         return recordInfo;
+    }
+
+    public static Bitmap rotateImage(Bitmap source, float angle)
+    {
+        Matrix matrix = new Matrix();
+        matrix.postRotate(angle);
+        return Bitmap.createBitmap(source, 0, 0, source.getWidth(), source.getHeight(),
+                matrix, true);
+    }
+
+    public static String getTimeNow()
+    {
+        Date date = new Date();
+        String timeStamp = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss").format(date.getTime());
+        return timeStamp;
     }
 }

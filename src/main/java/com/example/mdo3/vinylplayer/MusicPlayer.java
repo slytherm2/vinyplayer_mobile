@@ -133,7 +133,6 @@ public class MusicPlayer extends AppCompatActivity
             tempValue = songObj.getTitle();
             if(tempValue != null)
                 tempstr.append(tempValue.toUpperCase().toString());
-
             tempstr.append("\t");
 
             tempValue = songObj.getDuration();
@@ -164,7 +163,7 @@ public class MusicPlayer extends AppCompatActivity
                     songObj.setPosition(String.valueOf(songPos));
                 }
 
-                tempstr.append(": ");
+                tempstr.append(". ");
 
                 tempValue = songObj.getTitle();
                 if(tempValue != null)

@@ -21,10 +21,13 @@ public class Record implements Parcelable
     private String year = null;
     private String albumId = null;
 
-    public Record(String artist, String album)
+    public Record(String artist, String album, String url, String year, String id)
     {
         this.artist = artist;
         this.album = album;
+        this.url = url;
+        this.year = year;
+        this.albumId = id;
     }
 
     public Record(String artist, String album, ArrayList<Song> tracklist)
