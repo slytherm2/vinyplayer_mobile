@@ -198,7 +198,7 @@ public class LowEnergyBlueTooth extends MainScreen
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data)
     {
-        if(DEBUG){System.out.println("DEBUG: onActivityResult()");}
+        if(DEBUG){System.out.println("DEBUG: Bluetooth onActivityResult()");}
 
         // User chose not to enable Bluetooth.
         if (requestCode == REQUEST_ENABLE_BT && resultCode == Activity.RESULT_CANCELED)
@@ -210,6 +210,10 @@ public class LowEnergyBlueTooth extends MainScreen
         {
             System.out.println("DEBUG: BT LE enabled by user");
             executeBT();
+        }
+        else
+        {
+            finish();
         }
     }
 
