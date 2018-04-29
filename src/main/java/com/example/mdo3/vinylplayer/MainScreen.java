@@ -2,6 +2,7 @@ package com.example.mdo3.vinylplayer;
 
 import android.Manifest;
 import android.app.Activity;
+import android.bluetooth.BluetoothAdapter;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -63,7 +64,6 @@ public class MainScreen extends AppCompatActivity
     //TODO: get catalog information from DB
     //TODO: create update on menu slide
     //TODO: connect to database and pull information relating to the specific user
-    //TODO: Fix bluetooth & picture issue
     //TODO: fix on activity result for camera, breaks when launching FAB
 
     private String vinylConnected = null;
@@ -263,8 +263,24 @@ public class MainScreen extends AppCompatActivity
 
     private void startBT()
     {
-        LowEnergyBlueTooth btle = new LowEnergyBlueTooth();
-        btle.intialization(this, btn);
+        BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+        if(mBluetoothAdapter != null)
+        {
+            leSingleton.setBluetoothAdapter(mBluetoothAdapter);
+            //If BT isn't enabled, ask user to enable BT
+            if (!mBluetoothAdapter.isEnabled())
+            {
+                Toast.makeText(this, "Bluetooth isn't on", Toast.LENGTH_SHORT).show();
+                Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+                startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
+            }
+            else
+            {
+                Toast.makeText(this, "Searching for devices", Toast.LENGTH_SHORT).show();
+                LowEnergyBlueTooth btle = new LowEnergyBlueTooth();
+                btle.BTInitialize(this);
+            }
+        }
     }
 
     private void startMusicPlayer(Record record)
@@ -286,17 +302,13 @@ public class MainScreen extends AppCompatActivity
         //request code 1 = Bluetooth
         if (requestCode == 1)
         {
-            if (leSingleton.getConnStatus())
+            if(resultCode == Activity.RESULT_OK)
             {
-                btn.setBackgroundTintList(ColorStateList.valueOf(Color.GREEN));
-                btn.setText(vinylConnected);
-                btn.setEnabled(false);
+                startBT();
             }
-            else
+            else if (resultCode == Activity.RESULT_CANCELED)
             {
-                btn.setBackgroundTintList(ColorStateList.valueOf(Color.RED));
-                btn.setText(vinylNotConnected);
-                btn.setEnabled(true);
+                Toast.makeText(this, "Application Requires Bluetooth Enabled", Toast.LENGTH_SHORT).show();
             }
         }
 
@@ -308,7 +320,6 @@ public class MainScreen extends AppCompatActivity
             System.out.println("DEBUG : inside camera ");
             if (resultCode == Activity.RESULT_OK)
             {
-                //TODO: send image to image analysis application for discovery
                 System.out.println("DEBUG : Camera Result good ");
 
                Bitmap image = null;
