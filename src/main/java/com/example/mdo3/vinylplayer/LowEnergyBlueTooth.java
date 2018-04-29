@@ -29,6 +29,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.provider.ContactsContract;
+import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.widget.Button;
 import android.widget.Toast;
@@ -71,6 +72,8 @@ public class LowEnergyBlueTooth extends MainScreen
 
 
     private static MainScreen mainScreen;
+    private static Context context;
+    private Button button;
 
     //Bluetooth UUID
     private final static UUID SERVICE_UUID =
@@ -102,43 +105,47 @@ public class LowEnergyBlueTooth extends MainScreen
     BluetoothLESingleton leSingleton = BluetoothLESingleton.getInstance();
     Context staticContext;
 
-    @Override
-    public void onCreate(Bundle savedInstanceState)
+    public void intialization(Context context, Button btn)
     {
         if (DEBUG) {System.out.println("DEBUG: OnCreate");}
 
-        super.onCreate(savedInstanceState);
         mainScreen = this;
+        this.context = context;
+        this.button = btn;
+
         //setContentView(R.layout.please_wait);
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         mHandler = new Handler();
         staticContext = ApplicationContext.getInstance().getAppContext();
 
-        ble_msg = getResources().getString(R.string.BT_LE_NotFound);
-        BLUETOOTH_NAME = getResources().getString(R.string.BT_name);
+        ble_msg = staticContext.getResources().getString(R.string.BT_LE_NotFound);
+        BLUETOOTH_NAME = staticContext.getResources().getString(R.string.BT_name);
 
-        //Checks if device has bluetooth LE capabilities
-        if (!getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE) || mBluetoothAdapter == null)
+        /*//Checks if device has bluetooth LE capabilities
+        if (!staticContext.getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE) || mBluetoothAdapter == null)
         {
-            Toast.makeText(this, ble_msg, Toast.LENGTH_SHORT).show();
-            returnToMain(Activity.RESULT_CANCELED);
             return;
-        }
+        }*/
 
-        //Explicitly state access to coarse location (required for BT LE)
+        /*//Explicitly state access to coarse location (required for BT LE)
         ActivityCompat.requestPermissions(this,
                 new String[]{Manifest.permission.ACCESS_COARSE_LOCATION},
-                MY_PERMISSIONS_REQUEST_ACCESS_COARSE_LOCATION);
+                MY_PERMISSIONS_REQUEST_ACCESS_COARSE_LOCATION);*/
 
-        leSingleton.setBluetoothAdapter(mBluetoothAdapter);
-
-        //If BT isn't enabled, ask user to enable BT
-        if (!mBluetoothAdapter.isEnabled())
+        if(mBluetoothAdapter != null)
         {
-            Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-            startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
-        } else {
-            executeBT();
+            leSingleton.setBluetoothAdapter(mBluetoothAdapter);
+            //If BT isn't enabled, ask user to enable BT
+            if (!mBluetoothAdapter.isEnabled())
+            {
+               Toast.makeText(context, "Bluetooth isn't on", Toast.LENGTH_SHORT).show();
+               return;
+            }
+            else
+            {
+                Toast.makeText(context, "Searching for devices", Toast.LENGTH_SHORT).show();
+                executeBT();
+            }
         }
     }
 
@@ -180,6 +187,12 @@ public class LowEnergyBlueTooth extends MainScreen
         mBluetoothAdapter.startDiscovery();
         btleScanner = mBluetoothAdapter.getBluetoothLeScanner();
 
+        if(btleScanner == null)
+        {
+            System.out.println("DEBUG: Bluetooth LE Not avaialbe");
+            return;
+        }
+
         // Stops scanning after a pre-defined scan period.
         mHandler.postDelayed(new Runnable()
         {
@@ -200,6 +213,9 @@ public class LowEnergyBlueTooth extends MainScreen
     {
         if(DEBUG){System.out.println("DEBUG: Bluetooth onActivityResult()");}
 
+        System.out.println("DEBUG: Bluetooth Result code" + resultCode);
+        System.out.println("DEBUG: Bluetooth request code" + requestCode);
+
         // User chose not to enable Bluetooth.
         if (requestCode == REQUEST_ENABLE_BT && resultCode == Activity.RESULT_CANCELED)
         {
@@ -214,6 +230,7 @@ public class LowEnergyBlueTooth extends MainScreen
         else
         {
             finish();
+            return;
         }
     }
 
@@ -247,15 +264,23 @@ public class LowEnergyBlueTooth extends MainScreen
 
     private void returnToMain(int result)
     {
+        System.out.println("DEBUG: Returning bluetooth result " + result);
         Intent returnIntent = new Intent();
 
         if(result == Activity.RESULT_CANCELED)
         {
             setResult(Activity.RESULT_CANCELED, returnIntent);
+            finish();
         }
         else if(result == Activity.RESULT_OK)
         {
             setResult(Activity.RESULT_OK, returnIntent);
+            finish();
+        }
+        else
+        {
+            setResult(10, returnIntent);
+            finish();
         }
     }
 
@@ -282,62 +307,13 @@ public class LowEnergyBlueTooth extends MainScreen
                 leSingleton.setGatt(gatt);
                 leSingleton.setConnStatus(true);
                 gatt.discoverServices();
-
-/*
-               Button btn = MainScreen.getButton();
-                if(btn != null)
-                {
-                    btn.setBackgroundTintList(ColorStateList.valueOf(Color.GREEN));
-                    btn.setText(staticContext.getResources().getString(R.string.label_con));
-                    btn.setEnabled(false);
-                    returnToMain(Activity.RESULT_OK);
-                }
-                else
-                {
-                    return;
-                }*/
-
-/*
-                Button btn = mainScreen.getButton();
-                if(btn != null)
-                {
-                    btn.setBackgroundTintList(ColorStateList.valueOf(Color.GREEN));
-                    btn.setText(staticContext.getResources().getString(R.string.label_con));
-                    btn.setEnabled(false);
-//                    mainScreen.setButton(true);
-                }
-*/
-                returnToMain(Activity.RESULT_OK);
-
-
+                setButtonStatus(true);
             }
             else if (newState == BluetoothProfile.STATE_DISCONNECTED)
             {
                 if (DEBUG) {System.out.println("DEBUG:Gatt Disconnected");}
                 leSingleton.setConnStatus(false);
-               /* Button btn = MainScreen.getButton();
-                if(btn != null)
-                {
-                    btn.setBackgroundTintList(ColorStateList.valueOf(Color.RED));
-                    btn.setText(staticContext.getResources().getString(R.string.label_not_con));
-                    btn.setEnabled(true);
-                    returnToMain(Activity.RESULT_CANCELED);
-                }
-                else
-                {
-                    return;
-                }*/
-
-/*               Button btn = mainScreen.getButton();
-                if(btn != null)
-                {
-                    btn.setBackgroundTintList(ColorStateList.valueOf(Color.RED));
-                    btn.setText(staticContext.getResources().getString(R.string.label_not_con));
-                    btn.setEnabled(true);
-//                    mainScreen.setButton(false);
-
-                }*/
-                returnToMain(Activity.RESULT_CANCELED);
+                setButtonStatus(false);
             }
         }
 
@@ -345,7 +321,7 @@ public class LowEnergyBlueTooth extends MainScreen
         public void onServicesDiscovered(BluetoothGatt gatt, int status)
         {
             System.out.println(DEBUG ? "DEBUG: onServicesDiscovered()" : "");
-            String str = "Do you hear me Houston?";
+            String str = "Connection Established";
             stringArray = str.split(" ");
 
             if (status != BluetoothGatt.GATT_SUCCESS)
@@ -361,6 +337,7 @@ public class LowEnergyBlueTooth extends MainScreen
                 {
                     leSingleton.setGattService(service);
                     leSingleton.setSERVICE_UUID(SERVICE_UUID);
+                    returnToMain(Activity.RESULT_OK);
                 }
             }
         }
@@ -415,7 +392,6 @@ public class LowEnergyBlueTooth extends MainScreen
                         send(leSingleton.getGattService(), SERVICE_UUID, mBluetoothGatt,
                                 stringArray[stringArrayCount].getBytes());
                     }
-                    setButtonStatus();
                 }
                 else
                 {
@@ -492,16 +468,23 @@ public class LowEnergyBlueTooth extends MainScreen
     @Override
     protected void onDestroy()
     {
-        super.onDestroy();
         cancelAdapterDiscovery(mBluetoothAdapter);
+        super.onDestroy();
     }
 
-    private void setButtonStatus()
+    private void setButtonStatus(boolean result)
     {
-        btn.setBackgroundTintList(ColorStateList.valueOf(Color.GREEN));
-        btn.setText(staticContext.getResources().getString(R.string.label_con));
-        btn.setEnabled(false);
-//                    mainScreen.setButton(true);
-        returnToMain(Activity.RESULT_OK);
+        if(result)
+        {
+            btn.setBackgroundTintList(ColorStateList.valueOf(Color.GREEN));
+            btn.setText(context.getResources().getString(R.string.label_con));
+            btn.setEnabled(false);
+        }
+        else
+        {
+            btn.setBackgroundTintList(ColorStateList.valueOf(Color.RED));
+            btn.setText(context.getResources().getString(R.string.label_not_con));
+            btn.setEnabled(true);
+        }
     }
 }

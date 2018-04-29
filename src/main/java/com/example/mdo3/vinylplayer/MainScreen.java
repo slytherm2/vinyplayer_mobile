@@ -59,11 +59,12 @@ import java.util.concurrent.ExecutionException;
 public class MainScreen extends AppCompatActivity
 {
     //TODO: improve UI
-    //Todo: high res pictures
     //TODO: loading animations
     //TODO: get catalog information from DB
     //TODO: create update on menu slide
     //TODO: connect to database and pull information relating to the specific user
+    //TODO: Fix bluetooth & picture issue
+    //TODO: fix on activity result for camera, breaks when launching FAB
 
     private String vinylConnected = null;
     private String vinylNotConnected = null;
@@ -221,16 +222,6 @@ public class MainScreen extends AppCompatActivity
             }
         });
 
-        /*//automatically enable bluetooth if available
-        Thread t1 = new Thread(new Runnable()
-        {
-            public void run()
-            {
-                startBT();
-            }
-        });
-        t1.start();*/
-
         //sets up the listview with items from the array
        String str = preferences.getString(email + this.getResources().getString(R.string.local_catalog),
                null);
@@ -266,15 +257,14 @@ public class MainScreen extends AppCompatActivity
 
     public void startBT(View view)
     {
-        Toast.makeText(this, R.string.launchingBT_msg, Toast.LENGTH_SHORT).show();
+        //Toast.makeText(this, R.string.launchingBT_msg, Toast.LENGTH_SHORT).show();
         startBT();
     }
 
     private void startBT()
     {
-        Intent bt_intent = new Intent(this, LowEnergyBlueTooth.class);
-
-        startActivityForResult(bt_intent, REQUEST_ENABLE_BT);
+        LowEnergyBlueTooth btle = new LowEnergyBlueTooth();
+        btle.intialization(this, btn);
     }
 
     private void startMusicPlayer(Record record)
@@ -290,21 +280,20 @@ public class MainScreen extends AppCompatActivity
         if (DEBUG)
             System.out.println("DEBUG: MainScreen onActivityResult()\n");
 
+        System.out.println("DEBUG: mainscreen Result code" + resultCode);
+        System.out.println("DEBUG: mainscreen request code" + requestCode);
+
         //request code 1 = Bluetooth
         if (requestCode == 1)
         {
-            if (resultCode == Activity.RESULT_OK)
+            if (leSingleton.getConnStatus())
             {
-                Toast.makeText(this,
-                        getResources().getString(R.string.bt_connected),
-                        Toast.LENGTH_SHORT).show();
                 btn.setBackgroundTintList(ColorStateList.valueOf(Color.GREEN));
                 btn.setText(vinylConnected);
                 btn.setEnabled(false);
             }
-            else if (resultCode == Activity.RESULT_CANCELED)
+            else
             {
-                Toast.makeText(this, getResources().getString(R.string.bt_conn_failed), Toast.LENGTH_SHORT).show();
                 btn.setBackgroundTintList(ColorStateList.valueOf(Color.RED));
                 btn.setText(vinylNotConnected);
                 btn.setEnabled(true);
@@ -322,7 +311,7 @@ public class MainScreen extends AppCompatActivity
                 //TODO: send image to image analysis application for discovery
                 System.out.println("DEBUG : Camera Result good ");
 
-                Bitmap image = null;
+               Bitmap image = null;
                 if(data != null)
                 {
                     System.out.println("DEBUG: Getting picture from intent");
@@ -349,6 +338,7 @@ public class MainScreen extends AppCompatActivity
                 try
                 {
                     String output = task.execute(image).get();
+                    System.out.println("DEBUG: "+output);
                     ArrayList<Record> recordList = null;
                     if(output != null)
                     {
@@ -375,58 +365,6 @@ public class MainScreen extends AppCompatActivity
                 {
                     Log.d("Exception", e.getMessage());
                 }
-
-
-                /*try
-                {
-                   *//* String artist = record.getString("artist");
-                    String album = record.getString("album");
-                    String url = record.getString("url");
-                    String albumId = record.getString("albumId");
-                    String year = record.getString("year");
-
-                    ArrayList<Song> tracklist = new ArrayList<Song>();
-                    JSONArray tracklist_JSON = record.getJSONArray("tracklist");
-                    String title = null;
-                    String duration = null;
-                    String outputStr = (String) task.execute(image).get();
-                    System.out.println("DEBUG: " + outputStr);
-
-                    JSONArray records = null;
-                    if(outputStr != null)
-                        records = new JSONArray(outputStr);
-                    if(records != null)
-                        //Toast.makeText(this, records.getString("artist")), 1000);
-                        addRecords(records);
-                    //picture = (picture + 1)%2;*//*
-
-                    JSONObject json = new JSONObject();
-                    json.put("artist", "Martin");
-                    json.put("album", "martin's album");
-                    json.put("url", "");
-                    json.put("albumId", "12345");
-                    json.put("year", "2020");
-                    JSONArray jsonA = new JSONArray();
-                    JSONObject song = new JSONObject();
-                    song.put("title", "Song Title 1");
-                    song.put("duration", "1:11");
-                    jsonA.put(song);
-                    JSONObject newSong = new JSONObject();
-                    newSong.put("title", "song Title 2 ");
-                    newSong.put("duration", "2:22");
-                    jsonA.put(newSong);
-                    json.put("tracklist",jsonA);
-
-                    this.addRecord(json);
-                }
-                catch(Exception e)
-                {
-
-                }*/
-            }
-            else if (resultCode == Activity.RESULT_CANCELED)
-            {
-                return;
             }
         }
     }
@@ -463,6 +401,7 @@ public class MainScreen extends AppCompatActivity
                 return;
             }
         }
+        return;
     }
 
     private void launchMenuActivity(MenuItem item)
@@ -545,27 +484,6 @@ public class MainScreen extends AppCompatActivity
         }
        startActivity(intent);
     }
-
-    public static Button getButton()
-    {
-        return btn;
-    }
-
-/*    public static void setButton(Boolean result)
-    {
-        if(result) {
-            btn.setBackgroundTintList(ColorStateList.valueOf(Color.GREEN));
-            btn.setText(ApplicationContext.getInstance().getResources().getString(R.string.label_con));
-            btn.setEnabled(false);
-        }
-        else
-        {
-
-            btn.setBackgroundTintList(ColorStateList.valueOf(Color.RED));
-            btn.setText(ApplicationContext.getInstance().getResources().getString(R.string.label_not_con));
-            btn.setEnabled(true);
-        }
-    }*/
 
     private void checkCamPerms()
     {
