@@ -64,7 +64,7 @@ public class MainScreen extends AppCompatActivity
     //TODO: get catalog information from DB
     //TODO: create update on menu slide
     //TODO: connect to database and pull information relating to the specific user
-    //TODO: fix on activity result for camera, breaks when launching FAB
+    //TODO: display information from OCR
 
     private String vinylConnected = null;
     private String vinylNotConnected = null;
