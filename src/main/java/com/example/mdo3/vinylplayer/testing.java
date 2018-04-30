@@ -80,6 +80,7 @@ public class testing extends AppCompatActivity
 
     public void button(View view)
     {
+
         System.out.println("DEBUG: button clicked");
         byte[] data = "0".getBytes();
         System.out.println("DEBUG: Sending Data...");
