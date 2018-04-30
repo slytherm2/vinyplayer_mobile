@@ -348,25 +348,48 @@ public class MainScreen extends AppCompatActivity
                             this.userID,
                             this.sessionID);
                     try {
+
                         String output = task.execute(image).get();
-                        System.out.println("DEBUG: " + output);
                         ArrayList<Record> recordList = null;
-                        if (output != null) {
-                            JSONArray records = null;
-                            if (output != null)
-                                records = new JSONArray(output);
-                            if (records != null)
-                                recordList = addRecords(records);
+                        JSONArray records = null;
+                        JSONObject tempJson = null;
+                        String jsonQuery = null;
+
+                        if (output != null)
+                            tempJson = new JSONObject(output);
+                        if(tempJson != null)
+                        {
+                            jsonQuery = tempJson.getString("query");
+                            records = new JSONArray(tempJson.getString("results"));
                         }
 
-                        Intent intent = new Intent(this, RecordSearch.class);
-                        intent.putParcelableArrayListExtra("records", recordList);
-                        startActivity(intent);
-                    } catch (ExecutionException e) {
+                        if(records != null && records.length() > 0)
+                        {
+                            addRecords(records);
+                            Intent intent = new Intent(this, RecordSearch.class);
+                            intent.putParcelableArrayListExtra("records", recordList);
+                            intent.putExtra("flag", true);
+                            startActivity(intent);
+                        }
+                        else
+                        {
+                            Intent intent = new Intent(this, RecordSearch.class);
+                            intent.putParcelableArrayListExtra("records", recordList);
+                            intent.putExtra("flag", false);
+                            intent.putExtra("query", jsonQuery);
+                            startActivity(intent);
+                        }
+                    }
+                    catch (ExecutionException e)
+                    {
                         Log.d("Exception", e.getMessage());
-                    } catch (InterruptedException e) {
+                    }
+                    catch (InterruptedException e)
+                    {
                         Log.d("Exception", e.getMessage());
-                    } catch (JSONException e) {
+                    }
+                    catch (JSONException e)
+                    {
                         Log.d("Exception", e.getMessage());
                     }
                 }

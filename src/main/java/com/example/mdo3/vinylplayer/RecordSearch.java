@@ -18,6 +18,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
+import android.widget.Toast;
 
 import java.time.Duration;
 import java.util.ArrayList;
@@ -66,6 +67,13 @@ public class RecordSearch extends AppCompatActivity {
         adapter = new RecordAdapter(this, records);
         recordResults.setAdapter(adapter);
         this.adapter.notifyDataSetChanged();
+
+        Boolean flag = getIntent().getBooleanExtra("flag", true);
+        String query = getIntent().getStringExtra("query");
+        if(!flag)
+        {
+            Toast.makeText(this, "'" +query + "'" + " has returned no results", Toast.LENGTH_SHORT).show();
+        }
     }
 
     @Override
@@ -148,10 +156,25 @@ public class RecordSearch extends AppCompatActivity {
             {
                 String result = task.execute().get();
                 JSONArray records = null;
+                JSONObject tempJson = null;
+                String jsonQuery = null;
+
                 if(result != null)
-                    records = new JSONArray(result);
-                if(records != null)
+                    tempJson = new JSONObject(result);
+                if(tempJson != null)
+                {
+                    jsonQuery = tempJson.getString("query");
+                    records = new JSONArray(tempJson.getString("results"));
+                }
+
+                if(records != null && records.length() > 0)
+                {
                     addRecords(records);
+                }
+                else
+                {
+                    Toast.makeText(this, "'" +jsonQuery + "'" + " has returned no results", Toast.LENGTH_SHORT).show();
+                }
             }
             catch (InterruptedException e)
             {
