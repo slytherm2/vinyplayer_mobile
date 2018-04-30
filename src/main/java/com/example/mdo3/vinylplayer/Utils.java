@@ -122,12 +122,39 @@ public class Utils
     }
 
     //calculate the number of steps to send to the MC
+    public static int calcValue(double startTime, double spacing, double offset)
+    {
+        String units = "in";
+        double armLength = 7.75;
+        //double offset = 33.6; //degrees
+        double stepAngle = .005859375; //degrees
+
+        //.0053 spacing
+
+        double rpm = 33.3;
+
+        double angle = 0.0;
+        int steps = 0;
+
+        double x = Math.pow((spacing * (rpm/60) * startTime),2);
+        double y = 2 * Math.pow(armLength,2);
+
+        double z = (x-y) / -y;
+        angle = (180/Math.PI) * Math.acos(z) + offset;
+        steps =(int) Math.ceil(angle/stepAngle);
+
+        return steps + 20000;
+    }
+
+    //calculate the number of steps to send to the MC
     public static int calcValue(double startTime, double spacing)
     {
         String units = "in";
         double armLength = 7.75;
-        double offset = 30.0; //degrees
+        double offset = 33.6; //degrees
         double stepAngle = .005859375; //degrees
+
+        //.0053 spacing
 
         double rpm = 33.3;
 
