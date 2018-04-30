@@ -34,6 +34,7 @@ public class ImageAnalysisTask extends AsyncTask<Bitmap, Void, String> {
     private String sessionId;
     private String userId;
     private String input;
+    private final int TIMEOUT = 20000; //20seconds
 
     public ImageAnalysisTask(String input, String url, String userId, String sessionId)
     {
@@ -53,8 +54,8 @@ public class ImageAnalysisTask extends AsyncTask<Bitmap, Void, String> {
         {
             System.out.println("DEBUG: Inside image analysis");
             // task is only executable from authenticated users
-//            HttpsURLConnection connection = createHttpRequest(imageString);
-            HttpURLConnection connection = createHttpRequest();
+            HttpsURLConnection connection = createHttpRequest();
+            //HttpURLConnection connection = createHttpRequest();
             if(connection == null)
             {
                 Log.d("ImageAnalysisTask", "connection is null");
@@ -119,19 +120,21 @@ public class ImageAnalysisTask extends AsyncTask<Bitmap, Void, String> {
         }
     }
 
-    private HttpURLConnection createHttpRequest()
+    private HttpsURLConnection createHttpRequest()
     {
         try
         {
             URL url = new URL(this.url);
-            //HttpsURLConnection connection = (HttpsURLConnection) url.openConnection(); // real server
-            HttpURLConnection connection = (HttpURLConnection) url.openConnection(); // local connection
+            HttpsURLConnection connection = (HttpsURLConnection) url.openConnection(); // real server
+            //HttpURLConnection connection = (HttpURLConnection) url.openConnection(); // local connection
 
             // allow for input and output request
             connection.setDoInput(true);
             connection.setDoOutput(true);
 
             connection.setRequestMethod("POST");
+            connection.setConnectTimeout(TIMEOUT);
+            connection.setReadTimeout(TIMEOUT);
 //            connection.setRequestProperty("Content-Type", "image/png");
             // connection.setRequestProperty("User-Agent", "Mozilla/5.0 (compatible; MSIE 5.0;Windows98;DigExt)");
             connection.setRequestProperty("Cookie", this.sessionId+";"+this.userId);
@@ -143,7 +146,8 @@ public class ImageAnalysisTask extends AsyncTask<Bitmap, Void, String> {
             Log.d("ImageAnalysis", "MalformedURLException: " + e);
             return null;
         }
-        catch(IOException e) {
+        catch(IOException e)
+        {
             Log.d("ImageAnalysis", "IOException: " + e);
             return null;
         }

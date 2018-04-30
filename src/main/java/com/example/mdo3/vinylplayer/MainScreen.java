@@ -276,7 +276,7 @@ public class MainScreen extends AppCompatActivity
             }
             else
             {
-                Toast.makeText(this, "Searching for devices", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Engaging WARP", Toast.LENGTH_SHORT).show();
                 LowEnergyBlueTooth btle = new LowEnergyBlueTooth();
                 btle.BTInitialize(this);
             }
@@ -323,7 +323,7 @@ public class MainScreen extends AppCompatActivity
                 System.out.println("DEBUG : Camera Result good ");
 
                Bitmap image = null;
-                if(data != null)
+                if(data != null && data.getExtras() != null && !data.getExtras().isEmpty())
                 {
                     System.out.println("DEBUG: Getting picture from intent");
                     image = (Bitmap) data.getExtras().get("data");
@@ -332,49 +332,47 @@ public class MainScreen extends AppCompatActivity
                             UUID.randomUUID().toString(),
                             "vinyl_Image");
                 }
-
-                image = BitmapFactory.decodeFile(path);
-                MediaStore.Images.Media.insertImage(getContentResolver(),
-                        image,
-                        Utils.getTimeNow(),
-                        "warp");
-                //send data to the Heroku server for image analysis
-                String url = getResources().getString(R.string.http_test_url_analyzeimage);
-                AsyncTaskFactory factory = new AsyncTaskFactory();
-                ImageAnalysisTask task = (ImageAnalysisTask) factory.generateAsyncTask("ImageAnalysis",
-                        null,
-                        url,
-                        this.userID,
-                        this.sessionID);
-                try
+                else if(path != null && !path.isEmpty())
                 {
-                    String output = task.execute(image).get();
-                    System.out.println("DEBUG: "+output);
-                    ArrayList<Record> recordList = null;
-                    if(output != null)
-                    {
-                        JSONArray records = null;
-                        if(output != null)
-                            records = new JSONArray(output);
-                        if(records != null)
-                            recordList = addRecords(records);
+                    image = BitmapFactory.decodeFile(path);
+                    MediaStore.Images.Media.insertImage(getContentResolver(),
+                            image,
+                            Utils.getTimeNow(),
+                            "warp");
+                    //send data to the Heroku server for image analysis
+                    String url = getResources().getString(R.string.https_url_analyzeimage);
+                    AsyncTaskFactory factory = new AsyncTaskFactory();
+                    ImageAnalysisTask task = (ImageAnalysisTask) factory.generateAsyncTask("ImageAnalysis",
+                            null,
+                            url,
+                            this.userID,
+                            this.sessionID);
+                    try {
+                        String output = task.execute(image).get();
+                        System.out.println("DEBUG: " + output);
+                        ArrayList<Record> recordList = null;
+                        if (output != null) {
+                            JSONArray records = null;
+                            if (output != null)
+                                records = new JSONArray(output);
+                            if (records != null)
+                                recordList = addRecords(records);
+                        }
+
+                        Intent intent = new Intent(this, RecordSearch.class);
+                        intent.putParcelableArrayListExtra("records", recordList);
+                        startActivity(intent);
+                    } catch (ExecutionException e) {
+                        Log.d("Exception", e.getMessage());
+                    } catch (InterruptedException e) {
+                        Log.d("Exception", e.getMessage());
+                    } catch (JSONException e) {
+                        Log.d("Exception", e.getMessage());
                     }
-
-                    Intent intent = new Intent(this, RecordSearch.class);
-                    intent.putParcelableArrayListExtra("records", recordList);
-                    startActivity(intent);
                 }
-                catch(ExecutionException e)
+                else
                 {
-                    Log.d("Exception", e.getMessage());
-                }
-                catch(InterruptedException e)
-                {
-                    Log.d("Exception", e.getMessage());
-                }
-                catch(JSONException e)
-                {
-                    Log.d("Exception", e.getMessage());
+                    Toast.makeText(this, "Problem with picture", Toast.LENGTH_SHORT).show();
                 }
             }
         }
