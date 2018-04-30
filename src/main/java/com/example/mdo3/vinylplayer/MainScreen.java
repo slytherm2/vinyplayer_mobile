@@ -65,6 +65,7 @@ public class MainScreen extends AppCompatActivity
     //TODO: create update on menu slide
     //TODO: connect to database and pull information relating to the specific user
     //TODO: display information from OCR
+    //TODO: fix how album and artist are stored on record //getting reversed
 
     private String vinylConnected = null;
     private String vinylNotConnected = null;

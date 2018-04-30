@@ -124,6 +124,9 @@ public class Utils
     //calculate the number of steps to send to the MC
     public static int calcValue(double startTime, double spacing, double offset)
     {
+        System.out.println("DEBUG: start time is " + startTime);
+        System.out.println("DEBUG: spacing is " + spacing);
+
         String units = "in";
         double armLength = 7.75;
         //double offset = 33.6; //degrees
