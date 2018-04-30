@@ -76,8 +76,8 @@ public class Login extends AppCompatActivity {
         //if user already has valid cookie
         //automatically sign user into application
 //        pb = (ProgressBar) findViewById(R.id.login_progress);
-        //isLoggedIn();
-        startNextActivity();
+        isLoggedIn();
+        //startNextActivity();
     }
 
     /*

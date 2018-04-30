@@ -52,6 +52,7 @@ public class testing extends AppCompatActivity
 
     EditText textbox;
     EditText textbox2;
+    EditText textbox3;
     byte[] data;
 
     private Toolbar mTopToolbar;
@@ -66,6 +67,7 @@ public class testing extends AppCompatActivity
         setContentView(R.layout.activity_testing);
         textbox = (EditText) findViewById(R.id.testing_textbox);
         textbox2 = (EditText) findViewById(R.id.testing_spacing);
+        textbox3 = (EditText) findViewById(R.id.offset);
         imageView = (ImageView) findViewById(R.id.test_img);
 
         //adding tool bar with back arrow to go back to activity
@@ -85,7 +87,8 @@ public class testing extends AppCompatActivity
         Utils util = new Utils();
         double temp1 = Double.valueOf(textbox.getText().toString());
         double temp2 = Double.valueOf(textbox2.getText().toString());
-        int x = util.calcValue(temp1, temp2);
+        double temp3 = Double.valueOf(textbox3.getText().toString());
+        int x = util.calcValue(temp1, temp2, temp3);
         data = String.valueOf(x).getBytes();
 
         System.out.println("DEBUG: sending start time : " + temp1);
@@ -93,8 +96,6 @@ public class testing extends AppCompatActivity
         System.out.println("DEBUG: sending calculated steps: " + x);
 
         LowEnergyBlueTooth.send(mGattService, SERVICE_UUID, mGatt, data);
-        textbox.setText("");
-        textbox2.setText("");
     }
 
     public void cameraBtn(View view)

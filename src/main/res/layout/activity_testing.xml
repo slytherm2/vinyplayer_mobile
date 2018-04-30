@@ -53,6 +53,14 @@
             android:hint="spacing"
             android:inputType="text" />
 
+        <EditText
+            android:id="@+id/offset"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:hint="offset"
+            android:inputType="textPersonName" />
+
         <Button
             android:id="@+id/testing_button"
             android:layout_width="match_parent"
