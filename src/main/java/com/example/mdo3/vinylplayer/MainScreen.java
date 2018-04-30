@@ -2,6 +2,7 @@ package com.example.mdo3.vinylplayer;
 
 import android.Manifest;
 import android.app.Activity;
+import android.bluetooth.BluetoothAdapter;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -59,11 +60,11 @@ import java.util.concurrent.ExecutionException;
 public class MainScreen extends AppCompatActivity
 {
     //TODO: improve UI
-    //Todo: high res pictures
     //TODO: loading animations
     //TODO: get catalog information from DB
     //TODO: create update on menu slide
     //TODO: connect to database and pull information relating to the specific user
+    //TODO: display information from OCR
 
     private String vinylConnected = null;
     private String vinylNotConnected = null;
@@ -221,16 +222,6 @@ public class MainScreen extends AppCompatActivity
             }
         });
 
-        /*//automatically enable bluetooth if available
-        Thread t1 = new Thread(new Runnable()
-        {
-            public void run()
-            {
-                startBT();
-            }
-        });
-        t1.start();*/
-
         //sets up the listview with items from the array
        String str = preferences.getString(email + this.getResources().getString(R.string.local_catalog),
                null);
@@ -266,15 +257,30 @@ public class MainScreen extends AppCompatActivity
 
     public void startBT(View view)
     {
-        Toast.makeText(this, R.string.launchingBT_msg, Toast.LENGTH_SHORT).show();
+        //Toast.makeText(this, R.string.launchingBT_msg, Toast.LENGTH_SHORT).show();
         startBT();
     }
 
     private void startBT()
     {
-        Intent bt_intent = new Intent(this, LowEnergyBlueTooth.class);
-
-        startActivityForResult(bt_intent, REQUEST_ENABLE_BT);
+        BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+        if(mBluetoothAdapter != null)
+        {
+            leSingleton.setBluetoothAdapter(mBluetoothAdapter);
+            //If BT isn't enabled, ask user to enable BT
+            if (!mBluetoothAdapter.isEnabled())
+            {
+                Toast.makeText(this, "Bluetooth isn't on", Toast.LENGTH_SHORT).show();
+                Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+                startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
+            }
+            else
+            {
+                Toast.makeText(this, "Engaging WARP", Toast.LENGTH_SHORT).show();
+                LowEnergyBlueTooth btle = new LowEnergyBlueTooth();
+                btle.BTInitialize(this);
+            }
+        }
     }
 
     private void startMusicPlayer(Record record)
@@ -290,24 +296,19 @@ public class MainScreen extends AppCompatActivity
         if (DEBUG)
             System.out.println("DEBUG: MainScreen onActivityResult()\n");
 
+        System.out.println("DEBUG: mainscreen Result code" + resultCode);
+        System.out.println("DEBUG: mainscreen request code" + requestCode);
+
         //request code 1 = Bluetooth
         if (requestCode == 1)
         {
-            if (resultCode == Activity.RESULT_OK)
+            if(resultCode == Activity.RESULT_OK)
             {
-                Toast.makeText(this,
-                        getResources().getString(R.string.bt_connected),
-                        Toast.LENGTH_SHORT).show();
-                btn.setBackgroundTintList(ColorStateList.valueOf(Color.GREEN));
-                btn.setText(vinylConnected);
-                btn.setEnabled(false);
+                startBT();
             }
             else if (resultCode == Activity.RESULT_CANCELED)
             {
-                Toast.makeText(this, getResources().getString(R.string.bt_conn_failed), Toast.LENGTH_SHORT).show();
-                btn.setBackgroundTintList(ColorStateList.valueOf(Color.RED));
-                btn.setText(vinylNotConnected);
-                btn.setEnabled(true);
+                Toast.makeText(this, "Application Requires Bluetooth Enabled", Toast.LENGTH_SHORT).show();
             }
         }
 
@@ -319,11 +320,10 @@ public class MainScreen extends AppCompatActivity
             System.out.println("DEBUG : inside camera ");
             if (resultCode == Activity.RESULT_OK)
             {
-                //TODO: send image to image analysis application for discovery
                 System.out.println("DEBUG : Camera Result good ");
 
-                Bitmap image = null;
-                if(data != null)
+               Bitmap image = null;
+                if(data != null && data.getExtras() != null && !data.getExtras().isEmpty())
                 {
                     System.out.println("DEBUG: Getting picture from intent");
                     image = (Bitmap) data.getExtras().get("data");
@@ -332,101 +332,48 @@ public class MainScreen extends AppCompatActivity
                             UUID.randomUUID().toString(),
                             "vinyl_Image");
                 }
-
-                image = BitmapFactory.decodeFile(path);
-                MediaStore.Images.Media.insertImage(getContentResolver(),
-                        image,
-                        Utils.getTimeNow(),
-                        "warp");
-                //send data to the Heroku server for image analysis
-                String url = getResources().getString(R.string.http_test_url_analyzeimage);
-                AsyncTaskFactory factory = new AsyncTaskFactory();
-                ImageAnalysisTask task = (ImageAnalysisTask) factory.generateAsyncTask("ImageAnalysis",
-                        null,
-                        url,
-                        this.userID,
-                        this.sessionID);
-                try
+                else if(path != null && !path.isEmpty())
                 {
-                    String output = task.execute(image).get();
-                    ArrayList<Record> recordList = null;
-                    if(output != null)
-                    {
-                        JSONArray records = null;
-                        if(output != null)
-                            records = new JSONArray(output);
-                        if(records != null)
-                            recordList = addRecords(records);
+                    image = BitmapFactory.decodeFile(path);
+                    MediaStore.Images.Media.insertImage(getContentResolver(),
+                            image,
+                            Utils.getTimeNow(),
+                            "warp");
+                    //send data to the Heroku server for image analysis
+                    String url = getResources().getString(R.string.https_url_analyzeimage);
+                    AsyncTaskFactory factory = new AsyncTaskFactory();
+                    ImageAnalysisTask task = (ImageAnalysisTask) factory.generateAsyncTask("ImageAnalysis",
+                            null,
+                            url,
+                            this.userID,
+                            this.sessionID);
+                    try {
+                        String output = task.execute(image).get();
+                        System.out.println("DEBUG: " + output);
+                        ArrayList<Record> recordList = null;
+                        if (output != null) {
+                            JSONArray records = null;
+                            if (output != null)
+                                records = new JSONArray(output);
+                            if (records != null)
+                                recordList = addRecords(records);
+                        }
+
+                        Intent intent = new Intent(this, RecordSearch.class);
+                        intent.putParcelableArrayListExtra("records", recordList);
+                        startActivity(intent);
+                    } catch (ExecutionException e) {
+                        Log.d("Exception", e.getMessage());
+                    } catch (InterruptedException e) {
+                        Log.d("Exception", e.getMessage());
+                    } catch (JSONException e) {
+                        Log.d("Exception", e.getMessage());
                     }
-
-                    Intent intent = new Intent(this, RecordSearch.class);
-                    intent.putParcelableArrayListExtra("records", recordList);
-                    startActivity(intent);
                 }
-                catch(ExecutionException e)
+                else
                 {
-                    Log.d("Exception", e.getMessage());
+                    Toast.makeText(this, "Problem with picture", Toast.LENGTH_SHORT).show();
                 }
-                catch(InterruptedException e)
-                {
-                    Log.d("Exception", e.getMessage());
-                }
-                catch(JSONException e)
-                {
-                    Log.d("Exception", e.getMessage());
-                }
-
-
-                /*try
-                {
-                   *//* String artist = record.getString("artist");
-                    String album = record.getString("album");
-                    String url = record.getString("url");
-                    String albumId = record.getString("albumId");
-                    String year = record.getString("year");
-
-                    ArrayList<Song> tracklist = new ArrayList<Song>();
-                    JSONArray tracklist_JSON = record.getJSONArray("tracklist");
-                    String title = null;
-                    String duration = null;
-                    String outputStr = (String) task.execute(image).get();
-                    System.out.println("DEBUG: " + outputStr);
-
-                    JSONArray records = null;
-                    if(outputStr != null)
-                        records = new JSONArray(outputStr);
-                    if(records != null)
-                        //Toast.makeText(this, records.getString("artist")), 1000);
-                        addRecords(records);
-                    //picture = (picture + 1)%2;*//*
-
-                    JSONObject json = new JSONObject();
-                    json.put("artist", "Martin");
-                    json.put("album", "martin's album");
-                    json.put("url", "");
-                    json.put("albumId", "12345");
-                    json.put("year", "2020");
-                    JSONArray jsonA = new JSONArray();
-                    JSONObject song = new JSONObject();
-                    song.put("title", "Song Title 1");
-                    song.put("duration", "1:11");
-                    jsonA.put(song);
-                    JSONObject newSong = new JSONObject();
-                    newSong.put("title", "song Title 2 ");
-                    newSong.put("duration", "2:22");
-                    jsonA.put(newSong);
-                    json.put("tracklist",jsonA);
-
-                    this.addRecord(json);
-                }
-                catch(Exception e)
-                {
-
-                }*/
-            }
-            else if (resultCode == Activity.RESULT_CANCELED)
-            {
-                return;
             }
         }
     }
@@ -463,6 +410,7 @@ public class MainScreen extends AppCompatActivity
                 return;
             }
         }
+        return;
     }
 
     private void launchMenuActivity(MenuItem item)
@@ -545,27 +493,6 @@ public class MainScreen extends AppCompatActivity
         }
        startActivity(intent);
     }
-
-    public static Button getButton()
-    {
-        return btn;
-    }
-
-/*    public static void setButton(Boolean result)
-    {
-        if(result) {
-            btn.setBackgroundTintList(ColorStateList.valueOf(Color.GREEN));
-            btn.setText(ApplicationContext.getInstance().getResources().getString(R.string.label_con));
-            btn.setEnabled(false);
-        }
-        else
-        {
-
-            btn.setBackgroundTintList(ColorStateList.valueOf(Color.RED));
-            btn.setText(ApplicationContext.getInstance().getResources().getString(R.string.label_not_con));
-            btn.setEnabled(true);
-        }
-    }*/
 
     private void checkCamPerms()
     {

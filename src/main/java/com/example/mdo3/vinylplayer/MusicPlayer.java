@@ -55,7 +55,6 @@ public class MusicPlayer extends AppCompatActivity
     private Uri imageUri;
     private Bitmap bitmap;
 
-    private LowEnergyBlueTooth btle;
     private BluetoothLESingleton btleSingleton;
 
     //MC Commands
@@ -100,7 +99,6 @@ public class MusicPlayer extends AppCompatActivity
         song = (TextView) findViewById(R.id.song_TextView);
         song.setText(this.getResources().getString(R.string.default_song));
 
-        btle = new LowEnergyBlueTooth();
         btleSingleton = BluetoothLESingleton.getInstance();
 
         //Adding the track songs from the record to an array list to be used in the listview
@@ -393,7 +391,7 @@ public class MusicPlayer extends AppCompatActivity
     private void antiSkip()
     {
         System.out.println("DEBUG: Anti Skip engaged...");
-        //sendData(ANTISKIP);
+        sendData(ANTISKIP);
         Toast.makeText(this, R.string.anti_skip, Toast.LENGTH_SHORT).show();
     }
 
@@ -418,7 +416,7 @@ public class MusicPlayer extends AppCompatActivity
         byte[] data = String.valueOf(command).getBytes();
 
         //Sending command to embedded hardware
-        btle.send(btleSingleton.getGattService(),
+        LowEnergyBlueTooth.send(btleSingleton.getGattService(),
                 btleSingleton.getSERVICE_UUID(),
                 btleSingleton.getGatt(),
                 data);
@@ -453,7 +451,7 @@ public class MusicPlayer extends AppCompatActivity
         if(sendData != null)
         {
             //Sending command to embedded hardware
-            btle.send(btleSingleton.getGattService(),
+            LowEnergyBlueTooth.send(btleSingleton.getGattService(),
                     btleSingleton.getSERVICE_UUID(),
                     btleSingleton.getGatt(),
                     sendData);

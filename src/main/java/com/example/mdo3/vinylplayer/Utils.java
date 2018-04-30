@@ -358,7 +358,7 @@ public class Utils
             artist = temp[++counter];
             uri = temp[++counter];
             rpm = temp[++counter];
-            while(counter < temp.length - 3)
+            while(counter < temp.length - 4)
             {
                 song = new Song(temp[++counter], temp[++counter], temp[++counter]);
                 songList.add(song);
