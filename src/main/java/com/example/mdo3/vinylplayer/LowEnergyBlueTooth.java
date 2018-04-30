@@ -142,7 +142,7 @@ public class LowEnergyBlueTooth extends MainScreen
             }
             else
             {
-                Toast.makeText(context, "Searching for devices", Toast.LENGTH_SHORT).show();
+                //Toast.makeText(context, "Searching for devices", Toast.LENGTH_SHORT).show();
                 executeBT();
             }
         }
