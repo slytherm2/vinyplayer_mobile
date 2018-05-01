@@ -135,8 +135,7 @@ public class RecordInfo extends AppCompatActivity
         String[] params = {albumId};
 
         //automatically enable bluetooth if available
-        //TODO: change if statement to "result"
-        if(false)
+        if(result)
         {
             Thread t1 = new Thread(new Runnable() {
                 public void run() {

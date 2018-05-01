@@ -36,5 +36,10 @@
             android:icon="@drawable/ic_menu_manage"
             android:title="33 RPM" />
 
+        <item
+            android:id="@+id/MS_Home"
+            android:icon="@drawable/home"
+            android:title="Back To Main Screen" />
+
     </group>
 </menu>

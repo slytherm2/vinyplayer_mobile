@@ -69,7 +69,7 @@ public class MusicPlayer extends AppCompatActivity
     private final int SONGGAPTIME = 5;
     private double songTime = 0;
     private int currentPos = 0;
-    private double spacing = 0.0125; //TODO: more callibration is required
+    private double spacing = 0.0125;
     private Song songObj;
 
     private ArrayList<Double> albumSongTime;
@@ -342,9 +342,8 @@ XXXX - steps
                 }
         );
 
-        //TODO: uncomment when reeady
         //start at home on start up
-        //sendData(HOME);
+        sendData(HOME);
     }
 
         /*
@@ -591,6 +590,11 @@ XXXX - steps
         {
             sendData(CHANGE33);
         }
+        else if(id == R.id.MS_Home)
+        {
+            Intent intent = new Intent (this, MainScreen.class);
+            startActivity(intent);
+        }
     }
 
     private void setInitialValues(int pos)
@@ -601,17 +605,16 @@ XXXX - steps
         System.out.println("DEBUG: Artist " + record.getAlbum());
 
 
-        //TODO: fix the issue
-        if(record.getAlbum().trim().equalsIgnoreCase("Lou Gramm"))
+        if(record.getArtist().trim().equalsIgnoreCase("Lou Gramm"))
         {
-            if(record.getArtist().trim().equalsIgnoreCase("Ready Or Not"))
+            if(record.getAlbum().trim().equalsIgnoreCase("Ready Or Not"))
             {
 
                 Song song = songTrackList.get(currentPos);
                 String position = song.getPosition();
                 System.out.println("DEBUG: Song position " + song.getPosition());
                 if(position.length() >= 2 && position.charAt(0) == 'B')
-                    spacing = .00536;
+                    spacing = .00538;
                 if(position.length() >= 2 && position.charAt(0) == 'A')
                     spacing = .0049;
             }

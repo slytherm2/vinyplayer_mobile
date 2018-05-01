@@ -291,8 +291,7 @@ public class Utils
                     if(albumName.equals(splitString[i+1]))
                     {
                         System.out.println("DEBUG: Adding duplicate failed...");
-                        //TODO: UNcomment
-                        //return false;
+                        return false;
                     }
                 }
             }
