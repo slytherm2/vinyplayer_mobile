@@ -9,11 +9,18 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.media.Image;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Environment;
+import android.support.design.widget.NavigationView;
+import android.support.design.widget.Snackbar;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -48,7 +55,6 @@ public class MusicPlayer extends AppCompatActivity
     private ListView songList;
     private ArrayAdapter<String> songAdapter;
     private ArrayList<Song> songTrackList;
-    private ArrayList<Integer> albumSongTime;
     private ArrayList<String> albumSongs;
     private  ViewSwitcher tempSwitcher;
     private ImageView coverAlbumView;
@@ -57,25 +63,49 @@ public class MusicPlayer extends AppCompatActivity
 
     private BluetoothLESingleton btleSingleton;
 
+    private final static int READPERM = 1;
+
+    //Calculation variables
+    private final int SONGGAPTIME = 5;
+    private double songTime = 0;
+    private int currentPos = 0;
+    private double spacing = 0.0125;
+    private Song songObj;
+
+    private ArrayList<Double> albumSongTime;
+
+    private double offset = 0.0;
+    private int songPos = 0;
+    private boolean lastFlag = false;
+    private boolean sideBFlag = false;
+
+    public boolean DEBUG = false;
+
+    private DrawerLayout drawerLayout = null;
+    private StringBuilder tempstr;
+    private String tempValue;
+
+
+    /*
+First digit - instruction
+Next digits - details
+0 - start/stop
+1 - change speed
+0 - 33
+1 - 45
+2 - change song
+XXXX - steps
+3 - return home
+4 - Anti-Skip
+*/
     //MC Commands
+    private int CHANGE33 = 10;
+    private int CHANGE45 = 11;
     private final int STARTSTOP = 0;
     private final int SPEED = 1;
     private final int CHANGESONG = 2;
     private final int HOME = 3;
     private final int ANTISKIP = 4;
-
-    private final static int READPERM = 1;
-
-    //Calculation variables
-    private final int SONGGAPTIME = 5;
-    private int songTime = 0;
-    private int currentPos = 0;
-    private double spacing = 0.0125; //TODO: more callibration is required
-    private Song songObj;
-
-    private int songPos = 0;
-
-    public boolean DEBUG = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -83,19 +113,12 @@ public class MusicPlayer extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_music_player);
 
-        ////adding tool bar with back arrow to go back to activity
-        //it goes to the activity listed in the android manifest
-        mTopToolbar = (Toolbar) findViewById(R.id.mp_toolbar);
-        setSupportActionBar(mTopToolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setDisplayShowHomeEnabled(true);
-        pastIntent = getIntent();
-
         //Main Screen passed the record object to the music player
+        pastIntent = getIntent();
         record = pastIntent.getParcelableExtra(this.getResources().getString(R.string.record));
         tempSwitcher  = (ViewSwitcher) findViewById(R.id.switch_play_stop);
         album_artist = (TextView) findViewById(R.id.artist_album_TextView);
-        album_artist.setText(this.getResources().getString(R.string.default_album_artist));
+        album_artist.setText(record.getAlbum() + " - " + record.getArtist());
         song = (TextView) findViewById(R.id.song_TextView);
         song.setText(this.getResources().getString(R.string.default_song));
 
@@ -104,17 +127,18 @@ public class MusicPlayer extends AppCompatActivity
         //Adding the track songs from the record to an array list to be used in the listview
         if(record != null)
             songTrackList = record.getTracklist();
+
         albumSongTime = new ArrayList<>();
         albumSongs = new ArrayList<>();
         songTime = 0;
-        StringBuilder tempstr;
+
         if(songTrackList != null && songTrackList.size() > 0)
         {
             tempstr = new StringBuilder();
-            albumSongTime.add(songTime); //The start of the first songe
+            albumSongTime.add((double) songTime); //The start of the first songe
 
             songObj = songTrackList.get(0);
-            String tempValue = songObj.getPosition();
+            tempValue = songObj.getPosition();
             if(tempValue != null)
             {
                 tempstr.append(tempValue.toString());
@@ -139,45 +163,54 @@ public class MusicPlayer extends AppCompatActivity
 
             albumSongs.add(tempstr.toString());
 
+            //account for the gap time between songs
+            //get the duration of the previous song
+            double tempDBLValue = 0.0;
             for (int i = 1; i < songTrackList.size(); i++)
             {
-                //account for the gap time between songs
-                //get the duration of the previous song
-                tempstr = new StringBuilder();
                 songObj = songTrackList.get(i - 1);
                 songTime += Utils.convertToSeconds(songObj.getDuration());
-                albumSongTime.add(songTime + SONGGAPTIME);
-                songObj = songTrackList.get(i);
-
-                tempValue = songObj.getPosition();
-                if(tempValue != null)
+                if(i == 1 && !lastFlag)
                 {
-                    tempstr.append(tempValue.toString());
-                    ++songPos;
+                    tempDBLValue = songTime + 2.5;
+                    songTime += 2.5;
+                    albumSongTime.add(tempDBLValue);
                 }
-                else
+                else if(!lastFlag)
                 {
-                    tempstr.append(String.valueOf(++songPos));
-                    songObj.setPosition(String.valueOf(songPos));
+                    tempDBLValue = songTime + SONGGAPTIME;
+                    songTime += SONGGAPTIME;
+                    albumSongTime.add(tempDBLValue);
+                }
+                else if(!sideBFlag)
+                {
+                    sideBFlag = true;
+                    tempDBLValue = songTime + 2.5;
+                    songTime += 2.5;
+                    albumSongTime.add(tempDBLValue);
+                }
+                else if(sideBFlag)
+                {
+                    tempDBLValue = songTime + SONGGAPTIME;
+                    songTime += SONGGAPTIME;
+                    albumSongTime.add(tempDBLValue);
                 }
 
-                tempstr.append(". ");
-
-                tempValue = songObj.getTitle();
-                if(tempValue != null)
-                    tempstr.append(tempValue.toUpperCase().toString());
-
-                tempstr.append("\t");
-
-                tempValue = songObj.getDuration();
-                if(tempValue != null)
-                    tempstr.append(tempValue.toString());
-
-                albumSongs.add(tempstr.toString());
+                addSongToList(i);
+                //check if its the next side of vinyl player
+                //if so, reset counter to calculate new song times for the next side
+                if(i+1 < songTrackList.size() &&
+                        songTrackList.get(i+1).getPosition().charAt(0) == 'B'
+                        && !lastFlag)
+                {
+                    songTime = 0;
+                    lastFlag = true;
+                    albumSongTime.add(0.0);
+                    addSongToList(i+1);
+                    i++;
+                }
             }
         }
-        if(DEBUG)
-            System.out.println("DEBUG: " + albumSongTime);
 
         songList = (ListView) findViewById(R.id.mp_songlist);
         songAdapter = new ArrayAdapter<String>(this,
@@ -255,9 +288,62 @@ public class MusicPlayer extends AppCompatActivity
             }
         }
 
-        //TODO: uncomment when reeady
+        //Deals with the items inside the navigation drawer aka hamburger menu
+        //best to use fragments when working with the navigation drawer
+        drawerLayout = findViewById(R.id.music_player_drawer);
+        NavigationView navigationView = (NavigationView) findViewById(R.id.music_player_nav_view);
+        navigationView.setNavigationItemSelectedListener(
+                new NavigationView.OnNavigationItemSelectedListener()
+                {
+                    public boolean onNavigationItemSelected(MenuItem menuItem)
+                    {
+                        // close drawer when item is tapped
+                        drawerLayout.closeDrawers();
+                        menuItem.setChecked(false);
+                        System.out.println("DEBUG: " + menuItem.toString() + " has been pressed");
+                        launchMenuActivity(menuItem);
+                        return true;
+                    }
+                });
+
+        //deals with the nav menu bar or hamburger menu
+        Toolbar toolbar = (Toolbar) findViewById(R.id.mp_toolbar);
+        setSupportActionBar(toolbar);
+        ActionBar actionbar = getSupportActionBar();
+        actionbar.setDisplayHomeAsUpEnabled(true);
+        actionbar.setHomeAsUpIndicator(R.drawable.ic_menu_black_24dp);
+        drawerLayout = findViewById(R.id.music_player_drawer);
+        drawerLayout.addDrawerListener(
+                new DrawerLayout.DrawerListener()
+                {
+                    @Override
+                    public void onDrawerSlide(View drawerView, float slideOffset)
+                    {
+                        // Respond when the drawer's position changes
+                    }
+
+                    @Override
+                    public void onDrawerOpened(View drawerView)
+                    {
+                        // Respond when the drawer is opened
+                    }
+
+                    @Override
+                    public void onDrawerClosed(View drawerView)
+                    {
+                        // Respond when the drawer is closed
+                    }
+
+                    @Override
+                    public void onDrawerStateChanged(int newState)
+                    {
+                        // Respond when the drawer motion state changes
+                    }
+                }
+        );
+
         //start at home on start up
-        //sendData(HOME);
+        sendData(HOME);
     }
 
         /*
@@ -283,11 +369,15 @@ public class MusicPlayer extends AppCompatActivity
     private void prevSong()
     {
         System.out.println("DEBUG: Previous Song");
-        int startTime = 0;
+        double startTime = 0;
         int x = 0;
 
+        if(albumSongTime.size() < currentPos)
+            return;
+
         startTime = albumSongTime.get(currentPos);
-        x = Utils.calcValue((double) startTime, spacing);
+        setInitialValues(currentPos);
+        x = Utils.calcValue((double) startTime, spacing, offset);
 
         System.out.println("DEBUG: Song:" + albumSongs.get(currentPos));
         System.out.println("DEBUG: startTime:" + startTime);
@@ -305,7 +395,7 @@ public class MusicPlayer extends AppCompatActivity
     private void nextSong()
     {
         System.out.println("DEBUG: Next Song");
-        int startTime = 0;
+        double startTime = 0;
         int x = 0;
 
         //if you are at the end of the song list, cannot play next track
@@ -314,12 +404,13 @@ public class MusicPlayer extends AppCompatActivity
             currentPos++;
             song.setText(albumSongs.get(currentPos).toString());
 
+            if(albumSongTime.size() < currentPos )
+                return;
+
             startTime = albumSongTime.get(currentPos);
-            x = Utils.calcValue((double) startTime, spacing);
+            setInitialValues(currentPos);
+            x = Utils.calcValue((double) startTime, spacing, offset);
             sendData(CHANGESONG, x);
-            System.out.println("DEBUG: Song:" + albumSongs.get(currentPos));
-            System.out.println("DEBUG: startTime:" + startTime);
-            Toast.makeText(this, R.string.starting_song, Toast.LENGTH_SHORT).show();
         }
         else
         {
@@ -338,9 +429,12 @@ public class MusicPlayer extends AppCompatActivity
     private void playSelectSong(int position)
     {
         System.out.println("DEBUG: Song starting");
-        int startTime = 0;
+        double startTime = 0;
         int x = 0;
         currentPos = position;
+
+        if(albumSongTime.size() < currentPos)
+            return;
 
         //if it shows the play button, switch to stop button
         //if it shows the stop button, and user selects a new song, keep it at the play button
@@ -349,7 +443,8 @@ public class MusicPlayer extends AppCompatActivity
 
         //Play the selected song
         startTime = albumSongTime.get(currentPos);
-        x = Utils.calcValue((double) startTime, spacing);
+        setInitialValues(currentPos);
+        x = Utils.calcValue((double) startTime, spacing, offset);
         sendData(CHANGESONG, x);
         Toast.makeText(this, R.string.starting_song, Toast.LENGTH_SHORT).show();
     }
@@ -460,5 +555,116 @@ public class MusicPlayer extends AppCompatActivity
         {
             return;
         }
+    }
+
+    private void launchMenuActivity(MenuItem item)
+    {
+        //referenced to the id located on teh main_screen_drawer_view.xml
+        int id = item.getItemId();
+
+        if(id == R.id.reset_tonearm)
+        {
+            this.home();
+        }
+        else if(id == R.id.play_song)
+        {
+            this.playSong();
+        }
+        else if(id == R.id.back_button)
+        {
+            this.prevSong();
+        }
+        else if(id == R.id.forward_button)
+        {
+            this.nextSong();
+        }
+        else if(id == R.id.anti_skip_mp)
+        {
+            sendData(ANTISKIP);
+        }
+        else if(id == R.id.rpm_45)
+        {
+            sendData(CHANGE45);
+        }
+        else if(id == R.id.rpm_33)
+        {
+            sendData(CHANGE33);
+        }
+        else if(id == R.id.MS_Home)
+        {
+            Intent intent = new Intent (this, MainScreen.class);
+            startActivity(intent);
+        }
+    }
+
+    private void setInitialValues(int pos)
+    {
+        offset = 33.8;
+
+        System.out.println("DEBUG: Artist " + record.getArtist());
+        System.out.println("DEBUG: Artist " + record.getAlbum());
+
+
+        if(record.getArtist().trim().equalsIgnoreCase("Lou Gramm"))
+        {
+            if(record.getAlbum().trim().equalsIgnoreCase("Ready Or Not"))
+            {
+
+                Song song = songTrackList.get(currentPos);
+                String position = song.getPosition();
+                System.out.println("DEBUG: Song position " + song.getPosition());
+                if(position.length() >= 2 && position.charAt(0) == 'B')
+                    spacing = .00538;
+                if(position.length() >= 2 && position.charAt(0) == 'A')
+                    spacing = .0049;
+            }
+        }
+        else
+        {
+            spacing = .00125;
+        }
+    }
+
+    private void addSongToList(int i)
+    {
+        tempstr = new StringBuilder();
+        songObj = songTrackList.get(i);
+        tempValue = songObj.getPosition();
+        if(tempValue != null)
+        {
+            tempstr.append(tempValue.toString());
+            ++songPos;
+        }
+        else
+        {
+            tempstr.append(String.valueOf(++songPos));
+            songObj.setPosition(String.valueOf(songPos));
+        }
+
+        tempstr.append(". ");
+
+        tempValue = songObj.getTitle();
+        if(tempValue != null)
+            tempstr.append(tempValue.toUpperCase().toString());
+
+        tempstr.append("    ");
+
+        tempValue = songObj.getDuration();
+        if(tempValue != null)
+            tempstr.append(tempValue.toString());
+
+        albumSongs.add(tempstr.toString());
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item)
+    {
+        switch (item.getItemId())
+        {
+            case android.R.id.home:
+                drawerLayout.openDrawer(GravityCompat.START);
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 }

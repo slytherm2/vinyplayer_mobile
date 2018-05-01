@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <group android:checkableBehavior="single">
+
+        <item
+            android:id="@+id/reset_tonearm"
+            android:icon="@drawable/home"
+            android:title="@string/reset_tonearm" />
+
+        <item
+            android:id="@+id/play_song"
+            android:icon="@drawable/play_btn"
+            android:title="Play/Pause" />
+
+        <item
+            android:id="@+id/back_button"
+            android:icon="@drawable/skip_back"
+            android:title="Back" />
+
+        <item
+            android:id="@+id/forward_button"
+            android:icon="@drawable/skip_forward"
+            android:title="Forward" />
+
+        <item
+            android:id="@+id/anti_skip_mp"
+            android:icon="@drawable/anti_skip"
+            android:title="Anti-Skip" />
+
+        <item
+            android:id="@+id/rpm_45"
+            android:icon="@drawable/ic_menu_send"
+            android:title="45 RPM" />
+        <item
+            android:id="@+id/rpm_33"
+            android:icon="@drawable/ic_menu_manage"
+            android:title="33 RPM" />
+
+        <item
+            android:id="@+id/MS_Home"
+            android:icon="@drawable/home"
+            android:title="Back To Main Screen" />
+
+    </group>
+</menu>

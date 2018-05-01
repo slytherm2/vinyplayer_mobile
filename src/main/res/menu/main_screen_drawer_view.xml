@@ -31,7 +31,7 @@
             android:icon="@drawable/home"
             android:title="@string/reset_tonearm" />
 
-
+        <!--
         <item
             android:id="@+id/change_speed_45"
             android:icon="@drawable/ic_menu_slideshow"
@@ -40,6 +40,8 @@
             android:id="@+id/change_speed_33"
             android:icon="@drawable/ic_menu_slideshow"
             android:title="33RPM" />
+
+            -->
 
         <item
             android:id="@+id/nav_log_out"

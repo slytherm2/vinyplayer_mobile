@@ -1,87 +1,100 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.v4.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/music_player_drawer"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
     tools:context="com.example.mdo3.vinylplayer.MusicPlayer">
 
-    <android.support.v7.widget.Toolbar
-        android:id="@+id/mp_toolbar"
+    <android.support.constraint.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="?attr/colorPrimary"
-        android:minHeight="?attr/actionBarSize"
-        android:theme="?attr/actionBarTheme"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <LinearLayout
-        android:id="@+id/linearLayout4"
-        android:layout_width="0dp"
-        android:layout_height="507dp"
-        android:background="@color/SoarTech_Blue"
-        android:backgroundTintMode="multiply"
-        android:orientation="vertical"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/mp_toolbar">
-
-        <android.support.constraint.ConstraintLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
-            <ImageView
-                android:id="@+id/cover_ImageView"
-                android:layout_width="0dp"
-                android:layout_height="72dp"
-                android:layout_marginBottom="4dp"
-                android:layout_marginEnd="20dp"
-                android:layout_marginStart="20dp"
-                android:layout_marginTop="4dp"
-                android:layout_weight="1"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:srcCompat="@drawable/warp" />
-
-        </android.support.constraint.ConstraintLayout>
-
-        <ListView
-            android:id="@+id/mp_songlist"
-            android:layout_width="match_parent"
-            android:layout_height="337dp"
-            android:scrollbars="vertical" />
-
-        <TextView
-            android:id="@+id/artist_album_TextView"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@color/SoarTech_Blue"
-            android:text="@string/artist_album"
-            android:textAlignment="center"
-            android:textColor="@android:color/background_light" />
-
-
-        <TextView
-            android:id="@+id/song_TextView"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@color/SoarTech_Blue"
-            android:text="@string/song"
-            android:textAlignment="center"
-            android:textColor="@android:color/background_light" />
+        android:layout_height="match_parent">
 
         <LinearLayout
-            android:layout_width="match_parent"
+            android:id="@+id/linearLayout4"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginEnd="4dp"
+            android:layout_marginStart="4dp"
+            android:layout_marginTop="4dp"
+            android:background="@color/SoarTech_Blue"
+            android:backgroundTintMode="multiply"
+            android:orientation="vertical"
+            app:layout_constraintBottom_toTopOf="@+id/linearLayout5"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="1.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <android.support.v7.widget.Toolbar
+                android:id="@+id/mp_toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="?attr/colorPrimary"
+                android:minHeight="?attr/actionBarSize"
+                android:theme="?attr/actionBarTheme" />
+
+            <android.support.constraint.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <ImageView
+                    android:id="@+id/cover_ImageView"
+                    android:layout_width="0dp"
+                    android:layout_height="72dp"
+                    android:layout_marginBottom="4dp"
+                    android:layout_marginEnd="20dp"
+                    android:layout_marginStart="20dp"
+                    android:layout_marginTop="4dp"
+                    android:layout_weight="1"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:srcCompat="@drawable/warp" />
+
+            </android.support.constraint.ConstraintLayout>
+
+            <ListView
+                android:id="@+id/mp_songlist"
+                android:layout_width="match_parent"
+                android:layout_height="333dp"
+                android:scrollbars="vertical" />
+
+            <TextView
+                android:id="@+id/artist_album_TextView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/SoarTech_Blue"
+                android:text="@string/artist_album"
+                android:textAlignment="center"
+                android:textColor="@android:color/background_light" />
+
+
+            <TextView
+                android:id="@+id/song_TextView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/SoarTech_Blue"
+                android:text="@string/song"
+                android:textAlignment="center"
+                android:textColor="@android:color/background_light" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/linearLayout5"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_marginBottom="4dp"
             android:background="@color/SoarTech_Blue"
             android:backgroundTint="@color/SoarTech_Blue"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent">
 
             <Button
                 android:id="@+id/mp_home"
@@ -140,6 +153,15 @@
 
         </LinearLayout>
 
-    </LinearLayout>
+    </android.support.constraint.ConstraintLayout>
 
-</android.support.constraint.ConstraintLayout>
+    <android.support.design.widget.NavigationView
+        android:id="@+id/music_player_nav_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="start"
+        android:fitsSystemWindows="true"
+        app:menu="@menu/music_player"
+        app:headerLayout="@layout/nav_main_screen">
+    </android.support.design.widget.NavigationView>
+</android.support.v4.widget.DrawerLayout>

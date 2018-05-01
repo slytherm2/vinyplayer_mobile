@@ -54,8 +54,8 @@ public class ImageAnalysisTask extends AsyncTask<Bitmap, Void, String> {
         {
             System.out.println("DEBUG: Inside image analysis");
             // task is only executable from authenticated users
+            //HttpsURLConnection connection = createHttpRequest();
             HttpsURLConnection connection = createHttpRequest();
-            //HttpURLConnection connection = createHttpRequest();
             if(connection == null)
             {
                 Log.d("ImageAnalysisTask", "connection is null");

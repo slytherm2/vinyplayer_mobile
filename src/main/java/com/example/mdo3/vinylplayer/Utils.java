@@ -124,6 +124,9 @@ public class Utils
     //calculate the number of steps to send to the MC
     public static int calcValue(double startTime, double spacing, double offset)
     {
+        System.out.println("DEBUG: start time is " + startTime);
+        System.out.println("DEBUG: spacing is " + spacing);
+
         String units = "in";
         double armLength = 7.75;
         //double offset = 33.6; //degrees
@@ -288,8 +291,7 @@ public class Utils
                     if(albumName.equals(splitString[i+1]))
                     {
                         System.out.println("DEBUG: Adding duplicate failed...");
-                        //TODO: UNcomment
-                        //return false;
+                        return false;
                     }
                 }
             }
@@ -381,8 +383,8 @@ public class Utils
         for(int i = counter; i < temp.length - 4; i=counter)
         {
             songList = new ArrayList<>();
-            album = temp[counter];
-            artist = temp[++counter];
+            artist = temp[counter];
+            album = temp[++counter];
             uri = temp[++counter];
             rpm = temp[++counter];
             while(counter < temp.length - 4)

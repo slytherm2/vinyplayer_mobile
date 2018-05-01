@@ -64,7 +64,6 @@ public class MainScreen extends AppCompatActivity
     //TODO: get catalog information from DB
     //TODO: create update on menu slide
     //TODO: connect to database and pull information relating to the specific user
-    //TODO: display information from OCR
 
     private String vinylConnected = null;
     private String vinylNotConnected = null;
@@ -365,10 +364,11 @@ public class MainScreen extends AppCompatActivity
 
                         if(records != null && records.length() > 0)
                         {
-                            addRecords(records);
+                            recordList = addRecords(records);
                             Intent intent = new Intent(this, RecordSearch.class);
                             intent.putParcelableArrayListExtra("records", recordList);
                             intent.putExtra("flag", true);
+                            intent.putExtra("query", "");
                             startActivity(intent);
                         }
                         else
@@ -471,14 +471,14 @@ public class MainScreen extends AppCompatActivity
             intent = new Intent(this, LowEnergyBlueTooth.class);
             startActivityForResult(intent, REQUEST_ENABLE_BT);
         }
-        else if(id == R.id.change_speed_45)
+        /*else if(id == R.id.change_speed_45)
         {
             sendData(CHANGE45);
         }
         else if(id == R.id.change_speed_33)
         {
             sendData(CHANGE33);
-        }
+        }*/
         else if(id == R.id.reset_tonearm)
         {
             sendData(HOME);
@@ -607,7 +607,7 @@ public class MainScreen extends AppCompatActivity
 
     public ArrayList<Record> addRecords(JSONArray records)
     {
-        ArrayList<Record> recordList = new ArrayList<Record>();
+        recordList = new ArrayList<Record>();
         for (int i = 0; i < records.length(); i++)
         {
             try
