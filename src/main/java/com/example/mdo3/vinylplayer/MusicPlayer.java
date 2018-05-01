@@ -13,6 +13,7 @@ import android.os.AsyncTask;
 import android.os.Environment;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
+import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -54,8 +55,6 @@ public class MusicPlayer extends AppCompatActivity
     private ListView songList;
     private ArrayAdapter<String> songAdapter;
     private ArrayList<Song> songTrackList;
-    private ArrayList<Double> albumSongTime;
-    private ArrayList<Double> albuumSongTimeB;
     private ArrayList<String> albumSongs;
     private  ViewSwitcher tempSwitcher;
     private ImageView coverAlbumView;
@@ -68,17 +67,23 @@ public class MusicPlayer extends AppCompatActivity
 
     //Calculation variables
     private final int SONGGAPTIME = 5;
-    private int songTime = 0;
+    private double songTime = 0;
     private int currentPos = 0;
     private double spacing = 0.0125; //TODO: more callibration is required
     private Song songObj;
-    private double offset = 0.0;
 
+    private ArrayList<Double> albumSongTime;
+
+    private double offset = 0.0;
     private int songPos = 0;
+    private boolean lastFlag = false;
+    private boolean sideBFlag = false;
 
     public boolean DEBUG = false;
 
     private DrawerLayout drawerLayout = null;
+    private StringBuilder tempstr;
+    private String tempValue;
 
 
     /*
@@ -108,20 +113,12 @@ XXXX - steps
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_music_player);
 
-        ////adding tool bar with back arrow to go back to activity
-        //it goes to the activity listed in the android manifest
-        /*mTopToolbar = (Toolbar) findViewById(R.id.mp_toolbar);
-        setSupportActionBar(mTopToolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setDisplayShowHomeEnabled(true);
-        */
-
         //Main Screen passed the record object to the music player
         pastIntent = getIntent();
         record = pastIntent.getParcelableExtra(this.getResources().getString(R.string.record));
         tempSwitcher  = (ViewSwitcher) findViewById(R.id.switch_play_stop);
         album_artist = (TextView) findViewById(R.id.artist_album_TextView);
-        album_artist.setText(this.getResources().getString(R.string.default_album_artist));
+        album_artist.setText(record.getAlbum() + " - " + record.getArtist());
         song = (TextView) findViewById(R.id.song_TextView);
         song.setText(this.getResources().getString(R.string.default_song));
 
@@ -130,17 +127,18 @@ XXXX - steps
         //Adding the track songs from the record to an array list to be used in the listview
         if(record != null)
             songTrackList = record.getTracklist();
+
         albumSongTime = new ArrayList<>();
         albumSongs = new ArrayList<>();
         songTime = 0;
-        StringBuilder tempstr;
+
         if(songTrackList != null && songTrackList.size() > 0)
         {
             tempstr = new StringBuilder();
             albumSongTime.add((double) songTime); //The start of the first songe
 
             songObj = songTrackList.get(0);
-            String tempValue = songObj.getPosition();
+            tempValue = songObj.getPosition();
             if(tempValue != null)
             {
                 tempstr.append(tempValue.toString());
@@ -165,58 +163,54 @@ XXXX - steps
 
             albumSongs.add(tempstr.toString());
 
-            double lastTime = 0.0;
+            //account for the gap time between songs
+            //get the duration of the previous song
+            double tempDBLValue = 0.0;
             for (int i = 1; i < songTrackList.size(); i++)
             {
-                //account for the gap time between songs
-                //get the duration of the previous song
-
-                tempstr = new StringBuilder();
                 songObj = songTrackList.get(i - 1);
-
-                if(songObj.getPosition().charAt(0) == 'B')
-                    lastTime = songTime;
-
                 songTime += Utils.convertToSeconds(songObj.getDuration());
-                if(i == 1)
+                if(i == 1 && !lastFlag)
                 {
-                    albumSongTime.add((double) songTime + 2.5 - lastTime);
+                    tempDBLValue = songTime + 2.5;
+                    songTime += 2.5;
+                    albumSongTime.add(tempDBLValue);
                 }
-                else
+                else if(!lastFlag)
                 {
-                    albumSongTime.add((double)songTime + (double) SONGGAPTIME - lastTime);
+                    tempDBLValue = songTime + SONGGAPTIME;
+                    songTime += SONGGAPTIME;
+                    albumSongTime.add(tempDBLValue);
                 }
-                songObj = songTrackList.get(i);
-
-                tempValue = songObj.getPosition();
-                if(tempValue != null)
+                else if(!sideBFlag)
                 {
-                    tempstr.append(tempValue.toString());
-                    ++songPos;
+                    sideBFlag = true;
+                    tempDBLValue = songTime + 2.5;
+                    songTime += 2.5;
+                    albumSongTime.add(tempDBLValue);
                 }
-                else
+                else if(sideBFlag)
                 {
-                    tempstr.append(String.valueOf(++songPos));
-                    songObj.setPosition(String.valueOf(songPos));
+                    tempDBLValue = songTime + SONGGAPTIME;
+                    songTime += SONGGAPTIME;
+                    albumSongTime.add(tempDBLValue);
                 }
 
-                tempstr.append(". ");
-
-                tempValue = songObj.getTitle();
-                if(tempValue != null)
-                    tempstr.append(tempValue.toUpperCase().toString());
-
-                tempstr.append("\t");
-
-                tempValue = songObj.getDuration();
-                if(tempValue != null)
-                    tempstr.append(tempValue.toString());
-
-                albumSongs.add(tempstr.toString());
+                addSongToList(i);
+                //check if its the next side of vinyl player
+                //if so, reset counter to calculate new song times for the next side
+                if(i+1 < songTrackList.size() &&
+                        songTrackList.get(i+1).getPosition().charAt(0) == 'B'
+                        && !lastFlag)
+                {
+                    songTime = 0;
+                    lastFlag = true;
+                    albumSongTime.add(0.0);
+                    addSongToList(i+1);
+                    i++;
+                }
             }
         }
-        if(DEBUG)
-            System.out.println("DEBUG: " + albumSongTime);
 
         songList = (ListView) findViewById(R.id.mp_songlist);
         songAdapter = new ArrayAdapter<String>(this,
@@ -318,6 +312,7 @@ XXXX - steps
         ActionBar actionbar = getSupportActionBar();
         actionbar.setDisplayHomeAsUpEnabled(true);
         actionbar.setHomeAsUpIndicator(R.drawable.ic_menu_black_24dp);
+        drawerLayout = findViewById(R.id.music_player_drawer);
         drawerLayout.addDrawerListener(
                 new DrawerLayout.DrawerListener()
                 {
@@ -410,13 +405,13 @@ XXXX - steps
             currentPos++;
             song.setText(albumSongs.get(currentPos).toString());
 
+            if(albumSongTime.size() < currentPos )
+                return;
+
             startTime = albumSongTime.get(currentPos);
             setInitialValues(currentPos);
             x = Utils.calcValue((double) startTime, spacing, offset);
             sendData(CHANGESONG, x);
-            System.out.println("DEBUG: Song:" + albumSongs.get(currentPos));
-            System.out.println("DEBUG: startTime:" + startTime);
-            Toast.makeText(this, R.string.starting_song, Toast.LENGTH_SHORT).show();
         }
         else
         {
@@ -438,6 +433,9 @@ XXXX - steps
         double startTime = 0;
         int x = 0;
         currentPos = position;
+
+        if(albumSongTime.size() < currentPos)
+            return;
 
         //if it shows the play button, switch to stop button
         //if it shows the stop button, and user selects a new song, keep it at the play button
@@ -567,11 +565,11 @@ XXXX - steps
 
         if(id == R.id.reset_tonearm)
         {
-            sendData(HOME);
+            this.home();
         }
         else if(id == R.id.play_song)
         {
-            sendData(STARTSTOP);
+            this.playSong();
         }
         else if(id == R.id.back_button)
         {
@@ -622,5 +620,48 @@ XXXX - steps
         {
             spacing = .00125;
         }
+    }
+
+    private void addSongToList(int i)
+    {
+        tempstr = new StringBuilder();
+        songObj = songTrackList.get(i);
+        tempValue = songObj.getPosition();
+        if(tempValue != null)
+        {
+            tempstr.append(tempValue.toString());
+            ++songPos;
+        }
+        else
+        {
+            tempstr.append(String.valueOf(++songPos));
+            songObj.setPosition(String.valueOf(songPos));
+        }
+
+        tempstr.append(". ");
+
+        tempValue = songObj.getTitle();
+        if(tempValue != null)
+            tempstr.append(tempValue.toUpperCase().toString());
+
+        tempstr.append("    ");
+
+        tempValue = songObj.getDuration();
+        if(tempValue != null)
+            tempstr.append(tempValue.toString());
+
+        albumSongs.add(tempstr.toString());
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item)
+    {
+        switch (item.getItemId())
+        {
+            case android.R.id.home:
+                drawerLayout.openDrawer(GravityCompat.START);
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 }

@@ -68,8 +68,7 @@
         <activity android:name=".profile"
             android:parentActivityName=".MainScreen" />
 
-        <activity android:name=".MusicPlayer"
-            android:parentActivityName=".MainScreen"/>
+        <activity android:name=".MusicPlayer" />
         <activity android:name=".RecordSearch"
             android:parentActivityName=".MainScreen">
             <intent-filter>

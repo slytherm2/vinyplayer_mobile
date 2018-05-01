@@ -54,8 +54,8 @@ public class ImageAnalysisTask extends AsyncTask<Bitmap, Void, String> {
         {
             System.out.println("DEBUG: Inside image analysis");
             // task is only executable from authenticated users
-            HttpsURLConnection connection = createHttpRequest();
-            //HttpURLConnection connection = createHttpRequest();
+            //HttpsURLConnection connection = createHttpRequest();
+            HttpURLConnection connection = createHttpRequest();
             if(connection == null)
             {
                 Log.d("ImageAnalysisTask", "connection is null");
@@ -120,21 +120,22 @@ public class ImageAnalysisTask extends AsyncTask<Bitmap, Void, String> {
         }
     }
 
-    private HttpsURLConnection createHttpRequest()
+    private HttpURLConnection createHttpRequest()
     {
         try
         {
             URL url = new URL(this.url);
-            HttpsURLConnection connection = (HttpsURLConnection) url.openConnection(); // real server
-            //HttpURLConnection connection = (HttpURLConnection) url.openConnection(); // local connection
+            //HttpsURLConnection connection = (HttpsURLConnection) url.openConnection(); // real server
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection(); // local connection
 
             // allow for input and output request
             connection.setDoInput(true);
             connection.setDoOutput(true);
 
             connection.setRequestMethod("POST");
-            connection.setConnectTimeout(TIMEOUT);
-            connection.setReadTimeout(TIMEOUT);
+            //TODO: Uncomment timeout
+            //connection.setConnectTimeout(TIMEOUT);
+            //connection.setReadTimeout(TIMEOUT);
 //            connection.setRequestProperty("Content-Type", "image/png");
             // connection.setRequestProperty("User-Agent", "Mozilla/5.0 (compatible; MSIE 5.0;Windows98;DigExt)");
             connection.setRequestProperty("Cookie", this.sessionId+";"+this.userId);

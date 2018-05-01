@@ -72,7 +72,7 @@ public class RecordSearch extends AppCompatActivity {
         String query = getIntent().getStringExtra("query");
         if(!flag)
         {
-            Toast.makeText(this, "'" +query + "'" + " has returned no results", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "'" +query + "'" + " has returned no results", Toast.LENGTH_LONG).show();
         }
     }
 

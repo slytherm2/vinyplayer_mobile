@@ -384,8 +384,8 @@ public class Utils
         for(int i = counter; i < temp.length - 4; i=counter)
         {
             songList = new ArrayList<>();
-            album = temp[counter];
-            artist = temp[++counter];
+            artist = temp[counter];
+            album = temp[++counter];
             uri = temp[++counter];
             rpm = temp[++counter];
             while(counter < temp.length - 4)

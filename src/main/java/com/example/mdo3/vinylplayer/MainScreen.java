@@ -341,7 +341,7 @@ public class MainScreen extends AppCompatActivity
                             Utils.getTimeNow(),
                             "warp");
                     //send data to the Heroku server for image analysis
-                    String url = getResources().getString(R.string.https_url_analyzeimage);
+                    String url = getResources().getString(R.string.http_test_url_analyzeimage);
                     AsyncTaskFactory factory = new AsyncTaskFactory();
                     ImageAnalysisTask task = (ImageAnalysisTask) factory.generateAsyncTask("ImageAnalysis",
                             null,
@@ -351,7 +351,7 @@ public class MainScreen extends AppCompatActivity
                     try {
 
                         String output = task.execute(image).get();
-                        ArrayList<Record> recordList = null;
+                        recordList = null;
                         JSONArray records = null;
                         JSONObject tempJson = null;
                         String jsonQuery = null;
@@ -608,7 +608,7 @@ public class MainScreen extends AppCompatActivity
 
     public ArrayList<Record> addRecords(JSONArray records)
     {
-        ArrayList<Record> recordList = new ArrayList<Record>();
+        recordList = new ArrayList<Record>();
         for (int i = 0; i < records.length(); i++)
         {
             try
