@@ -4,13 +4,16 @@ import android.*;
 import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.media.Image;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Environment;
+import android.preference.PreferenceManager;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
 import android.support.v4.view.GravityCompat;
@@ -342,6 +345,21 @@ XXXX - steps
                 }
         );
 
+        //changing the nav_main_screen.xml username and email
+        View headerLayout = navigationView.getHeaderView(0);
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+        Resources rsrc = this.getResources();
+        String email = preferences.getString(getResources().getString(R.string.label_email), null);
+        TextView tempTextView = (TextView) headerLayout.findViewById(R.id.nav_user_name);
+        String temp = preferences.getString(email + rsrc.getString(R.string.label_name), null);
+        if(temp != null)
+            tempTextView.setText(temp);
+        else
+            tempTextView.setText("User");
+
+        tempTextView = (TextView) headerLayout.findViewById(R.id.nav_email);
+        tempTextView.setText(email);
+
         //start at home on start up
         sendData(HOME);
     }
@@ -600,6 +618,7 @@ XXXX - steps
     private void setInitialValues(int pos)
     {
         offset = 33.8;
+        spacing = .0049;
 
         System.out.println("DEBUG: Artist " + record.getArtist());
         System.out.println("DEBUG: Artist " + record.getAlbum());
@@ -619,9 +638,18 @@ XXXX - steps
                     spacing = .0049;
             }
         }
-        else
+        else if(record.getArtist().trim().equalsIgnoreCase("michael jackson"))
         {
-            spacing = .00125;
+            if(record.getAlbum().trim().equalsIgnoreCase("off the wall"))
+            {
+                Song song = songTrackList.get(currentPos);
+                String position = song.getPosition();
+                System.out.println("DEBUG: Song position " + song.getPosition());
+                if(position.length() >= 2 && position.charAt(0) == 'B')
+                    spacing = .00538;
+                if(position.length() >= 2 && position.charAt(0) == 'A')
+                    spacing = .0049;
+            }
         }
     }
 

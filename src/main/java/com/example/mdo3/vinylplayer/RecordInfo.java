@@ -137,21 +137,24 @@ public class RecordInfo extends AppCompatActivity
         //automatically enable bluetooth if available
         if(result)
         {
-            Thread t1 = new Thread(new Runnable() {
-                public void run() {
+            Thread t1 = new Thread(new Runnable()
+            {
+                public void run()
+                {
                     try {
                         AsyncTaskFactory factory = new AsyncTaskFactory();
                         AddAlbumTask addAlbumTask = (AddAlbumTask) factory.generateAsyncTask("AddAlbum",
                                 RecordInfo.this);
                         Boolean result = (Boolean) addAlbumTask.execute(params).get();
 
-                        if (!result) {
-                            Toast.makeText(RecordInfo.this, R.string.fail_to_add, Toast.LENGTH_SHORT).show();
-                        }
                         System.out.println("DEBUG: " + result);
-                    } catch (InterruptedException e) {
+                    }
+                    catch (InterruptedException e)
+                    {
                         Log.d("Exception", e.getMessage());
-                    } catch (ExecutionException e) {
+                    }
+                    catch (ExecutionException e)
+                    {
                         Log.d("Exception", e.getMessage());
                     }
                 }
